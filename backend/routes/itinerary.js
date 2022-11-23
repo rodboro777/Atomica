@@ -16,3 +16,5 @@ router.post('/namestartsWith', async (req, res) => {
         });
     }
 });
+
+module.exports = router;
