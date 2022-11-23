@@ -1,7 +1,6 @@
 require('dotenv').config();
 const passport = require('passport');
-const User = require('../db/models/userModel');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const User = require('../models/userModel');
 
 passport.use(User.createStrategy());
 
@@ -14,18 +13,3 @@ passport.deserializeUser((id, done) => {
         done(err, user);
     });
 });
-
-passport.use(new GoogleStrategy({
-            clientID: process.env.CLIENT_ID,
-            clientSecret: process.env.CLIENT_SECRET,
-            callbackURL: 'http://localhost:4000/auth/google/guidify',
-            userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
-            scope: ['profile', 'email'],
-        },
-        (accessToken, refreshToken, profile, cb) => {
-            User.findOrCreate({ username: profile.emails[0].value, googleId: profile.id }, (err, user) => {
-                return cb(err, user);
-            });
-        }
-    )
-)
