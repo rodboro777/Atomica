@@ -1,13 +1,15 @@
 require('dotenv').config();
 
-// libs.
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const express = require('express');
+const mongoose = require('mongoose');
+const passport = require('passport');
+const passportSetup = require('./config/passport-setup');
+const authRoutes = require('./routes/auth');
 
 const app = express();
-
-// defaulting to port 5000 if not set in local .env file.
-const port = process.env.PORT || 5000;
 
 // parse data with Content-Type: application/json
 app.use(bodyParser.json());
@@ -16,13 +18,27 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-// test route
-app.post('/', (req,res) => {
-    console.log(req.body);
-    res.json({
-        number: 69
-    });
-});
+app.use(session({
+    secret: "535510n53cr3t",
+    cookie: {
+        sameSite: false,
+        httpOnly: true,
+    },
+    resave: false,
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// setup mongodb atlas connection.
+mongoose.connect(`mongodb+srv://${process.env.ATLAS_USER}:${process.env.ATLAS_PASSWORD}@cluster0.rnzvs8z.mongodb.net/guidifyDB`, {useNewUrlParser: true, useUnifiedTopology: true});
+
+// defaulting to port 5000 if not set in local .env file.
+const port = process.env.PORT || 5000;
+
+app.use('/auth', authRoutes);
 
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);
