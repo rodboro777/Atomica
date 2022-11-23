@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+var ObjectID = require('mongodb').ObjectID;
 
 const itinerarySchema = new mongoose.Schema({
     name: String,
@@ -7,7 +7,7 @@ const itinerarySchema = new mongoose.Schema({
     creatorId: ObjectID,
     travelGuideId: [ObjectID],
     public: Boolean,
-    rating: Double,
+    rating: Number,
 });
 
 const Itinerary = new mongoose.model('Itinerary', itinerarySchema);

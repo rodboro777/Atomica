@@ -7,7 +7,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const passportSetup = require('./config/passport-setup');
+
+// routes
 const authRoutes = require('./routes/auth');
+const itineraryRoutes = require('./routes/itinerary');
 
 const app = express();
 
@@ -39,6 +42,7 @@ mongoose.connect(`mongodb+srv://${process.env.ATLAS_USER}:${process.env.ATLAS_PA
 const port = process.env.PORT || 5000;
 
 app.use('/auth', authRoutes);
+app.use('/itinerary', itineraryRoutes);
 
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);
