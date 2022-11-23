@@ -1,6 +1,16 @@
 const router = require('express').Router();
 const ItineraryManager = require('../db_managers/ItineraryManager');
 
+router.use((err, req, res, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        res.send({
+            statusCode: 403,
+        });
+    }
+});
+
 router.post('/namestartsWith', async (req, res) => {
     const starting = req.body.starting;
     try {
