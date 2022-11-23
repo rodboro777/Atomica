@@ -18,8 +18,9 @@ passport.deserializeUser((id, done) => {
 passport.use(new GoogleStrategy({
             clientID: process.env.CLIENT_ID,
             clientSecret: process.env.CLIENT_SECRET,
-            callbackURL: 'http://localhost:3000/auth/google/guidify',
-            userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+            callbackURL: 'http://localhost:4000/auth/google/guidify',
+            userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
+            scope: ['profile', 'email'],
         },
         (accessToken, refreshToken, profile, cb) => {
             User.findOrCreate({ username: profile.emails[0].value, googleId: profile.id }, (err, user) => {
