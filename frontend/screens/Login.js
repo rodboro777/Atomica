@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {View, StyleSheet, Text, Image, ScrollView} from 'react-native';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
@@ -15,6 +15,23 @@ const Login = props => {
             offlineAccess: true
         });
     }, [])
+
+    const [email, setEmail] = useState("");
+    const [passwd, setPasswd] = useState("");
+
+    const localSignIn = async () => {
+        fetch('http://192.168.184.223:8000/auth/login', {
+                    credentials: 'include',
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      username: email,
+                      password: passwd,
+                    })
+                })
+    };
 
     const signInWithGoogle = async () => {
         try {
@@ -49,12 +66,12 @@ const Login = props => {
             <Text style={styles.textTitle}>Welcome back</Text>
             <Text style={styles.textBody}>Login into your existant account</Text>
             <View style={{marginTop: 20}}/>
-            <Inputs name="Email" icon="user"/>
-            <Inputs name="Password" icon="lock" pass={true}/>
+            <Inputs name="Email" icon="user" onChangeText={(email) => setEmail(email)}/>
+            <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)}/>
             <View style={{width: '90%'}}>
                 <Text style={[styles.textBody, {alignSelf: 'flex-end'}]}>Forgot Password?</Text>
             </View>
-            <Submit title="LOG IN" color="#0148a4"/>
+            <Submit title="LOG IN" color="#0148a4" handleSubmit={localSignIn}/>
             <Text style={styles.textBody}>Or login using</Text>
             <View style={{flexDirection: 'row'}}>
                 <Account color="#ec482f" icon="google" title="Google" signInWithGoogle={signInWithGoogle}/>
