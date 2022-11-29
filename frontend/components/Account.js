@@ -5,7 +5,7 @@ import { Button } from "react-native-elements";
 
 const Account = props => {
     return (
-    <TouchableOpacity style={[styles.container, {backgroundColor: props.color}]}>
+    <TouchableOpacity style={[styles.container, {backgroundColor: props.color}]} onPress={() => {props.signInWithGoogle()}}>
             <Icon style={styles.accIcon} name={props.icon}/>
             <Text style={styles.textTitle}>{props.title}</Text>
     </TouchableOpacity>
