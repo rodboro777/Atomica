@@ -3,6 +3,15 @@
 const ItineraryModel = require("../models/itineraryModel");
 
 class ItineraryManager {
+
+    static async getItineraryById(id){
+        try{
+            const doc = await ItineraryModel.findById(id);
+            return doc;
+        }catch(err){
+            throw err;
+        }
+    }
     
     static async getItineraryNameStartingWith(char){
         try{
