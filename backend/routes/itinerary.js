@@ -27,4 +27,24 @@ router.post('/namestartsWith', async (req, res) => {
     }
 });
 
+router.get('/byLocation', async (req, res) => {
+    const placeId = req.query.placeId;
+    if (!placeId) {
+        console.log('No location id included in the request body');
+        res.send({
+            itineraries: [],
+        });
+    }
+    try {
+        const itineraries = await ItineraryManager.getItinerariesByPlaceId(placeId);
+        res.send({
+            itineraries: itineraries,
+        });
+    } catch (error) {
+        res.send({
+            itineraries: [],
+        })
+    }
+});
+
 module.exports = router;

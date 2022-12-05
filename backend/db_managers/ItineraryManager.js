@@ -23,6 +23,10 @@ class ItineraryManager {
         }
     }
 
+    static async getItinerariesByPlaceId(placeId) {
+        return [];ß
+    }
+
 }
 
 module.exports = ItineraryManager;
