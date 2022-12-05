@@ -19,7 +19,8 @@ router.post('/namestartsWith', async (req, res) => {
             statusCode: 200,
             itineraries: itineraries, 
         });
-    } catch (error) {
+    } catch (err) {
+        console.log(err);
         res.send({
             statusCode: 500,
             itineraries: [],
@@ -40,7 +41,8 @@ router.get('/byLocation', async (req, res) => {
         res.send({
             itineraries: itineraries,
         });
-    } catch (error) {
+    } catch (err) {
+        console.log(err);
         res.send({
             itineraries: [],
         })

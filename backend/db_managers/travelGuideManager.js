@@ -8,6 +8,10 @@ class TravelGuideManager {
         return [];
     }
 
+    static async getTravelGuideById(id) {
+        return null;
+    }
+
 }
 
 module.exports = TravelGuideManager;
