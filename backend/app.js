@@ -45,7 +45,7 @@ const port = process.env.PORT || 5000;
 app.use('/auth', authRoutes);
 app.use('/itinerary', itineraryRoutes);
 app.use('/travelGuide', travelGuideRoutes);
-ßß
+
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);
 });
