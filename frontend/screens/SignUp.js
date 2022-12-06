@@ -39,7 +39,7 @@ const SignUp = props => {
         <Inputs name="Full name" icon="user" onChangeText={(fullName) => setFullName(fullName)}/>
         <Inputs name="Email" icon="envelope" onChangeText={(email) => setEmail(email)}/>
         <Inputs name="Phone" icon="phone" onChangeText={(phoneNo) => setPhoneNo(phoneNo)}/>
-        <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)}/>
+        <Inputs name="Password" icon="lock" pass={true} onChangeText={(pas  swd) => setPasswd(passwd)}/>
         <Inputs name="Confirm Password" icon="lock" pass={true} onChangeText={(passwdRepeat) => setPasswdRepeat(passwdRepeat)}/>
         <Submit color="#0251ce" title="Create" handleSubmit={registerLocal}/>
         <View style={{flexDirection: 'row'}}>
