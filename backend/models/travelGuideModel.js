@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var ObjectID = require('mongodb').ObjectID;
 
 const travelGuideSchema = new mongoose.Schema({
     name: String,

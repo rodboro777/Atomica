@@ -11,6 +11,7 @@ const passportSetup = require('./config/passport-setup');
 // routes
 const authRoutes = require('./routes/auth');
 const itineraryRoutes = require('./routes/itinerary');
+const travelGuideRoutes = require('./routes/travelGuide');
 
 const app = express();
 
@@ -43,6 +44,7 @@ const port = process.env.PORT || 5000;
 
 app.use('/auth', authRoutes);
 app.use('/itinerary', itineraryRoutes);
+app.use('/travelGuide', travelGuideRoutes);
 
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);

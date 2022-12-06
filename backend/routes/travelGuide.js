@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const ItineraryManager = require('../db_managers/ItineraryManager');
+const TravelGuideManager = require('../db_managers/TravelGuideManager');
 
 router.use((err, req, res, next) => {
     if (req.session.user) {
@@ -11,41 +11,46 @@ router.use((err, req, res, next) => {
     }
 });
 
-router.post('/namestartsWith', async (req, res) => {
-    const starting = req.body.starting;
-    try {
-        const itineraries = await ItineraryManager.getItineraryNameStartingWith(starting);
+router.get('/', async (req, res) => {
+    const id = req.query.id;
+    if (!id) {
+        console.log('No id included in the request body');
         res.send({
-            statusCode: 200,
-            itineraries: itineraries, 
+            travelGuide: null,
+        });
+    }
+    try {
+        const travelGuide = await TravelGuideManager.getTravelGuideById(id);
+        res.send({
+            travelGuide: travelGuide,
         });
     } catch (err) {
         console.log(err);
         res.send({
-            statusCode: 500,
-            itineraries: [],
+            travelGuide: null,
         });
     }
-});
+})
 
 router.get('/byLocation', async (req, res) => {
     const placeId = req.query.placeId;
     if (!placeId) {
         console.log('No location id included in the request body');
         res.send({
-            itineraries: [],
+            travelGuides: [],
         });
     }
+
     try {
-        const itineraries = await ItineraryManager.getItinerariesByPlaceId(placeId);
+        const travelGuides = await TravelGuideManager.getTravelGuidesByPlaceId(placeId);
         res.send({
-            itineraries: itineraries,
+            travelGuides: travelGuides,
         });
     } catch (err) {
         console.log(err);
         res.send({
-            itineraries: [],
-        })
+            travelGuides: [],
+        });
     }
 });
 
