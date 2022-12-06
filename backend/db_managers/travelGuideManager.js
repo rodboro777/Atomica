@@ -1,17 +1,29 @@
 "use strict";
 
-const TravelGuideModel = require("../models/travelGuideModel");
+const travelGuideModel = require("../models/travelGuideModel");
 
 class TravelGuideManager {
-    
-    static async getTravelGuidesByPlaceId(placeId) {
-        return [];
+  //returns a list of travel guides
+  static async getTravelGuidesByPlaceId(placeId) {
+    try {
+      const docs = await travelGuideModel.find({
+        placeId: placeId,
+      });
+      return docs;
+    } catch (err) {
+      throw err;
     }
+  }
 
-    static async getTravelGuideById(id) {
-        return null;
+  //return a travel guide by id
+  static async getTravelGuideById(id) {
+    try {
+      const doc = await travelGuideModel.findById(id);
+      return doc;
+    } catch (err) {
+      throw err;
     }
-
+  }
 }
 
 module.exports = TravelGuideManager;
