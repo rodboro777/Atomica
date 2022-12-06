@@ -103,4 +103,11 @@ router.post("/login", (req, res) => {
     })
 });
 
+// check if user is currently logged in.
+router.get("/isLoggedIn", (req, res) => {
+    res.send({
+        isLoggedIn: req.session.user ? true : false,
+    }); 
+});
+
 module.exports = router;
