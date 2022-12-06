@@ -28,6 +28,16 @@ const SignUp = props => {
                     })
 
         })
+        .then(res => res.json())
+        .then(resBody => {
+            if (resBody.statusCode == 200) {
+                props.navigation.navigate("Map");
+            } else {
+                // TODO: need a UI to handle failed registration.
+                console.log("Registration failed");
+            }
+        })
+        .catch(err => console.log(err));
    };
     return (
         <ScrollView style={{backgroundColor: 'white'}}>
