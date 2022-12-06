@@ -1,12 +1,12 @@
 "use strict";
 
-const travelGuideModel = require("../models/travelGuideModel");
+const TravelGuideModel = require("../models/travelGuideModel");
 
 class TravelGuideManager {
   //returns a list of travel guides
   static async getTravelGuidesByPlaceId(placeId) {
     try {
-      const docs = await travelGuideModel.find({
+      const docs = await TravelGuideModel.find({
         placeId: placeId,
       });
       return docs;
@@ -18,7 +18,7 @@ class TravelGuideManager {
   //return a travel guide by id
   static async getTravelGuideById(id) {
     try {
-      const doc = await travelGuideModel.findById(id);
+      const doc = await TravelGuideModel.findById(id);
       return doc;
     } catch (err) {
       throw err;
