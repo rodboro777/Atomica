@@ -11,7 +11,7 @@ import MainContainer from './containers/tabContainer';
 import { NavigationContainer } from '@react-navigation/native';
 
 
-const map = () => {
+const Map = () => {
 
   return (
 
@@ -62,7 +62,7 @@ const map = () => {
   );
 };
 
-export default map;
+export default Map;
 
 
 
