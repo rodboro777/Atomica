@@ -5,10 +5,10 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, TextInput, View } from 'react-native';// Import Map and Marker
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { StatusBar } from 'react-native';
-import MapContainer from './components/MapInput';
+//import MapContainer from './components/MapInput';
 import MapView, { Marker } from 'react-native-maps';
-import MainContainer from './containers/tabContainer';
-import { NavigationContainer } from '@react-navigation/native';
+//import MainContainer from './containers/tabContainer';
+//import { NavigationContainer } from '@react-navigation/native';
 
 
 const Map = () => {
