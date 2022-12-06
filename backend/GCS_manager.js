@@ -10,8 +10,10 @@ const gc = new Storage({
 const bucket = gc.bucket("guidify_bucket");
 
 class GCSManager {
+
+    // This function returns a url to the file
   static async uploadAudio(audio, id) {
-    await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       const blob = bucket.file(audio);
       blob.name = `${id}.${audio.mimetype.split("/")[1]}`;
       const blobStream = blob.createWriteStream();
