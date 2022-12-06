@@ -19,7 +19,7 @@ const Login = props => {
   const [email, setEmail] = useState("");
   const [passwd, setPasswd] = useState("");
 
-  const localSignIn = async () => {
+  const localSignIn = () => {
     fetch('http://109.76.215.176:8000/auth/login', {
       credentials: 'include',
       method: 'POST',
@@ -31,6 +31,17 @@ const Login = props => {
         password: passwd,
       })
     })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        props.navigation.navigate("Map");
+      } else if (resBody.statusCode == 403) {
+        // user entered the wrong credentials. TODO: add a UI for this.
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
   };
 
 
@@ -41,7 +52,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      fetch('http://109.76.215.176:8000/auth/google', {
+      fetch('http://192.168.41.219:8000/auth/google', {
         credentials: 'include',
         method: 'POST',
         headers: {
@@ -50,11 +61,16 @@ const Login = props => {
         body: JSON.stringify({
           serverAuthCode: userInfo.serverAuthCode,
         })
-      }).then(res => {
-        // props.navigation.navigate('Map');
-        console.log(res.json());
-
       })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.statusCode == 200) {
+          props.navigation.navigate("Map");
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
     } catch (error) {
       console.log(error);
     }
