@@ -1,23 +1,60 @@
 // Integration of Google map in React Native using react-native-maps
 // https://aboutreact.com/react-native-map-example/// Import React
-import React from 'react';
+import React, { useState } from 'react';
 // Import required components
-import { SafeAreaView, StyleSheet, TextInput, View } from 'react-native';// Import Map and Marker
+import { Text, SafeAreaView, StyleSheet, TextInput, View, PermissionsAndroid } from 'react-native';// Import Map and Marker
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { StatusBar } from 'react-native';
-//import MapContainer from './components/MapInput';
 import MapView, { Marker } from 'react-native-maps';
-//import MainContainer from './containers/tabContainer';
-//import { NavigationContainer } from '@react-navigation/native';
+import Geolocation from '@react-native-community/geolocation';
 
 
 const Map = () => {
 
+  // users current geo location
+  let currentLatidude;
+  let currentLongitude;
+  let locationAccuracy;
+
+  // options for Geolocation postion retrieval
+  const options = {
+    timeout: 2000,
+  };
+
+  // The region used to center the map and marker
+  const [region, setRegion] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+
+  // Get current user location
+  function getUserLocation() {
+    Geolocation.getCurrentPosition(
+      onSuccess,
+      error => console.log("ERROR", error),
+      options
+    );
+  }
+  function onSuccess(position) {
+
+    const coordinates = position.coords;
+    currentLatidude = coordinates.latitude;
+    currentLongitude = coordinates.longitude;
+    locationAccuracy = coordinates.accuracy;
+
+  }
+
+  getUserLocation();
   return (
 
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <MapView
+
+          region={region}
+          //onRegionChangeComplete={onRegionChange}
           style={styles.mapStyle}
           initialRegion={{
             latitude: 37.78825,
@@ -29,8 +66,8 @@ const Map = () => {
           <Marker
             draggable
             coordinate={{
-              latitude: 37.78825,
-              longitude: -122.4324,
+              latitude: region.latitude,
+              longitude: region.longitude,
             }}
             onDragEnd={
               (e) => alert(JSON.stringify(e.nativeEvent.coordinate))
@@ -46,8 +83,38 @@ const Map = () => {
             placeholder='Search'
             fetchDetails={true}
             onPress={(data, details = null) => {
-              // 'details' is provided when fetchDetails = true
-              console.log(data, details);
+
+              // get the data from fetch
+              locationData = {
+                place_id: details.place_id,
+                address: details.formatted_address,
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+                photos: details.photos
+              };
+
+              // Get picture URL's
+              let picURLs = [];
+              for (let key in locationData.photos) {
+
+                let googleURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth="
+                let height = locationData.photos[key]["height"];
+                let width = locationData.photos[key]["width"];
+                let photo_reference = locationData.photos[key]["photo_reference"];
+                let API_KEY = "AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M"
+                googleURL += width + "&maxheight=" + height + "&photo_reference=" + photo_reference + "&key=" + API_KEY;
+
+                picURLs.push(googleURL + "\n");
+              };
+
+              // set the map to the searched region
+              setRegion({
+                latitude: locationData.latitude,
+                longitude: locationData.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              });
+
             }}
             query={{
               key: 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M',
@@ -57,8 +124,8 @@ const Map = () => {
 
         </View>
       </View>
-
     </SafeAreaView>
+
   );
 };
 
