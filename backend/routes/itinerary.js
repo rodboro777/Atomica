@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const ItineraryManager = require('../db_managers/ItineraryManager');
+const Itinerary = require('../entities/Itinerary');
 
 router.use((err, req, res, next) => {
     if (req.session.user) {
@@ -45,6 +46,68 @@ router.get('/byLocation', async (req, res) => {
         console.log(err);
         res.send({
             itineraries: [],
+        })
+    }
+});
+
+router.get('/byUser', async (req, res) => {
+    const userId = req.session.user._id;
+    if (!userId) {
+        console.log('No user id provided');
+        res.send({
+            itineraries: [],
+        });
+    }
+
+    try {
+        const itineraries = await ItineraryManager.getItinerariesByUser(userId);
+        res.send({
+            itineraries: itineraries,
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            itineraries: [],
+        });
+    }
+});
+
+// This route serves the function of creating and updating an itinerary.
+router.post('/', async(req, res) => {
+    let itinerary = new Itinerary.Builder()
+        .setName(req.body.name)
+        .setDescription(req.body.description)
+        .setCreatorId(req.body.creatorId)
+        .setTravelGuideId(req.body.travelGuideId)
+        .setPublic(req.body.public)
+        .build();
+
+    try {
+        if (req.body.itineraryId) {
+            await ItineraryManager.updateItinerary(req.body.itineraryId, itinerary);
+        } else {
+            await ItineraryManager.createItinerary(itinerary);
+        }
+        res.send({
+            success: true,
+        })
+    } catch (err) {
+        console.log(err);
+        res.send({
+            success: false,
+        });
+    }
+
+});
+
+router.delete('/', async (req, res) => {
+    let itineraryId = req.body.itineraryId;
+    try {
+        await ItineraryManager.removeItinerary(itineraryId);
+    } catch(err) {
+        console.log(err);
+        res.send({
+            success: false
         })
     }
 });
