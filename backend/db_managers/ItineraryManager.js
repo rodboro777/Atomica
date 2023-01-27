@@ -1,5 +1,6 @@
 "use strict";
 
+var ObjectID = require('mongodb').ObjectID;
 const ItineraryModel = require("../models/itineraryModel");
 
 class ItineraryManager {
@@ -28,6 +29,17 @@ class ItineraryManager {
     try {
       const docs = await ItineraryModel.find({
         placeId: placeId,
+      });
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getItinerariesByUser(userId) {
+    try {
+      const docs = await ItineraryModel.find({
+        creatorId: new ObjectID(userId),
       });
       return docs;
     } catch (err) {

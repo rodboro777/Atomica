@@ -54,4 +54,26 @@ router.get('/byLocation', async (req, res) => {
     }
 });
 
+router.get('/byUser', async (req, res) => {
+    const userId = req.session.user._id;
+    if (!userId) {
+        console.log('No user id provided');
+        res.send({
+            travelGuides: [],
+        });
+    }
+
+    try {
+        const travelGuides = await TravelGuideManager.getTravelGuidesByUser(userId);
+        res.send({
+            travelGuides: travelGuides,
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            travelGuides: [],
+        });
+    }
+});
+
 module.exports = router;
