@@ -1,5 +1,10 @@
 const router = require('express').Router();
 const TravelGuideManager = require('../db_managers/TravelGuideManager');
+const TravelGuide = require('../entities/TravelGuide');
+const GCSManager = require('../GCS_manager');
+const multer = require('multer');
+const upload = multer();
+let currId = 0;
 
 router.use((err, req, res, next) => {
     if (req.session.user) {
@@ -95,6 +100,38 @@ router.post('/applicationAction', async (req, res) => {
         await TravelGuideManager.createTravelGuideFromRequest(requestId);
     } else {
         await TravelGuideManager.removeTravelGuideRequest(requestId);
+    }
+});
+
+router.post('/', upload.fields([{ name: 'audio' }, { name: 'image' }]), async (req, res) => {
+    try {
+        // upload the audio
+        const audioUrl = await GCSManager.uploadAudio(req.files.audio[0], `tg-audio-${currId}`);
+
+        // upload the image
+        const imageUrl = await GCSManager.uploadAudio(req.files.image[0], `tg-image-${currId++}`)
+
+        // create TravelGuideRequest.
+        let request = new TravelGuide.Builder()
+            .setName(req.body.name)
+            .setDescription(req.body.description)
+            .setCreatorId(req.session.user._id)
+            .setAudioUrl(audioUrl)
+            .setImageUrl(imageUrl)
+            .setAudioLength(req.body.audioLength)
+            .setPlaceId(req.body.placeId)
+            .build();
+        await TravelGuideManager.createTravelGuideRequest(request);
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+router.delete('/', async(req, res) => {
+    try {
+        await TravelGuideManager.removeTravelGuide(req.body.travelGuideId);
+    } catch (err) {
+        console.log(err);
     }
 });
 

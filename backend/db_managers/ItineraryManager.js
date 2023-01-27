@@ -69,7 +69,7 @@ class ItineraryManager {
       description: itinerary.description,
       creatorId: new ObjectID(itinerary.creatorId),
       travelGuideId: travelGuideIds,
-      public: itinerary.public,
+      public: itinerary.isPublic,
     }
   }
 }

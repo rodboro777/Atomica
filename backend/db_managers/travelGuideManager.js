@@ -71,6 +71,18 @@ class TravelGuideManager {
       public: true,
     }
   }
+
+  static async createTravelGuideRequest(request) {
+    await TravelGuideRequestModel.create(this.constructTravelGuide(request));
+  }
+
+  static async updateTravelGuide(id, travelGuide) {
+    await TravelGuideModel.findByIdAndUpdate(id, this.constructTravelGuide(travelGuide))
+  }
+
+  static async removeTravelGuide(id) {
+    await TravelGuideModel.findByIdAndDelete(id);
+  }
 }
 
 module.exports = TravelGuideManager;
