@@ -49,4 +49,26 @@ router.get('/byLocation', async (req, res) => {
     }
 });
 
+router.get('/byUser', async (req, res) => {
+    const userId = req.session.user._id;
+    if (!userId) {
+        console.log('No user id provided');
+        res.send({
+            itineraries: [],
+        });
+    }
+
+    try {
+        const itineraries = await ItineraryManager.getItinerariesByUser(userId);
+        res.send({
+            itineraries: itineraries,
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            itineraries: [],
+        });
+    }
+});
+
 module.exports = router;
