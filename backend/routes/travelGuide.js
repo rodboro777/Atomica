@@ -76,4 +76,26 @@ router.get('/byUser', async (req, res) => {
     }
 });
 
+// Get pending TravelGuide applications
+router.get('/applications', async (req, res) => {
+    const travelGuidesRequests = await TravelGuideManager.getTravelGuideRequests();
+    res.send({
+        travelGuidesRequests: travelGuidesRequests,
+    })
+});
+
+// Action towards an existing TravelGuide application.
+router.post('/applicationAction', async (req, res) => {
+    // the variable approve must be a boolean value. if true, it means that
+    // the request will be approved. otherwise it will be rejected.
+    const approve = req.body.approve;
+    const requestId = req.body.requestId;
+
+    if (approve) {
+        await TravelGuideManager.createTravelGuideFromRequest(requestId);
+    } else {
+        await TravelGuideManager.removeTravelGuideRequest(requestId);
+    }
+});
+
 module.exports = router;
