@@ -2,6 +2,7 @@
 
 var ObjectID = require('mongodb').ObjectID;
 const TravelGuideModel = require("../models/travelGuideModel");
+const TravelGuideRequestModel = require('../models/travelGuideRequestModel');
 
 class TravelGuideManager {
   //returns a list of travel guides
@@ -34,6 +35,40 @@ class TravelGuideManager {
       return docs;
     } catch (err) {
       throw err;
+    }
+  }
+
+  static async getTravelGuideRequests() {
+    const docs = await TravelGuideRequestModel.find({});
+    return docs;
+  }
+
+  static async removeTravelGuideRequest(requestId) {
+    await TravelGuideRequestModel.findByIdAndDelete(new ObjectID(requestId));
+  }
+
+  static async createTravelGuideFromRequest(requestId) {
+    try {
+      const request = await TravelGuideRequestModel.findById(requestId);
+      await TravelGuideModel.create(this.constructTravelGuide(request));
+      await removeTravelGuideRequest(requestId);
+      return true
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
+
+  static constructTravelGuide(request) {
+    return {
+      name: request.name,
+      description: request.description,
+      creatorId: request.creatorId,
+      audioUrl: request.audioUrl,
+      imageUrl: request.imageUrl,
+      audioLength: request.audioLength,
+      placeId: request.placeId,
+      public: true,
     }
   }
 }
