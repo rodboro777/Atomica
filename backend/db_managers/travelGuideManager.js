@@ -1,5 +1,6 @@
 "use strict";
 
+var ObjectID = require('mongodb').ObjectID;
 const TravelGuideModel = require("../models/travelGuideModel");
 
 class TravelGuideManager {
@@ -20,6 +21,17 @@ class TravelGuideManager {
     try {
       const doc = await TravelGuideModel.findById(id);
       return doc;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getTravelGuidesByUser(userId) {
+    try {
+      const docs = await TravelGuideModel.find({
+        creatorId: new ObjectID(userId),
+      });
+      return docs;
     } catch (err) {
       throw err;
     }
