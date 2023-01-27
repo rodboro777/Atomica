@@ -46,6 +46,32 @@ class ItineraryManager {
       throw err;
     }
   }
+
+  static async createItinerary(itinerary) {
+    await ItineraryModel.create(this.constructItinerary(itinerary));
+  }
+
+  static async updateItinerary(itinerary, id) {
+    await ItineraryModel.findByIdAndUpdate(id, this.constructItinerary(itinerary));
+  }
+
+  static async removeItinerary(itineraryId) {
+    await ItineraryModel.findByIdAndDelete(itineraryId);
+  }
+
+  static constructItinerary(itinerary) {
+    travelGuideIds = [];
+    itinerary.travelGuideId.forEach((e) => {
+      travelGuideIds.push(new ObjectID(e));
+    });
+    return {
+      name: itinerary.name,
+      description: itinerary.description,
+      creatorId: new ObjectID(itinerary.creatorId),
+      travelGuideId: travelGuideIds,
+      public: itinerary.public,
+    }
+  }
 }
 
 module.exports = ItineraryManager;
