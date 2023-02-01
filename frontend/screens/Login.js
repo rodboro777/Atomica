@@ -24,7 +24,7 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
-    fetch('http://192.168.0.94:8000/auth/login', {
+    fetch('http://192.168.176.219:8000/auth/login', {
       credentials: 'include',
       method: 'POST',
       headers: {
@@ -53,7 +53,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      fetch('http://192.168.0.94:8000/auth/google', {
+      fetch('http://192.168.176.219:8000/auth/google', {
         credentials: 'include',
         method: 'POST',
         headers: {
@@ -66,7 +66,7 @@ const Login = props => {
         .then(res => res.json())
         .then(resBody => {
           if (resBody.statusCode == 200) {
-            props.navigation.navigate('Map');
+            props.navigation.navigate('MyTabs');
           }
         })
         .catch(err => {
