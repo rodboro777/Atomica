@@ -106,6 +106,17 @@ class TravelGuideManager {
       throw err;
     }
   }
+
+  static async getTravelGuidesStartingWith(char){
+    try {
+      const docs = await TravelGuideModel.find({
+        name: new RegExp("^" + char, "i"),
+      });
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = TravelGuideManager;
