@@ -4,34 +4,86 @@ import Plus from '../assets/plus.png';
 import Upload from '../assets/upload.png';
 import Eye from '../assets/eye.png';
 import CEye from '../assets/ceye.png';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Done from '../assets/done.png';
+import DocumentPicker from 'react-native-document-picker';
 
 
-export default function CreateTravelGuide() {
-  const [locations, setLocations] = React.useState([]);
+export default function CreateTravelGuide({navigation, route}) {
+  const homePlace = { description: 'Home', geometry: { location: { lat: 48.8152937, lng: 2.4597668 } }};
+const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818, lng: 2.2940881 } }};
+    const [location, setLocation] = React.useState({
+      placeId: '',
+      name: '',
+      description: '',
+      audio: null,
+      locationName: '',
+    });
     const [eicon, setEicon] = React.useState(Eye);
+    const [ region, setRegion ] = React.useState({
+      latitude: 53.350140,
+      longitude: -6.266155,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421
+    })
 
     const getLocation = () => {
-      if(route.params.paramKey == null) {
-        setLocations(null)
-      }else {
-         setLocations(route.params.paramKey);
-      }
+      // if(route.params.paramKey == null) {
+      //   setLocations(null)
+      // }else {
+      //    setLocations(route.params.paramKey);
+      // }
        
         navigation.navigate('SearchPlaces')
     }
 
+    const createTravelGuide = () => {
+      const formData = new FormData();
+      formData.append('placeId', location.placeId);
+      formData.append('name', location.name);
+      formData.append('description', location.description);
+      formData.append('audio[]', location.audio);
+
+      fetch('http://192.168.0.94:8000/travelGuide', {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      })
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            console.log("success");
+          } else if (resBody.statusCode == 403) {
+            // TODO user entered the wrong credentials. add a UI for this.
+            console.log("failed");
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    };
+
   return (
     <View style={styles.container}>
       <TextInput 
-        placeholder='Type Itinerary title here..'
+        placeholder='Type Travel title here..'
         placeholderTextColor = "#9a73ef" 
         style={styles.input}
+        onChange={(e) => {
+          setLocation({
+            ...location,
+            name: e.target.value,
+          })
+        }}
+        value={location.name}
         />
-    <TouchableOpacity
+    {/* <TouchableOpacity
           style={styles.buttonItiStyle}
           activeOpacity={0.5}
-          //onPress={getLocation()}
+          onPress={getLocation()}
           >
           <Image
             source={Plus}
@@ -39,20 +91,116 @@ export default function CreateTravelGuide() {
           />
           <View style={styles.buttonIconSeparatorStyle} />
           <Text style={styles.buttonTextStyle}>Add Location</Text>
-    </TouchableOpacity>
+    </TouchableOpacity> */}
+    <GooglePlacesAutocomplete
+      placeholder='Search'
+      minLength={2} // minimum length of text to search
+      autoFocus={false}
+      returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+      listViewDisplayed='auto'    // true/false/undefined
+      fetchDetails={true}
+      GooglePlacesSearchQuery={{
+        rankby: "distance"
+      }}
+      renderDescription={row => row.description} // custom description render
+      onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
+        setRegion({
+          latitude: details.geometry.location.lat,
+          longitude: details.geometry.location.lng,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421
+        });
+
+        setLocation({
+          ...location,
+          locationName: data.structured_formatting.main_text,
+          placeId: data.place_id,
+        });
+      }}
+      
+      getDefaultValue={() => ''}
+      
+      query={{
+        // available options: https://developers.google.com/places/web-service/autocomplete
+        key: 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g',
+        language: 'en', // language of the results
+        types: "establishment", // default: 'geocode',
+        location: `${region.latitude}, ${region.longitude}`,
+        radius: 30000
+      }}
+      
+      styles={{
+        textInputContainer: {
+          width: '98%'
+        },
+        description: {
+          fontWeight: 'bold'
+        },
+        predefinedPlacesDescription: {
+          color: '#1faadb'
+        },
+        container: { 
+          flex: 0, 
+          position: "relative",
+          width: "98%", 
+          zIndex: 1, 
+          marginTop: 5, 
+          alignItems: "center",
+          justifyContent: "center",
+        },
+				listView: { 
+          backgroundColor: "white" 
+        }
+      }}
+      
+      currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
+      currentLocationLabel="Current location"
+      nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
+      GoogleReverseGeocodingQuery={{
+        // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
+      }}
+      filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+      predefinedPlaces={[homePlace, workPlace]}
+      keyboardShouldPersistTaps="handled"
+      debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+      //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
+      renderRightButton={() => <Text></Text>}
+    />
     <TextInput 
-        placeholder='Locations...'
+        placeholder='Location'
         placeholderTextColor = "#9a73ef" 
         style={styles.input}
+        value={location.locationName}
+        editable={false}
         />
      <TextInput 
         placeholder='Description...'
         placeholderTextColor = "#9a73ef" 
         style={styles.description}
+        onChange={(e) => {
+          setLocation({
+            ...location,
+            description: e.target.value
+          })
+        }}
+        value={location.description}
         />
       <TouchableOpacity
           style={styles.buttonItiStyle}
           activeOpacity={0.5}
+          onPress={async () => {
+            try {
+              const result = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+              });
+              setLocation({
+                ...location,
+                audio: result.readDocument(),
+              })
+            } catch (error) {
+              console.log(error);
+            }
+          }}
           //onPress={getLocation()}
           >
           <Image
@@ -78,7 +226,9 @@ export default function CreateTravelGuide() {
        <TouchableOpacity
           style={styles.buttonDONEStyle}
           activeOpacity={0.5}
-          onPress={() => setEicon(CEye)}
+          onPress={() => {
+            createTravelGuide();
+          }}
           >
           <Image
             source={Done}

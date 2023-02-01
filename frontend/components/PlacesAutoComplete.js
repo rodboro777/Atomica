@@ -95,7 +95,7 @@ const PlacesAutoComplete = ({navigation}) => {
           longitudeDelta: 0.0421
         });
         setTitle(details.name);
-        navigation.navigate('CItinerary', {paramKey: title})
+        navigation.navigate('CTravelGuide', {paramKey: title})
       }}
       
       getDefaultValue={() => ''}

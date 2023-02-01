@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
-    <Tab.Navigator screenOptions={{tabBarItemStyle:{
+    <Tab.Navigator initialRouteName="" screenOptions={{tabBarItemStyle:{
       backgroundColor:'#000',
       margin:0,
       borderRadius:0,
@@ -73,24 +73,37 @@ const SearchStack = () => {
     <Stack.Navigator>
       <Stack.Screen name='SearchPlaces' component={PlacesAutoComplete} options={{ headerShown: false }} />
       <Stack.Screen name='CItinerary' component={CreateItinerary} />
+      <Stack.Screen name='CTravelGuide' component={CreateTravelGuide} />
     </Stack.Navigator>
   )
 }
 
+// const App = () => {
+//   return (
+
+//     <NavigationContainer>
+//        <Stack.Navigator initialRouteName="Login">
+//         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+//         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+//         <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
+        
+//       </Stack.Navigator>
+//        <MyTabs />
+
+
+//     </NavigationContainer>
+//   );
+// };
+
 const App = () => {
   return (
-
     <NavigationContainer>
-      {/* <Stack.Navigator initialRouteName="Map">
-        <Stack.Screen name="Home" component={Login} options={{ headerShown: false }} />
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
-        
+        <Stack.Screen name="Home" component={MyTabs} options={{ headerShown: false }} />
       </Stack.Navigator>
-       */}
-       <MyTabs />
-
-
     </NavigationContainer>
   );
 };
