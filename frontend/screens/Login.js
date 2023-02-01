@@ -66,7 +66,7 @@ const Login = props => {
         .then(res => res.json())
         .then(resBody => {
           if (resBody.statusCode == 200) {
-            props.navigation.navigate('Map');
+            props.navigation.navigate('MyTabs');
           }
         })
         .catch(err => {

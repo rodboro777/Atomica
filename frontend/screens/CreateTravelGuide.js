@@ -38,13 +38,19 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
     }
 
     const createTravelGuide = () => {
+      console.log(location);
       const formData = new FormData();
       formData.append('placeId', location.placeId);
       formData.append('name', location.name);
       formData.append('description', location.description);
-      formData.append('audio[]', location.audio);
+      formData.append('audio', {
+        uri: location.audio.uri,
+        type: location.audio.type,
+        name: location.audio.name,
+      });
+      console.log(formData);
 
-      fetch('http://192.168.0.94:8000/travelGuide', {
+      fetch('http://192.168.176.219:8000/travelGuide', {
         credentials: 'include',
         method: 'POST',
         headers: {
@@ -54,8 +60,10 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
       })
         .then(res => res.json())
         .then(resBody => {
+          console.log(resBody);
           if (resBody.statusCode == 200) {
             console.log("success");
+            navigation.goBack();
           } else if (resBody.statusCode == 403) {
             // TODO user entered the wrong credentials. add a UI for this.
             console.log("failed");
@@ -72,10 +80,10 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
         placeholder='Type Travel title here..'
         placeholderTextColor = "#9a73ef" 
         style={styles.input}
-        onChange={(e) => {
+        onChangeText={(e) => {
           setLocation({
             ...location,
-            name: e.target.value,
+            name: e,
           })
         }}
         value={location.name}
@@ -177,10 +185,10 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
         placeholder='Description...'
         placeholderTextColor = "#9a73ef" 
         style={styles.description}
-        onChange={(e) => {
+        onChangeText={(e) => {
           setLocation({
             ...location,
-            description: e.target.value
+            description: e
           })
         }}
         value={location.description}
@@ -193,9 +201,10 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
               const result = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
               });
+              console.log(result[0].uri);
               setLocation({
                 ...location,
-                audio: result.readDocument(),
+                audio: result[0],
               })
             } catch (error) {
               console.log(error);
