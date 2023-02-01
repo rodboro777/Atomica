@@ -149,6 +149,21 @@ router.post(
   }
 );
 
+router.get('/startsWith', async (req, res) => {
+    const prefix = req.query.prefix;
+    try {
+        const travelGuides = await TravelGuideManager.getTravelGuidesStartingWith(prefix);
+        res.send({
+            travelGuides: travelGuides,
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            travelGuides: []
+        })
+    }
+});
+
 router.delete("/", async (req, res) => {
   try {
     await TravelGuideManager.removeTravelGuide(req.body.travelGuideId);
