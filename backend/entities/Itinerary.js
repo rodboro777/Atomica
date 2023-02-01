@@ -7,7 +7,7 @@ class Itinerary {
       const description = build.description;
       const creatorId = build.creatorId;
       const travelGuideId = build.travelGuideId;
-      const public = build.public;
+      const isPublic = build.isPublic;
       const rating = build.rating;
 
       Object.defineProperties(this, {
@@ -27,8 +27,8 @@ class Itinerary {
           value: travelGuideId,
           writable: false,
         },
-        public: {
-          value: public,
+        isPublic: {
+          value: isPublic,
           writable: false,
         },
         rating: {
@@ -63,8 +63,8 @@ class Itinerary {
         return this;
       }
 
-      setPublic(public) {
-        this.public = public;
+      setPublic(isPublic) {
+        this.isPublic = isPublic;
         return this;
       }
 

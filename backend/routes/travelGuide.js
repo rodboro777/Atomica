@@ -1,5 +1,10 @@
 const router = require('express').Router();
 const TravelGuideManager = require('../db_managers/TravelGuideManager');
+const TravelGuide = require('../entities/TravelGuide');
+const GCSManager = require('../GCS_manager');
+const multer = require('multer');
+const upload = multer();
+let currId = 0;
 
 router.use((err, req, res, next) => {
     if (req.session.user) {
@@ -51,6 +56,82 @@ router.get('/byLocation', async (req, res) => {
         res.send({
             travelGuides: [],
         });
+    }
+});
+
+router.get('/byUser', async (req, res) => {
+    const userId = req.session.user._id;
+    if (!userId) {
+        console.log('No user id provided');
+        res.send({
+            travelGuides: [],
+        });
+    }
+
+    try {
+        const travelGuides = await TravelGuideManager.getTravelGuidesByUser(userId);
+        res.send({
+            travelGuides: travelGuides,
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            travelGuides: [],
+        });
+    }
+});
+
+// Get pending TravelGuide applications
+router.get('/applications', async (req, res) => {
+    const travelGuidesRequests = await TravelGuideManager.getTravelGuideRequests();
+    res.send({
+        travelGuidesRequests: travelGuidesRequests,
+    })
+});
+
+// Action towards an existing TravelGuide application.
+router.post('/applicationAction', async (req, res) => {
+    // the variable approve must be a boolean value. if true, it means that
+    // the request will be approved. otherwise it will be rejected.
+    const approve = req.body.approve;
+    const requestId = req.body.requestId;
+
+    if (approve) {
+        await TravelGuideManager.createTravelGuideFromRequest(requestId);
+    } else {
+        await TravelGuideManager.removeTravelGuideRequest(requestId);
+    }
+});
+
+router.post('/', upload.fields([{ name: 'audio' }, { name: 'image' }]), async (req, res) => {
+    try {
+        // upload the audio
+        const audioUrl = await GCSManager.uploadAudio(req.files.audio[0], `tg-audio-${currId}`);
+
+        // upload the image
+        const imageUrl = await GCSManager.uploadAudio(req.files.image[0], `tg-image-${currId++}`)
+
+        // create TravelGuideRequest.
+        let request = new TravelGuide.Builder()
+            .setName(req.body.name)
+            .setDescription(req.body.description)
+            .setCreatorId(req.session.user._id)
+            .setAudioUrl(audioUrl)
+            .setImageUrl(imageUrl)
+            .setAudioLength(req.body.audioLength)
+            .setPlaceId(req.body.placeId)
+            .build();
+        await TravelGuideManager.createTravelGuideRequest(request);
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+router.delete('/', async(req, res) => {
+    try {
+        await TravelGuideManager.removeTravelGuide(req.body.travelGuideId);
+    } catch (err) {
+        console.log(err);
     }
 });
 
