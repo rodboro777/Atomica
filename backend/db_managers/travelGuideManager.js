@@ -1,8 +1,8 @@
 "use strict";
 
-var ObjectID = require('mongodb').ObjectID;
+var ObjectID = require("mongodb").ObjectID;
 const TravelGuideModel = require("../models/travelGuideModel");
-const TravelGuideRequestModel = require('../models/travelGuideRequestModel');
+const TravelGuideRequestModel = require("../models/travelGuideRequestModel");
 
 class TravelGuideManager {
   //returns a list of travel guides
@@ -39,20 +39,28 @@ class TravelGuideManager {
   }
 
   static async getTravelGuideRequests() {
-    const docs = await TravelGuideRequestModel.find({});
-    return docs;
+    try {
+      const docs = await TravelGuideRequestModel.find({});
+      return docs;
+    } catch (err) {
+      throw err;
+    }
   }
 
   static async removeTravelGuideRequest(requestId) {
-    await TravelGuideRequestModel.findByIdAndDelete(new ObjectID(requestId));
+    try {
+      await TravelGuideRequestModel.findByIdAndDelete(new ObjectID(requestId));
+    } catch (err) {
+      throw err;
+    }
   }
 
   static async createTravelGuideFromRequest(requestId) {
     try {
       const request = await TravelGuideRequestModel.findById(requestId);
       await TravelGuideModel.create(this.constructTravelGuide(request));
-      await removeTravelGuideRequest(requestId);
-      return true
+      await TravelGuideRequestModel.findByIdAndDelete(new ObjectID(requestId));
+      return true;
     } catch (err) {
       console.log(err);
       return false;
@@ -69,19 +77,34 @@ class TravelGuideManager {
       audioLength: request.audioLength,
       placeId: request.placeId,
       public: true,
-    }
+    };
   }
 
   static async createTravelGuideRequest(request) {
-    await TravelGuideRequestModel.create(this.constructTravelGuide(request));
+    try {
+      await TravelGuideRequestModel.create(this.constructTravelGuide(request));
+    } catch (err) {
+      throw err;
+    }
   }
 
   static async updateTravelGuide(id, travelGuide) {
-    await TravelGuideModel.findByIdAndUpdate(id, this.constructTravelGuide(travelGuide))
+    try {
+      await TravelGuideModel.findByIdAndUpdate(
+        id,
+        this.constructTravelGuide(travelGuide)
+      );
+    } catch (err) {
+      throw err;
+    }
   }
 
   static async removeTravelGuide(id) {
-    await TravelGuideModel.findByIdAndDelete(id);
+    try {
+      await TravelGuideModel.findByIdAndDelete(id);
+    } catch (err) {
+      throw err;
+    }
   }
 }
 

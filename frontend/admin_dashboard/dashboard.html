@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      const audioElements = [];
+      async function makeAction(id, action) {
+        console.log(id, action);
+        await axios
+          .post('http://localhost:8000/travelGuide/applicationACtion', {
+            requestId: id,
+            approve: action,
+          })
+          .then(res => {
+            console.log(res);
+            document.getElementById(id).remove();
+          })
+          .catch(err => {
+            alert('Error');
+            console.log(err);
+          });
+      }
+
+      async function getTravelGuides() {
+        await axios
+          .get('http://localhost:8000/travelGuide/applications')
+          .then(res => {
+            const data = res.data.travelGuidesRequests;
+            if (data.length == 0) {
+              const newElement = document.createElement('div');
+              newElement.innerHTML = `
+                <div class="nothing">
+                    <h3>No Travel Guide Requests</h3>
+                </div>
+                `;
+              document.getElementById('audio-div').appendChild(newElement);
+            } else {
+              console.log(data);
+              for (let i = 0; i < data.length; i++) {
+                let id = data[i]._id;
+                const newElement = document.createElement('div');
+                newElement.innerHTML = `
+              <div id="${data[i]._id}" class="audio-single">
+                <div class="audio title">
+                  <h3>${data[i].name}</h3>
+                </div>
+                <div class="audio description">
+                  <p>${data[i].description}</p>
+                </div>
+                <div class="audio">
+                  <audio controls id="audio">
+                    <source src="${data[i].audioUrl}" type="audio/mpeg">
+                  </audio>
+                </div>
+                <div class="audio buttons">
+                  <button class="audio button accept" onclick="makeAction('${id}',true)">Accept</button>
+                  <button class="audio button reject" onclick="makeAction('${id}',false)">Reject</button>
+                </div>
+              </div>
+            `;
+                document.getElementById('audio-div').appendChild(newElement);
+              }
+            }
+          })
+          .catch(err => {
+            alert('Error');
+            console.log(err);
+          });
+      }
+    </script>
+  </head>
+  <body onload="{getTravelGuides()}">
+    <div class="top-bar">
+      <h1>Admin Dashboard</h1>
+    </div>
+    <div id="audio-div"></div>
+  </body>
+</html>
