@@ -1,0 +1,60 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.top-bar {
+  padding: 1vw;
+  text-align: center;
+  position: sticky;
+}
+#audio-div {
+  height: 40vw;
+  overflow: auto;
+  padding: 1vw;
+}
+.audio-single {
+  border-radius: 0.3vw;
+  text-align: center;
+  width: 50vw;
+  margin: auto;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  margin-top: 1.5vw;
+}
+.audio {
+  display: grid;
+  padding: 0.5vw;
+}
+.title {
+  margin-right: auto;
+}
+.button {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 10vw;
+  margin: auto;
+  margin-top: 0.5vw;
+  color: whitesmoke;
+  font-weight: bolder;
+  border-radius: 0.3vw;
+  cursor: pointer;
+}
+.accept {
+  background-color: rgb(55, 170, 55);
+}
+.accept:active {
+  background-color: rgb(0, 128, 0);
+}
+.reject {
+  background-color: rgb(228, 23, 23);
+}
+.reject:active {
+  background-color: rgb(128, 0, 0);
+}
+#audio {
+  margin: auto;
+}
+.nothing {
+  text-align: center;
+  margin: auto;
+}
