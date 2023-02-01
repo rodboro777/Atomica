@@ -7,6 +7,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const passportSetup = require('./config/passport-setup');
+const cors = require('cors');
+const CLIENT_URL = "http://127.0.0.1:5500";
 
 // routes
 const authRoutes = require('./routes/auth');
@@ -21,6 +23,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+app.use(
+    cors({
+      origin: CLIENT_URL,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      credentials: true,
+    })
+  );
 
 app.use(session({
     secret: "535510n53cr3t",
