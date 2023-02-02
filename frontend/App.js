@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
-    <Tab.Navigator screenOptions={{tabBarItemStyle:{
+    <Tab.Navigator initialRouteName="" screenOptions={{tabBarItemStyle:{
       backgroundColor:'#000',
       margin:0,
       borderRadius:0,
@@ -77,18 +77,34 @@ const SearchStack = () => {
   )
 }
 
+// const App = () => {
+//   return (
+
+//     <NavigationContainer>
+//        <Stack.Navigator initialRouteName="Login">
+//         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+//         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+//         <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
+        
+//       </Stack.Navigator>
+//        <MyTabs />
+
+
+//     </NavigationContainer>
+//   );
+// };
+
+
 const App = () => {
   return (
 
     <NavigationContainer>
-      {/* <Stack.Navigator initialRouteName="Map">
+     <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-        <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
-        
+        <Stack.Screen name="MyTabs" component={MyTabs} options={{ headerShown: false }} />
       </Stack.Navigator>
-       */}
-       <MyTabs />
+      
 
 
     </NavigationContainer>

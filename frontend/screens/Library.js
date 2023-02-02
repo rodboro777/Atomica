@@ -9,6 +9,19 @@ import EditIcon from '../assets/pencil.png';
 
 const Library = ({navigation}) => {
 
+  const [travelGuides, setTravelGuides] = useState([]);
+
+  useEffect(() => {
+    fetch('http://192.168.176.219:8000/travelGuide/byUser', {
+      credentials: 'include',
+      method: 'GET'
+    })
+    .then(res=>res.json())
+    .then(resBody => {
+      setTravelGuides(resBody.travelGuides);
+    })
+  }, []);
+
   const DATA_ITI = [
     {
       id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -107,10 +120,10 @@ const Library = ({navigation}) => {
       <View>
         <Text style={styles.buttonHeaderStyle}>TravelGuide</Text>
         <FlatList
-        data={DATA_TG}
+        data={travelGuides}
         renderItem={
-          ({item}) => <Item_TG title={item.title} desc={item.desc} />}
-        keyExtractor={item => item.id}
+          ({item}) => <Item_TG title={item.name} desc={item.description} />}
+        keyExtractor={item => item._id}
       />
       </View>
       </View>
