@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -25,11 +25,6 @@ import axios from 'axios';
 
 const Map = () => {
   Geolocation.requestAuthorization();
-
-  const [pin, setPin] = React.useState({
-    latitude: 53.35014,
-    longitude: -6.266155,
-  });
   const [region, setRegion] = React.useState({
     latitude: 53.35014,
     longitude: -6.266155,
@@ -40,6 +35,7 @@ const Map = () => {
   const [showMarker, setShowMarker] = React.useState(false);
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const placeRef = useRef(null);
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
@@ -167,6 +163,7 @@ const Map = () => {
     <View style={{marginTop: 0, flex: 1}}>
       <View style={{alignItems: 'center'}}>
         <GooglePlacesAutocomplete
+          ref={placeRef}
           placeholder="Find a place or an Itinerary"
           minLength={2} // minimum length of text to search
           autoFocus={false}
@@ -186,9 +183,9 @@ const Map = () => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
-            console.log(
-              'photo reference: ' + details.photos[0].photo_reference,
-            );
+            // console.log(
+            //   'photo reference: ' + details.photos[0].photo_reference,
+            // );
             setPhoto(details.photos[0].photo_reference);
             setDescription(data.description);
           }}
@@ -255,18 +252,26 @@ const Map = () => {
         provider="google"
         customMapStyle={mapStyle}
         region={region}
-        onPoiClick={e => {
-          setShowMarker(true);
-          setPin({
-            latitude: e.nativeEvent.coordinate.latitude,
-            longitude: e.nativeEvent.coordinate.longitude,
-          })
-          setRegion({
-            latitude: e.nativeEvent.coordinate.latitude,
-            longitude: e.nativeEvent.coordinate.longitude,
-            latitudeDelta: region.latitudeDelta,
-            longitudeDelta: region.longitudeDelta,
-          });
+        onPoiClick={async e => {
+          await axios
+            .get(
+              `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
+            )
+            .then(res => {
+              const data = res.data.result;
+              setShowMarker(true);
+              setPhoto(data.photos[0].photo_reference);
+              setDescription(data.name);
+              setRegion({
+                latitude: data.geometry.location.lat,
+                longitude: data.geometry.location.lng,
+                latitudeDelta: region.latitudeDelta,
+                longitudeDelta: region.longitudeDelta,
+              });
+            })
+            .catch(err => {
+              console.log(err);
+            });
         }}>
         {showMarker && (
           <Marker
@@ -278,16 +283,6 @@ const Map = () => {
               }
               //markers
             }
-            pinColor="white"
-            onDragStart={e => {
-              console.log('Drag start', e.nativeEvent.coordinate);
-            }}
-            onDragEnd={e => {
-              setPin({
-                latitude: e.nativeEvent.coordinate.latitude,
-                longitude: e.nativeEvent.coordinate.longitude,
-              });
-            }}
             onPress={toggleModal}>
             <Callout>
               <Text>I'm here</Text>
