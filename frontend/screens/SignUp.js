@@ -16,7 +16,7 @@ const SignUp = props => {
    const registerLocal = async () => {
 
 
-        fetch('http://192.168.176.219:8000/auth/register', {
+        fetch('http://192.168.178.168:8000/auth/register', {
                     credentials: 'include',
                     method: 'POST',
                     headers: {
