@@ -50,7 +50,6 @@ const Map = () => {
     'OConnell Bridge, North City, Dublin 1, Ireland',
   );
 
-  const [email, setEmail] = useState("")
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -113,24 +112,7 @@ const Map = () => {
     );
   };
 
-  const getUsers = () => {
-    setIsLoading(false);
-    axios
-      .get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=ChIJg5xFFhTMYEgRwhbyrb1Dx2w`)
-      .then(res => {
-        
-         setUsers([...res.data.travelGuides]);
-      console.log("\n\nmap Response body: ", res.data.travelGuides)
-      console.log("Users: ", users)
-      });
-    // axios
-    //   .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
-    //   .then(res => {
-    //     //setUsers(res.data.results);
-    //     setUsers([...users, ...res.data.results]);
-    //     setIsLoading(false);
-    //   });
-  };
+  
 
   // get the usernames of the creators of the given travel guides.
   const getUsernames = async (travelGuides) => {
@@ -181,10 +163,10 @@ const Map = () => {
             style={
               styles.txtNameStyle
             }>{`${item.name} ${item.audioLength}`}</Text>
-          <Text style={styles.txtEmailStyle}>{fetchCreatorEmail(item.creatorId)}{email}</Text>
+          <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() =>  stopAndResume()}>
+          <Pressable onPress={() => stopAndResume()}>
           
             <Image
               source={isPlaying ? PauseIcon : PlayIcon}
@@ -202,26 +184,17 @@ const Map = () => {
   };
 
   const stopAndResume = () =>{
-    isPlaying = !isPlaying
+    setIsPlaying(!isPlaying);
     if(isPlaying)
     {
       console.log("Resume");
-      SoundPlayer.resume();
+      SoundPlayer.play();
     }
     else{
       console.log("pause");
       SoundPlayer.pause();
     }
   };
-
-  const fetchCreatorEmail = (creatorId) => {
-    axios
-    .get(`http://192.168.0.94:8000/user/username?id=`+creatorId)
-    .then( res =>{
-      console.log("fetch create: ",res.data.username)
-      setEmail(res.data.username)
-    })
-  }
 
   const renderLoader = () => {
     return isLoading ? (
@@ -230,9 +203,9 @@ const Map = () => {
       </View>
     ) : null;
   };
-
+  const [placeId, setPlaceId] = useState("");
   const loadMoreItem = () => {
-    // setCurrentPage(currentPage + 1);
+    setCurrentPage(currentPage + 1);
   };
 
   useEffect(() => {
@@ -241,6 +214,7 @@ const Map = () => {
     LogBox.ignoreLogs(['Encountered two children with the same key']);
     LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
   }, [currentPage]);
+
 
   return (
     <View style={{marginTop: 0, flex: 1}}>
@@ -338,29 +312,26 @@ const Map = () => {
         customMapStyle={mapStyle}
         region={region}
         onPoiClick={async e => {
-          await axios
-            .get(
-              `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
-            )
-            .then(res => {
-              const data = res.data.result;
-              setShowMarker(true);
-              setPhoto(data.photos[0].photo_reference);
-              setDescription(data.name);
-              setRegion({
-                latitude: data.geometry.location.lat,
-                longitude: data.geometry.location.lng,
-                latitudeDelta: region.latitudeDelta,
-                longitudeDelta: region.longitudeDelta,
-              });
-            })
-            .catch(err => {
-              console.log(err);
+          let placeIds = "";
+          let res = await axios .get(
+            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
+          );
+            let data = res.data.result;
+            console.log("Before place ids setting: ", placeIds)
+            placeIds = res.data.result.place_id;
+            setShowMarker(true);
+            setPhoto(data.photos[0].photo_reference);
+            setDescription(data.name);
+            setRegion({
+              latitude: data.geometry.location.lat,
+              longitude: data.geometry.location.lng,
+              latitudeDelta: region.latitudeDelta,
+              longitudeDelta: region.longitudeDelta,
             });
-
+            console.log("After setPlaceID: ",placeIds)
             setIsLoading(false);
-            let res = await axios.get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=ChIJg5xFFhTMYEgRwhbyrb1Dx2w`);
-            let travelGuides = await res.data.travelGuides;
+            res = await axios.get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=${placeIds}`)
+            let travelGuides = res.data.travelGuides;
             let usernames = await getUsernames(travelGuides);
             let travelGuidesWithUsernames = [];
             for (let i = 0; i < travelGuides.length; i++) {
@@ -465,7 +436,7 @@ const Map = () => {
               />
             </ScrollView>
           </View>
-          <Pressable>
+          {/* <Pressable>
             <View style={[styles.widgetContainer, {}]}>
               <View style={{flexDirection: 'row'}}>
                 <Image
@@ -492,7 +463,7 @@ const Map = () => {
                 />
               </Pressable>
             </View>
-          </Pressable>
+          </Pressable> */}
         </View>
       </Modal>
     </View>
