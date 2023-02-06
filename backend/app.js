@@ -14,6 +14,7 @@ const CLIENT_URL = "http://127.0.0.1:5500";
 const authRoutes = require('./routes/auth');
 const itineraryRoutes = require('./routes/itinerary');
 const travelGuideRoutes = require('./routes/travelGuide');
+const userRoutes = require('./routes/user');
 
 const app = express();
 
@@ -55,6 +56,7 @@ const port = process.env.PORT || 5000;
 app.use('/auth', authRoutes);
 app.use('/itinerary', itineraryRoutes);
 app.use('/travelGuide', travelGuideRoutes);
+app.user('/user', userRoutes);
 
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);
