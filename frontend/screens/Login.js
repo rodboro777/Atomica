@@ -104,7 +104,7 @@ const Login = props => {
             Forgot Password?
           </Text>
         </View>
-        <Submit title="LOG IN" color="#0148a4" handleSubmit={localSignIn} />
+        <Submit title="LOG IN" color="#-" handleSubmit={localSignIn} />
         <Text style={styles.textBody}>Or login using</Text>
         <View style={{flexDirection: 'row'}}>
           <Account

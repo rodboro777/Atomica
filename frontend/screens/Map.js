@@ -22,6 +22,7 @@ import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play.png';
 import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
+import SoundPlayer from 'react-native-sound-player'
 
 const Map = () => {
   Geolocation.requestAuthorization();
@@ -50,6 +51,7 @@ const Map = () => {
   );
 
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState([null, false]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
@@ -61,13 +63,26 @@ const Map = () => {
   };
 
   const playOrPause = async () => {
-    setIsPlaying(!isPlaying);
+    console.log("playor pause")
+    playAudio();
     setMPlayerdetails();
   };
 
+  const playAudio = () => {
+    setIsPlaying(!isPlaying);
+    console.log("isplaying: ",isPlaying)
+    if(isPlaying)
+    {
+      SoundPlayer.stop();
+    }
+    else{
+      fetchAudio();
+    }
+  }
+
   const setMPlayerdetails = item => {
-    setMPtitle(item.name.title);
-    setMPdes(item.name.first);
+    setMPtitle(item.name);
+    setMPdes(item.description);
     console.log('MPtitle: ' + MPtitle + 'MPdesc: ' + MPdesc);
   };
 
@@ -98,35 +113,62 @@ const Map = () => {
     );
   };
 
-  const getUsers = () => {
-    setIsLoading(true);
-    axios
-      .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
-      .then(res => {
-        //setUsers(res.data.results);
-        setUsers([...users, ...res.data.results]);
-        setIsLoading(false);
-      });
+  
+
+  // get the usernames of the creators of the given travel guides.
+  const getUsernames = async (travelGuides) => {
+    const promises = [];
+    for (let i = 0; i < travelGuides.length; i++) {
+      let res = await axios.get(`http://192.168.126.219:8000/user/username?id=${travelGuides[i].creatorId}`);
+      let username = await res.data.username;
+      promises.push(username);
+    }
+    const usernames = await Promise.all(promises);
+    return usernames;
+  }
+
+  const fetchAudio = async () =>
+  {
+    try
+    {
+      console.log("Trying to play audio");
+      // play the file tone.mp3
+      SoundPlayer.playSoundFile('sound', 'mp3');
+      console.log("Playing");
+      //       or play from url
+          //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
+      try
+      {
+        const info = await SoundPlayer.getInfo() // Also, you need to await this because it is async
+        console.log('getInfo', info) // {duration: 12.416, currentTime: 7.691}
+      } catch (e)
+      {
+        console.log('There is no song playing', e)
+      }
+    } catch (e)
+    {
+      console.log(`cannot play the sound file`, e);
+    }
   };
 
   const renderItem = ({item}) => {
     return (
       <View style={styles.itemWrapperStyle}>
-        <Image
+        {/* <Image
           style={styles.itemImageStyle}
           source={{uri: item.picture.large}}
-        />
+        /> */}
         <View style={styles.contentWrapperStyle}>
           <Text
             style={
               styles.txtNameStyle
-            }>{`${item.name.title} ${item.name.first} ${item.name.last}`}</Text>
-          <Text style={styles.txtEmailStyle}>{item.email}</Text>
+            }>{`${item.name}`}</Text>
+          <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => playOrPause()}>
+          <Pressable onPress={() => togglePlayAudio(item._id)}>
             <Image
-              source={isPlaying ? PauseIcon : PlayIcon}
+              source={(currentlyPlaying[0] == item._id && currentlyPlaying[1]) ? PauseIcon : PlayIcon}
               style={{
                 height: 30,
                 tintColor: '#000',
@@ -140,6 +182,57 @@ const Map = () => {
     );
   };
 
+  const playAudiohaha = async(id) => {
+    console.log("_id: ",id)
+    setIsPlaying(!isPlaying);
+    SoundPlayer.stop();
+    // get travel guide with the id
+    let audioUrl = "";
+    for (let i = 0; i < users.length; i++) {
+      if (users[i]._id == id) {
+        audioUrl = users[i].audioUrl;
+        console.log("AUdio url: ", audioUrl)
+        SoundPlayer.playUrl(audioUrl);
+      }
+    }
+  }
+
+  async function togglePlayAudio(id) {
+    if (currentlyPlaying[0] == null || currentlyPlaying[0] != id) {
+      await SoundPlayer.stop();
+      setCurrentlyPlaying([id, true]);
+      let audioUrl = "";
+      for (let i = 0; i < users.length; i++) {
+        if (users[i]._id == id) {
+          audioUrl = users[i].audioUrl;
+          console.log("AUdio url: ", audioUrl)
+          break;
+        }
+      }
+      await SoundPlayer.loadUrl(audioUrl);
+      await SoundPlayer.play();
+    } else if (currentlyPlaying[1]) {
+      setCurrentlyPlaying([id, false])
+      await SoundPlayer.pause();
+    } else {
+      setCurrentlyPlaying([id, true]);
+      await SoundPlayer.resume();
+    }
+  }
+
+  const stopAndResume = () =>{
+    setIsPlaying(!isPlaying);
+    if(isPlaying)
+    {
+      console.log("Resume");
+      SoundPlayer.play();
+    }
+    else{
+      console.log("pause");
+      SoundPlayer.pause();
+    }
+  };
+
   const renderLoader = () => {
     return isLoading ? (
       <View style={styles.loaderStyle}>
@@ -147,17 +240,18 @@ const Map = () => {
       </View>
     ) : null;
   };
-
+  const [placeId, setPlaceId] = useState("");
   const loadMoreItem = () => {
     setCurrentPage(currentPage + 1);
   };
 
   useEffect(() => {
-    getUsers();
+    // getUsers();
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
     LogBox.ignoreLogs(['Encountered two children with the same key']);
     LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
   }, [currentPage]);
+
 
   return (
     <View style={{marginTop: 0, flex: 1}}>
@@ -176,7 +270,7 @@ const Map = () => {
           renderDescription={row => row.description} // custom description render
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
-            console.log(data, details);
+            //console.log(data, details);
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
@@ -255,25 +349,35 @@ const Map = () => {
         customMapStyle={mapStyle}
         region={region}
         onPoiClick={async e => {
-          await axios
-            .get(
-              `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
-            )
-            .then(res => {
-              const data = res.data.result;
-              setShowMarker(true);
-              setPhoto(data.photos[0].photo_reference);
-              setDescription(data.name);
-              setRegion({
-                latitude: data.geometry.location.lat,
-                longitude: data.geometry.location.lng,
-                latitudeDelta: region.latitudeDelta,
-                longitudeDelta: region.longitudeDelta,
-              });
-            })
-            .catch(err => {
-              console.log(err);
+          let placeIds = "";
+          let res = await axios .get(
+            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
+          );
+            let data = res.data.result;
+            console.log("Before place ids setting: ", placeIds)
+            placeIds = res.data.result.place_id;
+            setShowMarker(true);
+            setPhoto(data.photos[0].photo_reference);
+            setDescription(data.name);
+            setRegion({
+              latitude: data.geometry.location.lat,
+              longitude: data.geometry.location.lng,
+              latitudeDelta: region.latitudeDelta,
+              longitudeDelta: region.longitudeDelta,
             });
+            console.log("After setPlaceID: ",placeIds)
+            setIsLoading(false);
+            res = await axios.get(`http://192.168.126.219:8000/travelGuide/byLocation?placeId=${placeIds}`)
+            let travelGuides = res.data.travelGuides;
+            let usernames = await getUsernames(travelGuides);
+            let travelGuidesWithUsernames = [];
+            for (let i = 0; i < travelGuides.length; i++) {
+              travelGuidesWithUsernames.push({
+                ...travelGuides[i],
+                username: usernames[i],
+              });
+            }
+            setUsers(travelGuidesWithUsernames);
         }}>
         {showMarker && (
           <Marker
@@ -358,17 +462,17 @@ const Map = () => {
             {/* <ScrollView style={{height: 0, marginTop: 10}}> */}
               <FlatList
                 data={users}
-                keyExtractor={item => item.email}
+                keyExtractor={item => item.data}
                 renderItem={renderItem}
                 ListFooterComponent={renderLoader}
                 onEndReached={loadMoreItem}
-                onEndReachedThreshold={0}
+                onEndReachedThreshold={2}
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{flexGrow: 1}}
               />
             {/* </ScrollView> */}
           </View>
-          <Pressable>
+          {/* <Pressable>
             <View style={[styles.widgetContainer, {}]}>
               <View style={{flexDirection: 'row'}}>
                 <Image
@@ -395,7 +499,7 @@ const Map = () => {
                 />
               </Pressable>
             </View>
-          </Pressable>
+          </Pressable> */}
         </View>
       </Modal>
     </View>

@@ -8,24 +8,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0f63a5fc-013b-4ba2-9e36-465b6c3bdbcd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/assets/destination.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/download.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/gps.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/home.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/menu.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/pause.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/pencil.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/play.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/plus.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/search.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/assets/uparrow.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/screens/Map.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/screens/Map.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
