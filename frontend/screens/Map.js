@@ -22,6 +22,7 @@ import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play.png';
 import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
+import SoundPlayer from 'react-native-sound-player'
 
 const Map = () => {
   Geolocation.requestAuthorization();
@@ -61,13 +62,26 @@ const Map = () => {
   };
 
   const playOrPause = async () => {
+    console.log("playor pause")
     setIsPlaying(!isPlaying);
+    playAudio();
     setMPlayerdetails();
   };
 
+  const playAudio = () => {
+    console.log("isplaying: ",isPlaying)
+    // if(isPlaying)
+    // {
+      fetchAudio();
+    // }
+    // else{
+    //   SoundPlayer.stop();
+    // }
+  }
+
   const setMPlayerdetails = item => {
-    setMPtitle(item.name.title);
-    setMPdes(item.name.first);
+    setMPtitle(item.name);
+    setMPdes(item.description);
     console.log('MPtitle: ' + MPtitle + 'MPdesc: ' + MPdesc);
   };
 
@@ -99,37 +113,65 @@ const Map = () => {
   };
 
   const getUsers = () => {
+    setIsLoading(false);
     axios
       .get(`http://192.168.0.94:8000/travelGuide/?id=63da52b7095a9384c23271ec`)
       .then(res => {
+         setUsers([res.data.travelGuide]);
       console.log("\n\nmap Response body: ", res.data.travelGuide.audioUrl)
+      console.log("Users: ", users)
       });
-    setIsLoading(true);
-    axios
-      .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
-      .then(res => {
-        //setUsers(res.data.results);
-        setUsers([...users, ...res.data.results]);
-        setIsLoading(false);
-      });
+    // axios
+    //   .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
+    //   .then(res => {
+    //     //setUsers(res.data.results);
+    //     setUsers([...users, ...res.data.results]);
+    //     setIsLoading(false);
+    //   });
+  };
+
+  const fetchAudio = async () =>
+  {
+    try
+    {
+      console.log("Trying to play audio");
+      // play the file tone.mp3
+      SoundPlayer.playSoundFile('sound', 'mp3');
+      console.log("Playing");
+      //       or play from url
+          //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
+      try
+      {
+        const info = await SoundPlayer.getInfo() // Also, you need to await this because it is async
+        console.log('getInfo', info) // {duration: 12.416, currentTime: 7.691}
+      } catch (e)
+      {
+        console.log('There is no song playing', e)
+      }
+    } catch (e)
+    {
+      console.log(`cannot play the sound file`, e);
+    }
   };
 
   const renderItem = ({item}) => {
+    console.log("Render item: ", item)
     return (
       <View style={styles.itemWrapperStyle}>
-        <Image
+        {/* <Image
           style={styles.itemImageStyle}
           source={{uri: item.picture.large}}
-        />
+        /> */}
         <View style={styles.contentWrapperStyle}>
           <Text
             style={
               styles.txtNameStyle
-            }>{`${item.name.title} ${item.name.first} ${item.name.last}`}</Text>
+            }>{`${item.name} ${item.audioLength} ${item.creatorId}`}</Text>
           <Text style={styles.txtEmailStyle}>{item.email}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => playOrPause()}>
+          <Pressable onPress={() =>  playOrPause()}>
+          
             <Image
               source={isPlaying ? PauseIcon : PlayIcon}
               style={{
@@ -188,6 +230,7 @@ const Map = () => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
+            setShowMarker(true);
             // console.log(
             //   'photo reference: ' + details.photos[0].photo_reference,
             // );
@@ -362,7 +405,7 @@ const Map = () => {
             <ScrollView style={{height: 0, marginTop: 10}}>
               <FlatList
                 data={users}
-                keyExtractor={item => item.email}
+                keyExtractor={item => item.data}
                 renderItem={renderItem}
                 ListFooterComponent={renderLoader}
                 onEndReached={loadMoreItem}

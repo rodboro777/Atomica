@@ -24,6 +24,7 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
+    props.navigation.navigate('MyTabs');
     fetch('http://192.168.0.94:8000/auth/login', {
       credentials: 'include',
       method: 'POST',
@@ -104,7 +105,7 @@ const Login = props => {
             Forgot Password?
           </Text>
         </View>
-        <Submit title="LOG IN" color="#0148a4" handleSubmit={localSignIn} />
+        <Submit title="LOG IN" color="#-" handleSubmit={localSignIn} />
         <Text style={styles.textBody}>Or login using</Text>
         <View style={{flexDirection: 'row'}}>
           <Account
