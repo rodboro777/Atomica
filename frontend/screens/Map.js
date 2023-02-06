@@ -424,7 +424,6 @@ const Map = () => {
         <View style={styles.modalContent}>
           <View style={styles.center}>
             <View style={styles.barIcon} />
-
             <Text
               style={{
                 fontWeight: '400',
@@ -460,7 +459,7 @@ const Map = () => {
           </View>
           <StatusBar backgroundColor="#000" />
           <View style={{height: 250}}>
-            <ScrollView style={{height: 0, marginTop: 10}}>
+            {/* <ScrollView style={{height: 0, marginTop: 10}}> */}
               <FlatList
                 data={users}
                 keyExtractor={item => item.data}
@@ -471,7 +470,7 @@ const Map = () => {
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{flexGrow: 1}}
               />
-            </ScrollView>
+            {/* </ScrollView> */}
           </View>
           {/* <Pressable>
             <View style={[styles.widgetContainer, {}]}>

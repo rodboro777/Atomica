@@ -173,7 +173,7 @@ router.get('/startsWith', async (req, res) => {
 
 router.delete("/", async (req, res) => {
   try {
-    await TravelGuideManager.removeTravelGuide(req.body.travelGuideId);
+    await TravelGuideManager.removeTravelGuide(req.query.id);
   } catch (err) {
     console.log(err);
   }

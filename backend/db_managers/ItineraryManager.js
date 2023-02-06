@@ -16,7 +16,7 @@ class ItineraryManager {
   static async getItineraryNameStartingWith(char) {
     try {
       const doc = await ItineraryModel.find({
-        name: new RegExp("^" + char, "i"),
+        name: { $regex: char, $options: "i" },
       });
       return doc;
     } catch (err) {
@@ -60,7 +60,7 @@ class ItineraryManager {
   }
 
   static constructItinerary(itinerary) {
-    travelGuideIds = [];
+    let travelGuideIds = [];
     itinerary.travelGuideId.forEach((e) => {
       travelGuideIds.push(new ObjectID(e));
     });
