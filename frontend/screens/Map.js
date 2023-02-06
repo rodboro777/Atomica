@@ -132,6 +132,18 @@ const Map = () => {
     //   });
   };
 
+  // get the usernames of the creators of the given travel guides.
+  const getUsernames = async (travelGuides) => {
+    const promises = [];
+    for (let i = 0; i < travelGuides.length; i++) {
+      let res = await axios.get(`http://192.168.0.94:8000/user/username?id=${travelGuides[i].creatorId}`);
+      let username = await res.data.username;
+      promises.push(username);
+    }
+    const usernames = await Promise.all(promises);
+    return usernames;
+  }
+
   const fetchAudio = async () =>
   {
     try
@@ -224,7 +236,7 @@ const Map = () => {
   };
 
   useEffect(() => {
-    getUsers();
+    // getUsers();
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
     LogBox.ignoreLogs(['Encountered two children with the same key']);
     LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
@@ -345,6 +357,19 @@ const Map = () => {
             .catch(err => {
               console.log(err);
             });
+
+            setIsLoading(false);
+            let res = await axios.get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=ChIJg5xFFhTMYEgRwhbyrb1Dx2w`);
+            let travelGuides = await res.data.travelGuides;
+            let usernames = await getUsernames(travelGuides);
+            let travelGuidesWithUsernames = [];
+            for (let i = 0; i < travelGuides.length; i++) {
+              travelGuidesWithUsernames.push({
+                ...travelGuides[i],
+                username: usernames[i],
+              });
+            }
+            setUsers(travelGuidesWithUsernames);
         }}>
         {showMarker && (
           <Marker
