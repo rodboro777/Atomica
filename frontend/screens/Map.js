@@ -51,6 +51,7 @@ const Map = () => {
   );
 
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState([null, false]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
@@ -118,7 +119,7 @@ const Map = () => {
   const getUsernames = async (travelGuides) => {
     const promises = [];
     for (let i = 0; i < travelGuides.length; i++) {
-      let res = await axios.get(`http://192.168.0.94:8000/user/username?id=${travelGuides[i].creatorId}`);
+      let res = await axios.get(`http://192.168.126.219:8000/user/username?id=${travelGuides[i].creatorId}`);
       let username = await res.data.username;
       promises.push(username);
     }
@@ -165,10 +166,9 @@ const Map = () => {
           <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => playAudiohaha(item._id)}>
-          
+          <Pressable onPress={() => togglePlayAudio(item._id)}>
             <Image
-              source={isPlaying ? PauseIcon : PlayIcon}
+              source={(currentlyPlaying[0] == item._id && currentlyPlaying[1]) ? PauseIcon : PlayIcon}
               style={{
                 height: 30,
                 tintColor: '#000',
@@ -185,7 +185,7 @@ const Map = () => {
   const playAudiohaha = async(id) => {
     console.log("_id: ",id)
     setIsPlaying(!isPlaying);
-    SoundPlayer.pause();
+    SoundPlayer.stop();
     // get travel guide with the id
     let audioUrl = "";
     for (let i = 0; i < users.length; i++) {
@@ -194,9 +194,29 @@ const Map = () => {
         console.log("AUdio url: ", audioUrl)
         SoundPlayer.playUrl(audioUrl);
       }
-      else {
-        throw new Error("detected a travel guide id that we dont currently have");
+    }
+  }
+
+  async function togglePlayAudio(id) {
+    if (currentlyPlaying[0] == null || currentlyPlaying[0] != id) {
+      await SoundPlayer.stop();
+      setCurrentlyPlaying([id, true]);
+      let audioUrl = "";
+      for (let i = 0; i < users.length; i++) {
+        if (users[i]._id == id) {
+          audioUrl = users[i].audioUrl;
+          console.log("AUdio url: ", audioUrl)
+          break;
+        }
       }
+      await SoundPlayer.loadUrl(audioUrl);
+      await SoundPlayer.play();
+    } else if (currentlyPlaying[1]) {
+      setCurrentlyPlaying([id, false])
+      await SoundPlayer.pause();
+    } else {
+      setCurrentlyPlaying([id, true]);
+      await SoundPlayer.resume();
     }
   }
 
@@ -347,7 +367,7 @@ const Map = () => {
             });
             console.log("After setPlaceID: ",placeIds)
             setIsLoading(false);
-            res = await axios.get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=${placeIds}`)
+            res = await axios.get(`http://192.168.126.219:8000/travelGuide/byLocation?placeId=${placeIds}`)
             let travelGuides = res.data.travelGuides;
             let usernames = await getUsernames(travelGuides);
             let travelGuidesWithUsernames = [];

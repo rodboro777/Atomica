@@ -54,7 +54,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      fetch('http://192.168.0.94:8000/auth/google', {
+      fetch('http://192.168.126.219:8000/auth/google', {
         credentials: 'include',
         method: 'POST',
         headers: {
