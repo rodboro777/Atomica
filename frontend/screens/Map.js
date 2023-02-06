@@ -183,6 +183,7 @@ const Map = () => {
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
+            setShowMarker(true);
             // console.log(
             //   'photo reference: ' + details.photos[0].photo_reference,
             // );

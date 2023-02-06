@@ -25,17 +25,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
       longitude: -6.266155,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421
-    })
-
-    const getLocation = () => {
-      // if(route.params.paramKey == null) {
-      //   setLocations(null)
-      // }else {
-      //    setLocations(route.params.paramKey);
-      // }
-       
-        navigation.navigate('SearchPlaces')
-    }
+    });
 
     const createTravelGuide = () => {
       console.log(location);
@@ -50,7 +40,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
       });
       console.log(formData);
 
-      fetch('http://192.168.176.219:8000/travelGuide', {
+      fetch('http://192.168.178.168:8000/travelGuide', {
         credentials: 'include',
         method: 'POST',
         headers: {

@@ -77,7 +77,7 @@ router.post('/', async(req, res) => {
     let itinerary = new Itinerary.Builder()
         .setName(req.body.name)
         .setDescription(req.body.description)
-        .setCreatorId(req.body.creatorId)
+        .setCreatorId(req.session.user._id)
         .setTravelGuideId(req.body.travelGuideIds)
         .setPublic(req.body.public)
         .build();
@@ -101,7 +101,7 @@ router.post('/', async(req, res) => {
 });
 
 router.delete('/', async (req, res) => {
-    let itineraryId = req.body.itineraryId;
+    let itineraryId = req.query.id;
     try {
         await ItineraryManager.removeItinerary(itineraryId);
     } catch(err) {

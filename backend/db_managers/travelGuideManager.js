@@ -110,7 +110,7 @@ class TravelGuideManager {
   static async getTravelGuidesStartingWith(char){
     try {
       const docs = await TravelGuideModel.find({
-        name: new RegExp("^" + char, "i"),
+        name: { $regex: char, $options: "i" },
       });
       return docs;
     } catch (err) {
