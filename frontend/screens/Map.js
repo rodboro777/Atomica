@@ -151,7 +151,6 @@ const Map = () => {
   };
 
   const renderItem = ({item}) => {
-    console.log("Render item: ", item)
     return (
       <View style={styles.itemWrapperStyle}>
         {/* <Image
@@ -162,11 +161,11 @@ const Map = () => {
           <Text
             style={
               styles.txtNameStyle
-            }>{`${item.name} ${item.audioLength}`}</Text>
+            }>{`${item.name}`}</Text>
           <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => stopAndResume()}>
+          <Pressable onPress={() => playAudiohaha(item._id)}>
           
             <Image
               source={isPlaying ? PauseIcon : PlayIcon}
@@ -182,6 +181,24 @@ const Map = () => {
       </View>
     );
   };
+
+  const playAudiohaha = async(id) => {
+    console.log("_id: ",id)
+    setIsPlaying(!isPlaying);
+    SoundPlayer.pause();
+    // get travel guide with the id
+    let audioUrl = "";
+    for (let i = 0; i < users.length; i++) {
+      if (users[i]._id == id) {
+        audioUrl = users[i].audioUrl;
+        console.log("AUdio url: ", audioUrl)
+        SoundPlayer.playUrl(audioUrl);
+      }
+      else {
+        throw new Error("detected a travel guide id that we dont currently have");
+      }
+    }
+  }
 
   const stopAndResume = () =>{
     setIsPlaying(!isPlaying);
