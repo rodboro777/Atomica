@@ -9,6 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0f63a5fc-013b-4ba2-9e36-465b6c3bdbcd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/routes/travelGuide.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/routes/travelGuide.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/screens/CreateTravelGuide.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/screens/CreateTravelGuide.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/screens/Map.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/screens/Map.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

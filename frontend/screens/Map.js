@@ -50,6 +50,7 @@ const Map = () => {
     'OConnell Bridge, North City, Dublin 1, Ireland',
   );
 
+  const [email, setEmail] = useState("")
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,10 +73,10 @@ const Map = () => {
     console.log("isplaying: ",isPlaying)
     if(isPlaying)
     {
-      fetchAudio();
+      SoundPlayer.stop();
     }
     else{
-      SoundPlayer.stop();
+      fetchAudio();
     }
   }
 
@@ -115,10 +116,11 @@ const Map = () => {
   const getUsers = () => {
     setIsLoading(false);
     axios
-      .get(`http://192.168.0.94:8000/travelGuide/?id=63da52b7095a9384c23271ec`)
+      .get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=ChIJg5xFFhTMYEgRwhbyrb1Dx2w`)
       .then(res => {
-         setUsers([res.data.travelGuide]);
-      console.log("\n\nmap Response body: ", res.data.travelGuide.audioUrl)
+        
+         setUsers([...res.data.travelGuides]);
+      console.log("\n\nmap Response body: ", res.data.travelGuides)
       console.log("Users: ", users)
       });
     // axios
@@ -167,10 +169,10 @@ const Map = () => {
             style={
               styles.txtNameStyle
             }>{`${item.name} ${item.audioLength}`}</Text>
-          <Text style={styles.txtEmailStyle}>{item.creatorID}</Text>
+          <Text style={styles.txtEmailStyle}>{fetchCreatorEmail(item.creatorId)}{email}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() =>  playOrPause()}>
+          <Pressable onPress={() =>  stopAndResume()}>
           
             <Image
               source={isPlaying ? PauseIcon : PlayIcon}
@@ -187,6 +189,28 @@ const Map = () => {
     );
   };
 
+  const stopAndResume = () =>{
+    isPlaying = !isPlaying
+    if(isPlaying)
+    {
+      console.log("Resume");
+      SoundPlayer.resume();
+    }
+    else{
+      console.log("pause");
+      SoundPlayer.pause();
+    }
+  };
+
+  const fetchCreatorEmail = (creatorId) => {
+    axios
+    .get(`http://192.168.0.94:8000/user/username?id=`+creatorId)
+    .then( res =>{
+      console.log("fetch create: ",res.data.username)
+      setEmail(res.data.username)
+    })
+  }
+
   const renderLoader = () => {
     return isLoading ? (
       <View style={styles.loaderStyle}>
@@ -196,7 +220,7 @@ const Map = () => {
   };
 
   const loadMoreItem = () => {
-    setCurrentPage(currentPage + 1);
+    // setCurrentPage(currentPage + 1);
   };
 
   useEffect(() => {
@@ -409,7 +433,7 @@ const Map = () => {
                 renderItem={renderItem}
                 ListFooterComponent={renderLoader}
                 onEndReached={loadMoreItem}
-                onEndReachedThreshold={0}
+                onEndReachedThreshold={2}
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{flexGrow: 1}}
               />
