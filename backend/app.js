@@ -25,13 +25,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use(
-    cors({
-      origin: CLIENT_URL,
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-      credentials: true,
-    })
-  );
+app.use(cors());
 
 app.use(session({
     secret: "535510n53cr3t",
