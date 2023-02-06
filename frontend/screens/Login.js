@@ -24,7 +24,6 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
-    props.navigation.navigate('MyTabs');
     fetch('http://192.168.0.94:8000/auth/login', {
       credentials: 'include',
       method: 'POST',
