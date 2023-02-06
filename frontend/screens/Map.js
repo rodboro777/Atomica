@@ -63,20 +63,20 @@ const Map = () => {
 
   const playOrPause = async () => {
     console.log("playor pause")
-    setIsPlaying(!isPlaying);
     playAudio();
     setMPlayerdetails();
   };
 
   const playAudio = () => {
+    setIsPlaying(!isPlaying);
     console.log("isplaying: ",isPlaying)
-    // if(isPlaying)
-    // {
+    if(isPlaying)
+    {
       fetchAudio();
-    // }
-    // else{
-    //   SoundPlayer.stop();
-    // }
+    }
+    else{
+      SoundPlayer.stop();
+    }
   }
 
   const setMPlayerdetails = item => {
@@ -166,8 +166,8 @@ const Map = () => {
           <Text
             style={
               styles.txtNameStyle
-            }>{`${item.name} ${item.audioLength} ${item.creatorId}`}</Text>
-          <Text style={styles.txtEmailStyle}>{item.email}</Text>
+            }>{`${item.name} ${item.audioLength}`}</Text>
+          <Text style={styles.txtEmailStyle}>{item.creatorID}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
           <Pressable onPress={() =>  playOrPause()}>
