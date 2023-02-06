@@ -78,7 +78,7 @@ router.post('/', async(req, res) => {
         .setName(req.body.name)
         .setDescription(req.body.description)
         .setCreatorId(req.body.creatorId)
-        .setTravelGuideId(req.body.travelGuideId)
+        .setTravelGuideId(req.body.travelGuideIds)
         .setPublic(req.body.public)
         .build();
 
