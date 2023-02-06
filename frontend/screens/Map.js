@@ -99,6 +99,11 @@ const Map = () => {
   };
 
   const getUsers = () => {
+    axios
+      .get(`http://192.168.0.94:8000/travelGuide/?id=63da52b7095a9384c23271ec`)
+      .then(res => {
+      console.log("\n\nmap Response body: ", res.data.travelGuide.audioUrl)
+      });
     setIsLoading(true);
     axios
       .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
@@ -176,7 +181,7 @@ const Map = () => {
           renderDescription={row => row.description} // custom description render
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
-            console.log(data, details);
+            //console.log(data, details);
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
