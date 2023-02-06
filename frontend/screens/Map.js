@@ -26,8 +26,8 @@ import axios from 'axios';
 const Map = () => {
   Geolocation.requestAuthorization();
   const [region, setRegion] = React.useState({
-    latitude: 53.35014,
-    longitude: -6.266155,
+    latitude: 53.9854,
+    longitude: -6.3945,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
@@ -244,8 +244,8 @@ const Map = () => {
       <MapView
         style={styles.mapStyle}
         initialRegion={{
-          latitude: 53.35014,
-          longitude: -6.266155,
+          latitude: 53.9854,
+          longitude: -6.3945,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
