@@ -50,7 +50,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
       });
       console.log(formData);
 
-      fetch('http://192.168.176.219:8000/travelGuide', {
+      fetch('http://192.168.0.94:8000/travelGuide', {
         credentials: 'include',
         method: 'POST',
         headers: {

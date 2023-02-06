@@ -22,6 +22,7 @@ import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play.png';
 import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
+import SoundPlayer from 'react-native-sound-player'
 
 const Map = () => {
   Geolocation.requestAuthorization();
@@ -49,6 +50,7 @@ const Map = () => {
     'OConnell Bridge, North City, Dublin 1, Ireland',
   );
 
+  const [email, setEmail] = useState("")
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,13 +63,26 @@ const Map = () => {
   };
 
   const playOrPause = async () => {
-    setIsPlaying(!isPlaying);
+    console.log("playor pause")
+    playAudio();
     setMPlayerdetails();
   };
 
+  const playAudio = () => {
+    setIsPlaying(!isPlaying);
+    console.log("isplaying: ",isPlaying)
+    if(isPlaying)
+    {
+      SoundPlayer.stop();
+    }
+    else{
+      fetchAudio();
+    }
+  }
+
   const setMPlayerdetails = item => {
-    setMPtitle(item.name.title);
-    setMPdes(item.name.first);
+    setMPtitle(item.name);
+    setMPdes(item.description);
     console.log('MPtitle: ' + MPtitle + 'MPdesc: ' + MPdesc);
   };
 
@@ -99,32 +114,66 @@ const Map = () => {
   };
 
   const getUsers = () => {
-    setIsLoading(true);
+    setIsLoading(false);
     axios
-      .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
+      .get(`http://192.168.0.94:8000/travelGuide/byLocation?placeId=ChIJg5xFFhTMYEgRwhbyrb1Dx2w`)
       .then(res => {
-        //setUsers(res.data.results);
-        setUsers([...users, ...res.data.results]);
-        setIsLoading(false);
+        
+         setUsers([...res.data.travelGuides]);
+      console.log("\n\nmap Response body: ", res.data.travelGuides)
+      console.log("Users: ", users)
       });
+    // axios
+    //   .get(`https://randomuser.me/api/?page=${currentPage}&results=10`)
+    //   .then(res => {
+    //     //setUsers(res.data.results);
+    //     setUsers([...users, ...res.data.results]);
+    //     setIsLoading(false);
+    //   });
+  };
+
+  const fetchAudio = async () =>
+  {
+    try
+    {
+      console.log("Trying to play audio");
+      // play the file tone.mp3
+      SoundPlayer.playSoundFile('sound', 'mp3');
+      console.log("Playing");
+      //       or play from url
+          //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
+      try
+      {
+        const info = await SoundPlayer.getInfo() // Also, you need to await this because it is async
+        console.log('getInfo', info) // {duration: 12.416, currentTime: 7.691}
+      } catch (e)
+      {
+        console.log('There is no song playing', e)
+      }
+    } catch (e)
+    {
+      console.log(`cannot play the sound file`, e);
+    }
   };
 
   const renderItem = ({item}) => {
+    console.log("Render item: ", item)
     return (
       <View style={styles.itemWrapperStyle}>
-        <Image
+        {/* <Image
           style={styles.itemImageStyle}
           source={{uri: item.picture.large}}
-        />
+        /> */}
         <View style={styles.contentWrapperStyle}>
           <Text
             style={
               styles.txtNameStyle
-            }>{`${item.name.title} ${item.name.first} ${item.name.last}`}</Text>
-          <Text style={styles.txtEmailStyle}>{item.email}</Text>
+            }>{`${item.name} ${item.audioLength}`}</Text>
+          <Text style={styles.txtEmailStyle}>{fetchCreatorEmail(item.creatorId)}{email}</Text>
         </View>
         <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => playOrPause()}>
+          <Pressable onPress={() =>  stopAndResume()}>
+          
             <Image
               source={isPlaying ? PauseIcon : PlayIcon}
               style={{
@@ -140,6 +189,28 @@ const Map = () => {
     );
   };
 
+  const stopAndResume = () =>{
+    isPlaying = !isPlaying
+    if(isPlaying)
+    {
+      console.log("Resume");
+      SoundPlayer.resume();
+    }
+    else{
+      console.log("pause");
+      SoundPlayer.pause();
+    }
+  };
+
+  const fetchCreatorEmail = (creatorId) => {
+    axios
+    .get(`http://192.168.0.94:8000/user/username?id=`+creatorId)
+    .then( res =>{
+      console.log("fetch create: ",res.data.username)
+      setEmail(res.data.username)
+    })
+  }
+
   const renderLoader = () => {
     return isLoading ? (
       <View style={styles.loaderStyle}>
@@ -149,7 +220,7 @@ const Map = () => {
   };
 
   const loadMoreItem = () => {
-    setCurrentPage(currentPage + 1);
+    // setCurrentPage(currentPage + 1);
   };
 
   useEffect(() => {
@@ -176,13 +247,14 @@ const Map = () => {
           renderDescription={row => row.description} // custom description render
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
-            console.log(data, details);
+            //console.log(data, details);
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
+            setShowMarker(true);
             // console.log(
             //   'photo reference: ' + details.photos[0].photo_reference,
             // );
@@ -358,11 +430,11 @@ const Map = () => {
             <ScrollView style={{height: 0, marginTop: 10}}>
               <FlatList
                 data={users}
-                keyExtractor={item => item.email}
+                keyExtractor={item => item.data}
                 renderItem={renderItem}
                 ListFooterComponent={renderLoader}
                 onEndReached={loadMoreItem}
-                onEndReachedThreshold={0}
+                onEndReachedThreshold={2}
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={{flexGrow: 1}}
               />
