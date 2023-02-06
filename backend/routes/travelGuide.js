@@ -119,6 +119,7 @@ router.post(
   "/",
   upload.fields([{ name: "audio" }, { name: "image" }]),
   async (req, res) => {
+    console.log(req.body)
     try {
       // upload the audio
       const audioUrl = await GCSManager.uploadAudio(

@@ -24,7 +24,7 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
-    fetch('http://192.168.176.219:8000/auth/login', {
+    fetch('http://192.168.0.94:8000/auth/login', {
       credentials: 'include',
       method: 'POST',
       headers: {
@@ -53,7 +53,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      fetch('http://192.168.176.219:8000/auth/google', {
+      fetch('http://192.168.126.219:8000/auth/google', {
         credentials: 'include',
         method: 'POST',
         headers: {
@@ -104,7 +104,7 @@ const Login = props => {
             Forgot Password?
           </Text>
         </View>
-        <Submit title="LOG IN" color="#0148a4" handleSubmit={localSignIn} />
+        <Submit title="LOG IN" color="#-" handleSubmit={localSignIn} />
         <Text style={styles.textBody}>Or login using</Text>
         <View style={{flexDirection: 'row'}}>
           <Account
