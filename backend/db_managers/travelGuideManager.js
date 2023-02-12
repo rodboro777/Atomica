@@ -107,11 +107,34 @@ class TravelGuideManager {
     }
   }
 
-  static async getTravelGuidesStartingWith(char){
+  static async getTravelGuidesStartingWith(char) {
     try {
       const docs = await TravelGuideModel.find({
         name: { $regex: char, $options: "i" },
       });
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getTravelGuidesAndItinerariesByPlaceId(placeId) {
+    try {
+      const docs = await TravelGuideModel.aggregate([
+        {
+          $match: {
+            placeId: `${placeId}`,
+          },
+        },
+        {
+          $lookup: {
+            from: "itineraries",
+            localField: "_id",
+            foreignField: "travelGuideId",
+            as: "itineraries",
+          },
+        },
+      ]);
       return docs;
     } catch (err) {
       throw err;
