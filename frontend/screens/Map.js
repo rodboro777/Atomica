@@ -22,8 +22,8 @@ import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play.png';
 import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
-import SoundPlayer from 'react-native-sound-player'
-
+import SoundPlayer from 'react-native-sound-player';
+import ip from '../ip';
 const Map = () => {
   Geolocation.requestAuthorization();
   const [region, setRegion] = React.useState({
@@ -119,7 +119,7 @@ const Map = () => {
   const getUsernames = async (travelGuides) => {
     const promises = [];
     for (let i = 0; i < travelGuides.length; i++) {
-      let res = await axios.get(`http://192.168.126.219:8000/user/username?id=${travelGuides[i].creatorId}`);
+      let res = await axios.get(`http://${ip.ip}:8000/user/username?id=${travelGuides[i].creatorId}`);
       let username = await res.data.username;
       promises.push(username);
     }
@@ -367,7 +367,7 @@ const Map = () => {
             });
             console.log("After setPlaceID: ",placeIds)
             setIsLoading(false);
-            res = await axios.get(`http://192.168.126.219:8000/travelGuide/byLocation?placeId=${placeIds}`)
+            res = await axios.get(`http://${ip.ip}:8000/travelGuide/byLocation?placeId=${placeIds}`)
             let travelGuides = res.data.travelGuides;
             let usernames = await getUsernames(travelGuides);
             let travelGuidesWithUsernames = [];
@@ -462,7 +462,7 @@ const Map = () => {
             {/* <ScrollView style={{height: 0, marginTop: 10}}> */}
               <FlatList
                 data={users}
-                keyExtractor={item => item.data}
+                keyExtractor={item => item._id}
                 renderItem={renderItem}
                 ListFooterComponent={renderLoader}
                 onEndReached={loadMoreItem}

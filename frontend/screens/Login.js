@@ -5,6 +5,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import {useNavigation} from '@react-navigation/native';
+import ip from '../ip';
 
 import Inputs from '../components/Inputs';
 import Submit from '../components/Submit';
@@ -24,7 +25,7 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
-    fetch('http://192.168.178.168:8000/auth/login', {
+    fetch(`http://${ip.ip}:8000/auth/login`, {
       credentials: 'include',
       method: 'POST',
       headers: {
@@ -53,7 +54,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
-      fetch('http://192.168.178.168:8000/auth/google', {
+      fetch(`http://${ip.ip}:8000/auth/google`, {
         credentials: 'include',
         method: 'POST',
         headers: {

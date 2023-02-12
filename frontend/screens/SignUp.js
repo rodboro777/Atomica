@@ -3,6 +3,7 @@ import {View, StyleSheet, Text, Image, ScrollView} from 'react-native';
 
 import Inputs from "../components/Inputs";
 import Submit from "../components/Submit";
+import ip from "../ip";
 
 const SignUp = props => {
 
@@ -16,7 +17,7 @@ const SignUp = props => {
    const registerLocal = async () => {
 
 
-        fetch('http://192.168.178.168:8000/auth/register', {
+        fetch(`http://${ip.ip}:8000/auth/register`, {
                     credentials: 'include',
                     method: 'POST',
                     headers: {
