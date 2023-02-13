@@ -13,6 +13,7 @@ import DownloadIcon from '../assets/download.png';
 import EditIcon from '../assets/pencil.png';
 import DeleteIcon from '../assets/trash.png';
 import {useIsFocused} from '@react-navigation/native';
+import ip from '../ip';
 
 const Library = ({navigation}) => {
   const [travelGuides, setTravelGuides] = useState([]);
@@ -20,7 +21,7 @@ const Library = ({navigation}) => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    fetch('http://192.168.178.168:8000/travelGuide/byUser', {
+    fetch(`http://${ip.ip}:8000/travelGuide/byUser`, {
       credentials: 'include',
       method: 'GET',
     })
@@ -31,7 +32,7 @@ const Library = ({navigation}) => {
       .catch(err => {
         console.log(err);
       });
-    fetch('http://192.168.178.168:8000/itinerary/byUser', {
+    fetch(`http://${ip.ip}:8000/itinerary/byUser`, {
       credentials: 'include',
       method: 'GET',
     })
@@ -46,7 +47,7 @@ const Library = ({navigation}) => {
 
   async function handleDelete(type, id) {
     if (type === 'itinerary') {
-      fetch(`http://192.168.178.168:8000/itinerary?id=${id}`, {
+      fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
         credentials: 'include',
         method: 'DELETE',
       })
@@ -61,7 +62,7 @@ const Library = ({navigation}) => {
           console.log(err);
         });
     } else {
-      fetch(`http://192.168.178.168:8000/travelGuide?id=${id}`, {
+      fetch(`http://${ip.ip}:8000/travelGuide?id=${id}`, {
         credentials: 'include',
         method: 'DELETE',
       })

@@ -47,16 +47,16 @@ router.get("/byLocation", async (req, res) => {
   }
 
   try {
-    const travelGuides = await TravelGuideManager.getTravelGuidesByPlaceId(
+    const results = await TravelGuideManager.getTravelGuidesAndItinerariesByPlaceId(
       placeId
     );
     res.send({
-      travelGuides: travelGuides,
+      results: results,
     });
   } catch (err) {
     console.log(err);
     res.send({
-      travelGuides: [],
+      results: [],
     });
   }
 });
@@ -119,7 +119,7 @@ router.post(
   "/",
   upload.fields([{ name: "audio" }, { name: "image" }]),
   async (req, res) => {
-    console.log(req.body)
+    console.log(req.body);
     try {
       // upload the audio
       const audioUrl = await GCSManager.uploadAudio(
@@ -146,29 +146,31 @@ router.post(
       await TravelGuideManager.createTravelGuideRequest(request);
       res.send({
         statusCode: 200,
-      })
+      });
     } catch (err) {
       console.log(err);
       res.send({
         statusCode: 500,
-      })
+      });
     }
   }
 );
 
-router.get('/startsWith', async (req, res) => {
-    const prefix = req.query.prefix;
-    try {
-        const travelGuides = await TravelGuideManager.getTravelGuidesStartingWith(prefix);
-        res.send({
-            travelGuides: travelGuides,
-        });
-    } catch (err) {
-        console.log(err);
-        res.send({
-            travelGuides: []
-        })
-    }
+router.get("/startsWith", async (req, res) => {
+  const prefix = req.query.prefix;
+  try {
+    const travelGuides = await TravelGuideManager.getTravelGuidesStartingWith(
+      prefix
+    );
+    res.send({
+      travelGuides: travelGuides,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      travelGuides: [],
+    });
+  }
 });
 
 router.delete("/", async (req, res) => {

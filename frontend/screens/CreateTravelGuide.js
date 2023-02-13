@@ -7,6 +7,8 @@ import CEye from '../assets/ceye.png';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Done from '../assets/done.png';
 import DocumentPicker from 'react-native-document-picker';
+import ip from '../ip';
+
 
 
 export default function CreateTravelGuide({navigation, route}) {
@@ -40,7 +42,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
       });
       console.log(formData);
 
-      fetch('http://192.168.0.94:8000/travelGuide', {
+      fetch(`http://${ip.ip}:8000/travelGuide`, {
         credentials: 'include',
         method: 'POST',
         headers: {

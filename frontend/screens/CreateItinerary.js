@@ -14,6 +14,7 @@ import Eye from '../assets/eye.png';
 import CEye from '../assets/ceye.png';
 import Done from '../assets/done.png';
 import axios from 'axios';
+import ip from '../ip';
 
 export default function CreateItinerary({navigation, route}) {
   const [itinerary, setItinerary] = useState({
@@ -34,7 +35,7 @@ export default function CreateItinerary({navigation, route}) {
       return;
     }
     await fetch(
-      `http://192.168.178.168:8000/travelGuide/startsWith?prefix=${name}`,
+      `http://${ip.ip}:8000/travelGuide/startsWith?prefix=${name}`,
       {
         credentials: 'include',
         method: 'GET',
@@ -78,7 +79,7 @@ export default function CreateItinerary({navigation, route}) {
       travelGuideIds: tgId,
     };
     await axios
-      .post('http://192.168.178.168:8000/itinerary', data)
+      .post(`http://${ip.ip}:8000/itinerary`, data)
       .then(res => {
         console.log('success');
         navigation.goBack();

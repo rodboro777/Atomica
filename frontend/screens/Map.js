@@ -22,8 +22,8 @@ import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play.png';
 import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
-import SoundPlayer from 'react-native-sound-player'
-
+import SoundPlayer from 'react-native-sound-player';
+import ip from '../ip';
 const Map = () => {
   Geolocation.requestAuthorization();
   const [region, setRegion] = React.useState({
@@ -34,7 +34,7 @@ const Map = () => {
   });
 
   const [showMarker, setShowMarker] = React.useState(false);
-
+  const [showTg, setShowTg] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const placeRef = useRef(null);
   const [photo, setPhoto] = useState(
@@ -54,7 +54,8 @@ const Map = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState([null, false]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [users, setUsers] = useState([]);
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [itineraries, setItineraries] = useState([]);
   const [MPtitle, setMPtitle] = useState('Default Name');
   const [MPdesc, setMPdes] = useState('Default Artist');
 
@@ -63,22 +64,20 @@ const Map = () => {
   };
 
   const playOrPause = async () => {
-    console.log("playor pause")
+    console.log('playor pause');
     playAudio();
     setMPlayerdetails();
   };
 
   const playAudio = () => {
     setIsPlaying(!isPlaying);
-    console.log("isplaying: ",isPlaying)
-    if(isPlaying)
-    {
+    console.log('isplaying: ', isPlaying);
+    if (isPlaying) {
       SoundPlayer.stop();
-    }
-    else{
+    } else {
       fetchAudio();
     }
-  }
+  };
 
   const setMPlayerdetails = item => {
     setMPtitle(item.name);
@@ -113,40 +112,35 @@ const Map = () => {
     );
   };
 
-  
-
   // get the usernames of the creators of the given travel guides.
-  const getUsernames = async (travelGuides) => {
+  const getUsernames = async docs => {
     const promises = [];
-    for (let i = 0; i < travelGuides.length; i++) {
-      let res = await axios.get(`http://192.168.126.219:8000/user/username?id=${travelGuides[i].creatorId}`);
+    for (let i = 0; i < docs.length; i++) {
+      let res = await axios.get(
+        `http://${ip.ip}:8000/user/username?id=${docs[i].creatorId}`,
+      );
       let username = await res.data.username;
       promises.push(username);
     }
     const usernames = await Promise.all(promises);
     return usernames;
-  }
+  };
 
-  const fetchAudio = async () =>
-  {
-    try
-    {
-      console.log("Trying to play audio");
+  const fetchAudio = async () => {
+    try {
+      console.log('Trying to play audio');
       // play the file tone.mp3
       SoundPlayer.playSoundFile('sound', 'mp3');
-      console.log("Playing");
+      console.log('Playing');
       //       or play from url
-          //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
-      try
-      {
-        const info = await SoundPlayer.getInfo() // Also, you need to await this because it is async
-        console.log('getInfo', info) // {duration: 12.416, currentTime: 7.691}
-      } catch (e)
-      {
-        console.log('There is no song playing', e)
+      //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
+      try {
+        const info = await SoundPlayer.getInfo(); // Also, you need to await this because it is async
+        console.log('getInfo', info); // {duration: 12.416, currentTime: 7.691}
+      } catch (e) {
+        console.log('There is no song playing', e);
       }
-    } catch (e)
-    {
+    } catch (e) {
       console.log(`cannot play the sound file`, e);
     }
   };
@@ -159,60 +153,63 @@ const Map = () => {
           source={{uri: item.picture.large}}
         /> */}
         <View style={styles.contentWrapperStyle}>
-          <Text
-            style={
-              styles.txtNameStyle
-            }>{`${item.name}`}</Text>
+          <Text style={styles.txtNameStyle}>{`${item.name}`}</Text>
           <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
-        <View style={{alignItems: 'center'}}>
-          <Pressable onPress={() => togglePlayAudio(item._id)}>
-            <Image
-              source={(currentlyPlaying[0] == item._id && currentlyPlaying[1]) ? PauseIcon : PlayIcon}
-              style={{
-                height: 30,
-                tintColor: '#000',
-                width: 30,
-                marginRight: 10,
-              }}
-            />
-          </Pressable>
-        </View>
+        {showTg && (
+          <View style={{alignItems: 'center'}}>
+            <Pressable onPress={() => togglePlayAudio(item._id)}>
+              <Image
+                source={
+                  currentlyPlaying[0] == item._id && currentlyPlaying[1]
+                    ? PauseIcon
+                    : PlayIcon
+                }
+                style={{
+                  height: 30,
+                  tintColor: '#000',
+                  width: 30,
+                  marginRight: 10,
+                }}
+              />
+            </Pressable>
+          </View>
+        )}
       </View>
     );
   };
 
-  const playAudiohaha = async(id) => {
-    console.log("_id: ",id)
-    setIsPlaying(!isPlaying);
-    SoundPlayer.stop();
-    // get travel guide with the id
-    let audioUrl = "";
-    for (let i = 0; i < users.length; i++) {
-      if (users[i]._id == id) {
-        audioUrl = users[i].audioUrl;
-        console.log("AUdio url: ", audioUrl)
-        SoundPlayer.playUrl(audioUrl);
-      }
-    }
-  }
+  // const playAudiohaha = async id => {
+  //   console.log('_id: ', id);
+  //   setIsPlaying(!isPlaying);
+  //   SoundPlayer.stop();
+  //   // get travel guide with the id
+  //   let audioUrl = '';
+  //   for (let i = 0; i < travelGuides.length; i++) {
+  //     if (travelGuides[i]._id == id) {
+  //       audioUrl = travelGuides[i].audioUrl;
+  //       console.log('AUdio url: ', audioUrl);
+  //       SoundPlayer.playUrl(audioUrl);
+  //     }
+  //   }
+  // };
 
   async function togglePlayAudio(id) {
     if (currentlyPlaying[0] == null || currentlyPlaying[0] != id) {
       await SoundPlayer.stop();
       setCurrentlyPlaying([id, true]);
-      let audioUrl = "";
-      for (let i = 0; i < users.length; i++) {
-        if (users[i]._id == id) {
-          audioUrl = users[i].audioUrl;
-          console.log("AUdio url: ", audioUrl)
+      let audioUrl = '';
+      for (let i = 0; i < travelGuides.length; i++) {
+        if (travelGuides[i]._id == id) {
+          audioUrl = travelGuides[i].audioUrl;
+          console.log('AUdio url: ', audioUrl);
           break;
         }
       }
       await SoundPlayer.loadUrl(audioUrl);
       await SoundPlayer.play();
     } else if (currentlyPlaying[1]) {
-      setCurrentlyPlaying([id, false])
+      setCurrentlyPlaying([id, false]);
       await SoundPlayer.pause();
     } else {
       setCurrentlyPlaying([id, true]);
@@ -220,15 +217,13 @@ const Map = () => {
     }
   }
 
-  const stopAndResume = () =>{
+  const stopAndResume = () => {
     setIsPlaying(!isPlaying);
-    if(isPlaying)
-    {
-      console.log("Resume");
+    if (isPlaying) {
+      console.log('Resume');
       SoundPlayer.play();
-    }
-    else{
-      console.log("pause");
+    } else {
+      console.log('pause');
       SoundPlayer.pause();
     }
   };
@@ -240,10 +235,52 @@ const Map = () => {
       </View>
     ) : null;
   };
-  const [placeId, setPlaceId] = useState("");
+  const [placeId, setPlaceId] = useState('');
   const loadMoreItem = () => {
     setCurrentPage(currentPage + 1);
   };
+
+  async function getTravelGuidesAndItineraries(placeId) {
+    await axios
+      .get(`http://${ip.ip}:8000/travelGuide/byLocation?placeId=${placeId}`)
+      .then(async res => {
+        const results = res.data.results;
+        let tg = results.map(result => {
+          return {
+            _id: result._id,
+            name: result.name,
+            creatorId: result.creatorId,
+            audioUrl: result.audioUrl,
+            placeId: result.placeId,
+            description: result.description,
+            imageUrl: result.imageUrl,
+            audioLength: result.audioLength,
+            public: result.public,
+          };
+        });
+        let it = [];
+        for (let i = 0; i < results.length; i++) {
+          for (let j = 0; j < results[i].itineraries.length; j++) {
+            it.push(results[i].itineraries[j]);
+          }
+        }
+        const tgUsername = await getUsernames(tg);
+        const itUsername = await getUsernames(it);
+        let modifiedTg = [];
+        for (let i = 0; i < tgUsername.length; i++) {
+          modifiedTg.push({...tg[i], username: tgUsername[i]});
+        }
+        let modifiedIt = [];
+        for (let i = 0; i < itUsername.length; i++) {
+          modifiedIt.push({...it[i], username: itUsername[i]});
+        }
+        setTravelGuides(modifiedTg);
+        setItineraries(modifiedIt);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
 
   useEffect(() => {
     // getUsers();
@@ -251,7 +288,6 @@ const Map = () => {
     LogBox.ignoreLogs(['Encountered two children with the same key']);
     LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
   }, [currentPage]);
-
 
   return (
     <View style={{marginTop: 0, flex: 1}}>
@@ -349,35 +385,25 @@ const Map = () => {
         customMapStyle={mapStyle}
         region={region}
         onPoiClick={async e => {
-          let placeIds = "";
-          let res = await axios .get(
+          let placeIds = '';
+          let res = await axios.get(
             `https://maps.googleapis.com/maps/api/place/details/json?place_id=${e.nativeEvent.placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
           );
-            let data = res.data.result;
-            console.log("Before place ids setting: ", placeIds)
-            placeIds = res.data.result.place_id;
-            setShowMarker(true);
-            setPhoto(data.photos[0].photo_reference);
-            setDescription(data.name);
-            setRegion({
-              latitude: data.geometry.location.lat,
-              longitude: data.geometry.location.lng,
-              latitudeDelta: region.latitudeDelta,
-              longitudeDelta: region.longitudeDelta,
-            });
-            console.log("After setPlaceID: ",placeIds)
-            setIsLoading(false);
-            res = await axios.get(`http://192.168.126.219:8000/travelGuide/byLocation?placeId=${placeIds}`)
-            let travelGuides = res.data.travelGuides;
-            let usernames = await getUsernames(travelGuides);
-            let travelGuidesWithUsernames = [];
-            for (let i = 0; i < travelGuides.length; i++) {
-              travelGuidesWithUsernames.push({
-                ...travelGuides[i],
-                username: usernames[i],
-              });
-            }
-            setUsers(travelGuidesWithUsernames);
+          let data = res.data.result;
+          console.log('Before place ids setting: ', placeIds);
+          placeIds = res.data.result.place_id;
+          setShowMarker(true);
+          setPhoto(data.photos[0].photo_reference);
+          setDescription(data.name);
+          setRegion({
+            latitude: data.geometry.location.lat,
+            longitude: data.geometry.location.lng,
+            latitudeDelta: region.latitudeDelta,
+            longitudeDelta: region.longitudeDelta,
+          });
+          console.log('After setPlaceID: ', placeIds);
+          setIsLoading(false);
+          getTravelGuidesAndItineraries(placeIds);
         }}>
         {showMarker && (
           <Marker
@@ -450,26 +476,34 @@ const Map = () => {
                 marginTop: 10,
               }}>
               <View style={{width: 150}}>
-                <Button title="Travel guides" color="#000" />
+                <Button
+                  title="Travel guides"
+                  color="#000"
+                  onPress={() => setShowTg(true)}
+                />
               </View>
               <View style={{marginLeft: 70, width: 150}}>
-                <Button title="Itineraries" color="#000" />
+                <Button
+                  title="Itineraries"
+                  color="#000"
+                  onPress={() => setShowTg(false)}
+                />
               </View>
             </View>
           </View>
           <StatusBar backgroundColor="#000" />
           <View style={{height: 250}}>
             {/* <ScrollView style={{height: 0, marginTop: 10}}> */}
-              <FlatList
-                data={users}
-                keyExtractor={item => item.data}
-                renderItem={renderItem}
-                ListFooterComponent={renderLoader}
-                onEndReached={loadMoreItem}
-                onEndReachedThreshold={2}
-                showsVerticalScrollIndicator={true}
-                contentContainerStyle={{flexGrow: 1}}
-              />
+            <FlatList
+              data={showTg ? travelGuides : itineraries}
+              keyExtractor={item => item._id}
+              renderItem={renderItem}
+              ListFooterComponent={renderLoader}
+              onEndReached={loadMoreItem}
+              onEndReachedThreshold={2}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{flexGrow: 1}}
+            />
             {/* </ScrollView> */}
           </View>
           {/* <Pressable>
