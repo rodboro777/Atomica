@@ -32,6 +32,7 @@ const Map = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [isLight, setLight] = useState(true);
 
   const [showMarker, setShowMarker] = React.useState(false);
   const [showTg, setShowTg] = useState(true);
@@ -92,6 +93,12 @@ const Map = () => {
       icon: require('../assets/gps.png'),
       position: 1,
     },
+    {
+      text: 'Brightness Mode',
+      name: 'Brightness',
+      icon: isLight ? require('../assets/dark_mode.png') : require('../assets/light_mode.png'),
+      position: 2,
+    }
   ];
 
   const getCurrentPosition = async () => {
@@ -382,7 +389,7 @@ const Map = () => {
         }}
         showsUserLocation
         provider="google"
-        customMapStyle={mapStyle}
+        customMapStyle={isLight ? mapStyleLight : mapStyleDark}
         region={region}
         onPoiClick={async e => {
           let placeIds = '';
@@ -426,8 +433,12 @@ const Map = () => {
       <FloatingAction
         actions={actions}
         onPressItem={name => {
-          console.log(`selected button: ${name}`);
-          console.log('curr: ' + getCurrentPosition());
+          if (name == 'Geolocation') {
+            console.log(`selected button: ${name}`);
+            console.log('curr: ' + getCurrentPosition());
+          } else if (name == 'Brightness') {
+            setLight(!isLight);
+          }
         }}
         color="orange"
         position="right"
@@ -691,7 +702,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStyle = [
+const mapStyleLight = [];
+const mapStyleDark = [
   {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
   {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
   {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
