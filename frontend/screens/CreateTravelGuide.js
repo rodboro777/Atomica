@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import Plus from '../assets/plus.png';
 import Upload from '../assets/upload.png';
 import Eye from '../assets/eye.png';
@@ -14,12 +14,15 @@ import ip from '../ip';
 export default function CreateTravelGuide({navigation, route}) {
   const homePlace = { description: 'Home', geometry: { location: { lat: 48.8152937, lng: 2.4597668 } }};
 const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818, lng: 2.2940881 } }};
+    const [defaultPhotoUrl, setDefaultPhotoUrl] = useState("");
+    const key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
     const [location, setLocation] = React.useState({
       placeId: '',
       name: '',
       description: '',
       audio: null,
       locationName: '',
+      uploadedPhoto: null,
     });
     const [eicon, setEicon] = React.useState(Eye);
     const [ region, setRegion ] = React.useState({
@@ -40,6 +43,13 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
         type: location.audio.type,
         name: location.audio.name,
       });
+
+      if (location.uploadedPhoto) {
+        formData.append('image', location.uploadedPhoto);
+      } else {
+        formData.append('imageUrl', defaultPhotoUrl);
+      }
+
       console.log(formData);
 
       fetch(`http://${ip.ip}:8000/travelGuide`, {
@@ -116,13 +126,22 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
           locationName: data.structured_formatting.main_text,
           placeId: data.place_id,
         });
+
+        // get the photoref.
+        const photoRef = details.photos[0].photo_reference;
+        const url =
+          'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
+          photoRef +
+          '&sensor=false&maxheight=500&maxwidth=500&key=' +
+          key;
+        setDefaultPhotoUrl(url);
       }}
       
       getDefaultValue={() => ''}
       
       query={{
         // available options: https://developers.google.com/places/web-service/autocomplete
-        key: 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g',
+        key: key,
         language: 'en', // language of the results
         types: "establishment", // default: 'geocode',
         location: `${region.latitude}, ${region.longitude}`,
@@ -210,6 +229,30 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
           />
           <View style={styles.buttonIconSeparatorStyle} />
           <Text style={styles.buttonTextStyle}>Upload Audio</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+          style={styles.buttonItiStyle}
+          activeOpacity={0.5}
+          onPress={async () => {
+            try {
+              const result = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+              });
+              setLocation({
+                ...location,
+                uploadedPhoto: result[0],
+              })
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+          >
+          <Image
+            source={Upload}
+            style={styles.buttonImageIconStyle}
+          />
+          <View style={styles.buttonIconSeparatorStyle} />
+          <Text style={styles.buttonTextStyle}>Upload Image</Text>
       </TouchableOpacity>
       <TouchableOpacity
           style={styles.buttonItiStyle}
