@@ -129,17 +129,22 @@ router.post(
       const metadata = await mm.parseBuffer(audio.buffer, audio.mimetype);
       const duration = metadata.format.duration;
       // upload the audio
-      const audioId = crypto.randomBytes(64).toString('hex');
+      const id = crypto.randomBytes(64).toString('hex');
       const audioUrl = await GCSManager.uploadAudio(
         req.files.audio[0],
-        `tg-audio-${audioId}`
+        `tg-audio-${id}`
       );
 
       // upload the image
-      // const imageUrl = await GCSManager.uploadAudio(
-      //   req.files.image[0],
-      //   `tg-image-${currId++}`
-      // );
+      let imageUrl = '';
+      if (req.body.imageUrl) {
+        imageUrl = req.body.imageUrl;
+      } else {
+        imageUrl = await GCSManager.uploadAudio(
+          req.files.image[0],
+          `tg-image-${id}`
+        );
+      }
 
       // create TravelGuideRequest.
       let request = new TravelGuide.Builder()
@@ -147,7 +152,7 @@ router.post(
         .setDescription(req.body.description)
         .setCreatorId(req.session.user._id)
         .setAudioUrl(audioUrl)
-        .setImageUrl(null)
+        .setImageUrl(imageUrl)
         .setAudioLength(duration)
         .setPlaceId(req.body.placeId)
         .build();
