@@ -38,6 +38,11 @@ class TravelGuideManager {
     }
   }
 
+  static async getPendingTravelGuidesByUser(userId) {
+    const docs = await TravelGuideRequestModel.find({creatorId: new ObjectID(userId)});
+    return docs;
+  }
+
   static async getTravelGuideRequests() {
     try {
       const docs = await TravelGuideRequestModel.find({});

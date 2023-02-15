@@ -72,13 +72,16 @@ router.get("/byUser", async (req, res) => {
 
   try {
     const travelGuides = await TravelGuideManager.getTravelGuidesByUser(userId);
+    const pendingTravelGuides = await TravelGuideManager.getPendingTravelGuidesByUser(userId);
     res.send({
       travelGuides: travelGuides,
+      pendingTravelGuides: pendingTravelGuides,
     });
   } catch (err) {
     console.log(err);
     res.send({
       travelGuides: [],
+      pendingTravelGuides: [],
     });
   }
 });
