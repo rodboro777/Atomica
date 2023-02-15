@@ -38,6 +38,12 @@ const Map = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [temp, setTemp] = useState({
+    latitude: 53.9854,
+    longitude: -6.3945,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
   const [isLight, setLight] = useState(true);
 
   const [showMarker, setShowMarker] = React.useState(false);
@@ -116,7 +122,7 @@ const Map = () => {
       pos => {
         console.log('curr: ' + JSON.stringify(pos));
         console.log('curr lng: ' + JSON.stringify(pos.coords.longitude));
-        setRegion({
+        setTemp({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
           latitudeDelta: 0.0922,
@@ -331,6 +337,12 @@ const Map = () => {
               latitudeDelta: 0.005,
               longitudeDelta: 0.005,
             });
+            setTemp({
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
@@ -408,13 +420,14 @@ const Map = () => {
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
         region={{
-          latitude: region.latitude,
-          longitude: region.longitude,
+          latitude: temp.latitude,
+          longitude: temp.longitude,
           latitudeDelta: coordinate.latitudeDelta,
           longitudeDelta: coordinate.longitudeDelta,
         }}
         onRegionChangeComplete={region => {
           setCoordinate(region);
+          setTemp(region);
         }}
         onPoiClick={async e => {
           let placeIds = '';
@@ -439,19 +452,12 @@ const Map = () => {
         }}>
         {showMarker && (
           <Marker
-            draggable={true}
-            coordinate={
-              {
-                latitude: region.latitude,
-                longitude: region.longitude,
-              }
-              //markers
-            }
-            onPress={toggleModal}>
-            <Callout>
-              <Text>I'm here</Text>
-            </Callout>
-          </Marker>
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+            onPress={toggleModal}
+          />
         )}
         <Circle center={region} radius={1000} />
       </MapView>
