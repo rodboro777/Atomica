@@ -4,7 +4,7 @@ const TravelGuide = require("../entities/TravelGuide");
 const GCSManager = require("../GCS_manager");
 const multer = require("multer");
 const upload = multer();
-let currId = 0;
+const crypto = require("crypto");
 
 router.use((err, req, res, next) => {
   if (req.session.user) {
@@ -119,12 +119,17 @@ router.post(
   "/",
   upload.fields([{ name: "audio" }, { name: "image" }]),
   async (req, res) => {
-    console.log(req.body);
     try {
+      const mm = await import('music-metadata');
+      console.log(req.body);
+      const audio = req.files.audio[0];
+      const metadata = await mm.parseBuffer(audio.buffer, audio.mimetype);
+      const duration = metadata.format.duration;
       // upload the audio
+      const audioId = crypto.randomBytes(64).toString('hex');
       const audioUrl = await GCSManager.uploadAudio(
         req.files.audio[0],
-        `tg-audio-${currId++}`
+        `tg-audio-${audioId}`
       );
 
       // upload the image
@@ -140,7 +145,7 @@ router.post(
         .setCreatorId(req.session.user._id)
         .setAudioUrl(audioUrl)
         .setImageUrl(null)
-        .setAudioLength(req.body.audioLength)
+        .setAudioLength(duration)
         .setPlaceId(req.body.placeId)
         .build();
       await TravelGuideManager.createTravelGuideRequest(request);
