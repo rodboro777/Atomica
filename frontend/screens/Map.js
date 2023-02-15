@@ -26,7 +26,19 @@ import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
 const Map = () => {
   Geolocation.requestAuthorization();
+  const [coordinate, setCoordinate] = useState({
+    latitude: 53.9854,
+    longitude: -6.3945,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
   const [region, setRegion] = React.useState({
+    latitude: 53.9854,
+    longitude: -6.3945,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+  const [temp, setTemp] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
     latitudeDelta: 0.0922,
@@ -96,18 +108,21 @@ const Map = () => {
     {
       text: 'Brightness Mode',
       name: 'Brightness',
-      icon: isLight ? require('../assets/dark_mode.png') : require('../assets/light_mode.png'),
+      icon: isLight
+        ? require('../assets/dark_mode.png')
+        : require('../assets/light_mode.png'),
       position: 2,
-    }
+    },
   ];
 
   const getCurrentPosition = async () => {
+    setShowMarker(false);
     //await requestLocationPermission()
     Geolocation.getCurrentPosition(
       pos => {
         console.log('curr: ' + JSON.stringify(pos));
         console.log('curr lng: ' + JSON.stringify(pos.coords.longitude));
-        setRegion({
+        setTemp({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
           latitudeDelta: 0.0922,
@@ -311,9 +326,23 @@ const Map = () => {
             rankby: 'distance',
           }}
           renderDescription={row => row.description} // custom description render
-          onPress={(data, details = null) => {
+          onPress={async (data, details = null) => {
             // 'details' is provided when fetchDetails = true
             //console.log(data, details);
+            getTravelGuidesAndItineraries(details.place_id);
+            placeRef.current.setAddressText('');
+            setCoordinate({
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
+            setTemp({
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
@@ -390,7 +419,16 @@ const Map = () => {
         showsUserLocation
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
-        region={region}
+        region={{
+          latitude: temp.latitude,
+          longitude: temp.longitude,
+          latitudeDelta: coordinate.latitudeDelta,
+          longitudeDelta: coordinate.longitudeDelta,
+        }}
+        onRegionChangeComplete={region => {
+          setCoordinate(region);
+          setTemp(region);
+        }}
         onPoiClick={async e => {
           let placeIds = '';
           let res = await axios.get(
@@ -405,8 +443,8 @@ const Map = () => {
           setRegion({
             latitude: data.geometry.location.lat,
             longitude: data.geometry.location.lng,
-            latitudeDelta: region.latitudeDelta,
-            longitudeDelta: region.longitudeDelta,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
           });
           console.log('After setPlaceID: ', placeIds);
           setIsLoading(false);
@@ -414,19 +452,12 @@ const Map = () => {
         }}>
         {showMarker && (
           <Marker
-            draggable={true}
-            coordinate={
-              {
-                latitude: region.latitude,
-                longitude: region.longitude,
-              }
-              //markers
-            }
-            onPress={toggleModal}>
-            <Callout>
-              <Text>I'm here</Text>
-            </Callout>
-          </Marker>
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+            onPress={toggleModal}
+          />
         )}
         <Circle center={region} radius={1000} />
       </MapView>
