@@ -12,6 +12,7 @@ import Plus from '../assets/plus.png';
 import DownloadIcon from '../assets/download.png';
 import EditIcon from '../assets/pencil.png';
 import DeleteIcon from '../assets/trash.png';
+import PendingIcon from '../assets/pending.png';
 import {useIsFocused} from '@react-navigation/native';
 import ip from '../ip';
 
@@ -27,7 +28,14 @@ const Library = ({navigation}) => {
     })
       .then(res => res.json())
       .then(resBody => {
-        setTravelGuides(resBody.travelGuides);
+        let totalTravelGuides = resBody.travelGuides;
+        resBody.pendingTravelGuides.forEach(tg => {
+          totalTravelGuides.push({
+            ...tg,
+            pending: true,
+          })
+        });
+        setTravelGuides(totalTravelGuides);
       })
       .catch(err => {
         console.log(err);
@@ -175,6 +183,34 @@ const Library = ({navigation}) => {
       </View>
     </View>
   );
+  const Item_PTG = ({title, desc}) => (
+    <View style={styles.item}>
+      <View style={{marginLeft: 10}}>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={styles.title}>{title}</Text>
+          <Image
+            source={PendingIcon}
+            style={{
+              height: 20,
+              tintColor: '#fff',
+              width: 20,
+              marginRight: 10,
+              position: 'absolute',
+              right: 0,
+              marginTop: 14,
+            }}
+          />
+        </View>
+        <View style={{flexDirection: 'row'}}>
+          <Image
+            source={DownloadIcon}
+            style={{height: 20, tintColor: '#000', width: 20, marginRight: 10}}
+          />
+          <Text style={styles.desc}>{desc}</Text>
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -214,9 +250,12 @@ const Library = ({navigation}) => {
           <FlatList
             keyExtractor={item => item._id}
             data={travelGuides}
-            renderItem={({item}) => (
-              <Item_TG title={item.name} desc={item.description} />
-            )}
+            renderItem={({item}) => {
+              if (item.pending) {
+                return <Item_PTG title={item.name} desc={item.description} />
+              }
+              return <Item_TG title={item.name} desc={item.description} />
+            }}
           />
         </View>
       </View>
