@@ -314,13 +314,15 @@ const Map = () => {
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
             //console.log(data, details);
+           //get latdelta and longdelta
+           console.log(details.geometry)
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,
             });
-            setShowMarker(true);
+            setShowMarker(false);
             // console.log(
             //   'photo reference: ' + details.photos[0].photo_reference,
             // );
@@ -387,6 +389,7 @@ const Map = () => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
+        zoomEnabled={true}
         showsUserLocation
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
@@ -405,8 +408,8 @@ const Map = () => {
           setRegion({
             latitude: data.geometry.location.lat,
             longitude: data.geometry.location.lng,
-            latitudeDelta: region.latitudeDelta,
-            longitudeDelta: region.longitudeDelta,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
           });
           console.log('After setPlaceID: ', placeIds);
           setIsLoading(false);
