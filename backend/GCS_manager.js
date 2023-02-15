@@ -15,7 +15,7 @@ class GCSManager {
   static async uploadAudio(audio, id) {
     return await new Promise((resolve, reject) => {
       const blob = bucket.file(audio);
-      blob.name = `${id}.${audio.mimetype.split("/")[1]}`;
+      blob.name = id;
       const blobStream = blob.createWriteStream();
       blobStream
         .on("finish", () => {
