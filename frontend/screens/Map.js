@@ -26,6 +26,12 @@ import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
 const Map = () => {
   Geolocation.requestAuthorization();
+  const [coordinate, setCoordinate] = useState({
+    latitude: 53.9854,
+    longitude: -6.3945,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
   const [region, setRegion] = React.useState({
     latitude: 53.9854,
     longitude: -6.3945,
@@ -96,9 +102,11 @@ const Map = () => {
     {
       text: 'Brightness Mode',
       name: 'Brightness',
-      icon: isLight ? require('../assets/dark_mode.png') : require('../assets/light_mode.png'),
+      icon: isLight
+        ? require('../assets/dark_mode.png')
+        : require('../assets/light_mode.png'),
       position: 2,
-    }
+    },
   ];
 
   const getCurrentPosition = async () => {
@@ -311,11 +319,17 @@ const Map = () => {
             rankby: 'distance',
           }}
           renderDescription={row => row.description} // custom description render
-          onPress={(data, details = null) => {
+          onPress={async (data, details = null) => {
             // 'details' is provided when fetchDetails = true
             //console.log(data, details);
-           //get latdelta and longdelta
-           console.log(details.geometry)
+            getTravelGuidesAndItineraries(details.place_id);
+            placeRef.current.setAddressText('');
+            setCoordinate({
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
             setRegion({
               latitude: details.geometry.location.lat,
               longitude: details.geometry.location.lng,
@@ -389,11 +403,18 @@ const Map = () => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        zoomEnabled={true}
         showsUserLocation
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
-        region={region}
+        region={{
+          latitude: region.latitude,
+          longitude: region.longitude,
+          latitudeDelta: coordinate.latitudeDelta,
+          longitudeDelta: coordinate.longitudeDelta,
+        }}
+        onRegionChangeComplete={region => {
+          setCoordinate(region);
+        }}
         onPoiClick={async e => {
           let placeIds = '';
           let res = await axios.get(
@@ -408,8 +429,8 @@ const Map = () => {
           setRegion({
             latitude: data.geometry.location.lat,
             longitude: data.geometry.location.lng,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
           });
           console.log('After setPlaceID: ', placeIds);
           setIsLoading(false);
