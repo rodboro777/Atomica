@@ -37,6 +37,28 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.post("/byIds", async (req, res) => {
+  const ids = req.body;
+  if (!ids) {
+    console.log("No ids included in the request body");
+    res.send({
+      travelGuides: [],
+    });
+  }
+  try {
+    const travelGuides = await TravelGuideManager.getTravelGuidesByIds(ids);
+    res.send({
+      travelGuides: travelGuides,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      travelGuides: [],
+    });
+  }
+});
+
 router.get("/byLocation", async (req, res) => {
   const placeId = req.query.placeId;
   if (!placeId) {
