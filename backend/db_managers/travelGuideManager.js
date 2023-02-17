@@ -27,6 +27,17 @@ class TravelGuideManager {
     }
   }
 
+  static async getTravelGuidesByIds(ids) {
+    try {
+      const docs = await TravelGuideModel.find({
+        _id: { $in: ids },
+      });
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   static async getTravelGuidesByUser(userId) {
     try {
       const docs = await TravelGuideModel.find({
@@ -39,7 +50,9 @@ class TravelGuideManager {
   }
 
   static async getPendingTravelGuidesByUser(userId) {
-    const docs = await TravelGuideRequestModel.find({creatorId: new ObjectID(userId)});
+    const docs = await TravelGuideRequestModel.find({
+      creatorId: new ObjectID(userId),
+    });
     return docs;
   }
 

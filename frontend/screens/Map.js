@@ -32,7 +32,7 @@ const Map = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [region, setRegion] = React.useState({
+  const [region, setRegion] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
     latitudeDelta: 0.0922,
@@ -45,8 +45,17 @@ const Map = () => {
     longitudeDelta: 0.0421,
   });
   const [isLight, setLight] = useState(true);
-
-  const [showMarker, setShowMarker] = React.useState(false);
+  const ratingMap = {
+    0: 'No rating',
+    1: '⭐',
+    2: '⭐⭐',
+    3: '⭐⭐⭐',
+    4: '⭐⭐⭐⭐',
+    5: '⭐⭐⭐⭐⭐',
+  };
+  const [showMarker, setShowMarker] = useState(false);
+  const [showDetailIti, setShowDetailIti] = useState(false);
+  const [selectedIti, setSelectedIti] = useState(null);
   const [showTg, setShowTg] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
   const placeRef = useRef(null);
@@ -59,15 +68,14 @@ const Map = () => {
     photo +
     '&sensor=false&maxheight=500&maxwidth=500&key=' +
     key;
-  const [description, setDescription] = useState(
-    'OConnell Bridge, North City, Dublin 1, Ireland',
-  );
+  const [description, setDescription] = useState('');
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentlyPlaying, setCurrentlyPlaying] = useState([null, false]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [travelGuides, setTravelGuides] = useState([]);
+  const [itiTg, setItiTg] = useState([]);
   const [itineraries, setItineraries] = useState([]);
   const [MPtitle, setMPtitle] = useState('Default Name');
   const [MPdesc, setMPdes] = useState('Default Artist');
@@ -169,18 +177,23 @@ const Map = () => {
 
   const renderItem = ({item}) => {
     return (
-      <View style={styles.itemWrapperStyle}>
-        {/* <Image
-          style={styles.itemImageStyle}
-          source={{uri: item.picture.large}}
-        /> */}
+      <Pressable
+        style={styles.itemWrapperStyle}
+        onPress={() => {
+          if (!showTg) {
+            setShowDetailIti(true);
+            getTravelGuidesFromItinerary(item.travelGuideId);
+            setSelectedIti(item);
+            setShowTg(true);
+          } else togglePlayAudio(item);
+        }}>
         <View style={styles.contentWrapperStyle}>
           <Text style={styles.txtNameStyle}>{`${item.name}`}</Text>
           <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
         {showTg && (
           <View style={{alignItems: 'center'}}>
-            <Pressable onPress={() => togglePlayAudio(item._id)}>
+            <Pressable onPress={() => togglePlayAudio(item)}>
               <Image
                 source={
                   currentlyPlaying[0] == item._id && currentlyPlaying[1]
@@ -197,7 +210,7 @@ const Map = () => {
             </Pressable>
           </View>
         )}
-      </View>
+      </Pressable>
     );
   };
 
@@ -216,25 +229,17 @@ const Map = () => {
   //   }
   // };
 
-  async function togglePlayAudio(id) {
-    if (currentlyPlaying[0] == null || currentlyPlaying[0] != id) {
+  async function togglePlayAudio(tg) {
+    if (currentlyPlaying[0] == null || currentlyPlaying[0] != tg._id) {
       await SoundPlayer.stop();
-      setCurrentlyPlaying([id, true]);
-      let audioUrl = '';
-      for (let i = 0; i < travelGuides.length; i++) {
-        if (travelGuides[i]._id == id) {
-          audioUrl = travelGuides[i].audioUrl;
-          console.log('AUdio url: ', audioUrl);
-          break;
-        }
-      }
-      await SoundPlayer.loadUrl(audioUrl);
+      setCurrentlyPlaying([tg._id, true]);
+      await SoundPlayer.loadUrl(tg.audioUrl);
       await SoundPlayer.play();
     } else if (currentlyPlaying[1]) {
-      setCurrentlyPlaying([id, false]);
+      setCurrentlyPlaying([tg._id, false]);
       await SoundPlayer.pause();
     } else {
-      setCurrentlyPlaying([id, true]);
+      setCurrentlyPlaying([tg._id, true]);
       await SoundPlayer.resume();
     }
   }
@@ -298,6 +303,36 @@ const Map = () => {
         }
         setTravelGuides(modifiedTg);
         setItineraries(modifiedIt);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  async function getTravelGuidesFromItinerary(travelGuideId) {
+    await axios
+      .post(`http://${ip.ip}:8000/travelGuide/byIds`, travelGuideId)
+      .then(async res => {
+        const results = res.data.travelGuides;
+        let tg = results.map(result => {
+          return {
+            _id: result._id,
+            name: result.name,
+            creatorId: result.creatorId,
+            audioUrl: result.audioUrl,
+            placeId: result.placeId,
+            description: result.description,
+            imageUrl: result.imageUrl,
+            audioLength: result.audioLength,
+            public: result.public,
+          };
+        });
+        const tgUsername = await getUsernames(tg);
+        let modifiedTg = [];
+        for (let i = 0; i < tgUsername.length; i++) {
+          modifiedTg.push({...tg[i], username: tgUsername[i]});
+        }
+        setItiTg(modifiedTg);
       })
       .catch(err => {
         console.log(err);
@@ -490,54 +525,104 @@ const Map = () => {
         style={styles.modal}
         propagateSwipe>
         <View style={styles.modalContent}>
-          <View style={styles.center}>
-            <View style={styles.barIcon} />
-            <Text
-              style={{
-                fontWeight: '400',
-                color: '#000',
-                fontSize: 15,
-                marginTop: 5,
-              }}>
-              {description}
-            </Text>
-            <Image
-              source={{uri: url}}
-              style={{
-                height: 100,
-                width: 370,
-                marginTop: 10,
-                borderRadius: 10,
-              }}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 10,
-              }}>
-              <View style={{width: 150}}>
-                <Button
-                  title="Travel guides"
-                  color="#000"
-                  onPress={() => setShowTg(true)}
-                />
-              </View>
-              <View style={{marginLeft: 70, width: 150}}>
-                <Button
-                  title="Itineraries"
-                  color="#000"
-                  onPress={() => setShowTg(false)}
-                />
+          {showDetailIti ? (
+            <View style={styles.center}>
+              <Pressable
+                style={styles.detailItiBackBtn}
+                onPress={() => {
+                  setShowDetailIti(false);
+                  setShowTg(false);
+                }}>
+                <Text style={styles.backBtnArrow}>⟵</Text>
+              </Pressable>
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: '#000',
+                  fontSize: 15,
+                  marginTop: 5,
+                }}>
+                {selectedIti.name}
+              </Text>
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: '#000',
+                  fontSize: 15,
+                  marginTop: 5,
+                }}>
+                {selectedIti.rating
+                  ? ratingMap[selectedIti.rating]
+                  : 'no rating'}
+              </Text>
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: '#000',
+                  fontSize: 15,
+                  marginTop: 5,
+                }}>
+                {selectedIti.description}
+              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 10,
+                }}>
+                <View style={{width: 150}}></View>
               </View>
             </View>
-          </View>
+          ) : (
+            <View style={styles.center}>
+              <View style={styles.barIcon} />
+              <Text
+                style={{
+                  fontWeight: '400',
+                  color: '#000',
+                  fontSize: 15,
+                  marginTop: 5,
+                }}>
+                {description}
+              </Text>
+              <Image
+                source={{uri: url}}
+                style={{
+                  height: 100,
+                  width: 370,
+                  marginTop: 10,
+                  borderRadius: 10,
+                }}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 10,
+                }}>
+                <View style={{width: 150}}>
+                  <Button
+                    title="Travel guides"
+                    color="#000"
+                    onPress={() => setShowTg(true)}
+                  />
+                </View>
+                <View style={{marginLeft: 70, width: 150}}>
+                  <Button
+                    title="Itineraries"
+                    color="#000"
+                    onPress={() => setShowTg(false)}
+                  />
+                </View>
+              </View>
+            </View>
+          )}
           <StatusBar backgroundColor="#000" />
           <View style={{height: 250}}>
-            {/* <ScrollView style={{height: 0, marginTop: 10}}> */}
             <FlatList
-              data={showTg ? travelGuides : itineraries}
+              data={showDetailIti ? itiTg : showTg ? travelGuides : itineraries}
               keyExtractor={item => item._id}
               renderItem={renderItem}
               ListFooterComponent={renderLoader}
@@ -546,36 +631,7 @@ const Map = () => {
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{flexGrow: 1}}
             />
-            {/* </ScrollView> */}
           </View>
-          {/* <Pressable>
-            <View style={[styles.widgetContainer, {}]}>
-              <View style={{flexDirection: 'row'}}>
-                <Image
-                  resizeMode="cover"
-                  source={{
-                    uri: 'https://www.bensound.com/bensound-img/happyrock.jpg',
-                  }}
-                  style={styles.widgetImageStyle}
-                />
-                <View>
-                  <Text style={styles.widgetMusicTitle}>{MPtitle}</Text>
-                  <Text style={styles.widgetArtisteTitle}>{MPdesc}</Text>
-                </View>
-              </View>
-              <Pressable onPress={() => playOrPause()}>
-                <Image
-                  source={isPlaying ? PauseIcon : PlayIcon}
-                  style={{
-                    height: 30,
-                    tintColor: '#fff',
-                    width: 30,
-                    marginRight: 10,
-                  }}
-                />
-              </Pressable>
-            </View>
-          </Pressable> */}
         </View>
       </Modal>
     </View>
@@ -730,6 +786,17 @@ const styles = StyleSheet.create({
   loaderStyle: {
     marginVertical: 16,
     alignItems: 'center',
+  },
+  detailItiBackBtn: {
+    position: 'absolute',
+    top: -10,
+    left: 0,
+    padding: 10,
+  },
+  backBtnArrow: {
+    fontSize: 30,
+    fontWeight: '900',
+    color: '#000',
   },
 });
 
