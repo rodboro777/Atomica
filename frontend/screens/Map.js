@@ -15,7 +15,8 @@ import {
   LogBox,
 } from 'react-native'; // Import Map and Marker
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import MapView, {Marker, Callout, Circle} from 'react-native-maps';
+import MapView, {Marker, Circle} from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from '@react-native-community/geolocation';
 import {FloatingAction} from 'react-native-floating-action';
 import Modal from 'react-native-modal';
@@ -44,6 +45,7 @@ const Map = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [runningIti, setRunningIti] = useState(false);
   const [isLight, setLight] = useState(true);
   const ratingMap = {
     0: 'No rating',
@@ -58,6 +60,10 @@ const Map = () => {
   const [selectedIti, setSelectedIti] = useState(null);
   const [showTg, setShowTg] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [userLocation, setUserLocation] = useState({
+    latitude: 53.9854,
+    longitude: -6.3945,
+  });
   const placeRef = useRef(null);
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
@@ -79,6 +85,8 @@ const Map = () => {
   const [itineraries, setItineraries] = useState([]);
   const [MPtitle, setMPtitle] = useState('Default Name');
   const [MPdesc, setMPdes] = useState('Default Artist');
+  const [runningIds, setRunningIds] = useState([]);
+  const [tgMarkers, setTgMarkers] = useState([]);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -135,6 +143,10 @@ const Map = () => {
           longitude: pos.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
+        });
+        setUserLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
         });
       },
       error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
@@ -349,99 +361,101 @@ const Map = () => {
   return (
     <View style={{marginTop: 0, flex: 1}}>
       <View style={{alignItems: 'center'}}>
-        <GooglePlacesAutocomplete
-          ref={placeRef}
-          placeholder="Find a place or an Itinerary"
-          minLength={2} // minimum length of text to search
-          autoFocus={false}
-          returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-          listViewDisplayed="auto" // true/false/undefined
-          fetchDetails={true}
-          GooglePlacesSearchQuery={{
-            rankby: 'distance',
-          }}
-          renderDescription={row => row.description} // custom description render
-          onPress={async (data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            //console.log(data, details);
-            getTravelGuidesAndItineraries(details.place_id);
-            placeRef.current.setAddressText('');
-            setCoordinate({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-              latitudeDelta: 0.005,
-              longitudeDelta: 0.005,
-            });
-            setTemp({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-              latitudeDelta: 0.005,
-              longitudeDelta: 0.005,
-            });
-            setRegion({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            });
-            setShowMarker(true);
-            // console.log(
-            //   'photo reference: ' + details.photos[0].photo_reference,
-            // );
-            setPhoto(details.photos[0].photo_reference);
-            setDescription(data.description);
-          }}
-          //getDefaultValue={() => ''}
+        {!runningIti && (
+          <GooglePlacesAutocomplete
+            ref={placeRef}
+            placeholder="Find a place or an Itinerary"
+            minLength={2} // minimum length of text to search
+            autoFocus={false}
+            returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+            listViewDisplayed="auto" // true/false/undefined
+            fetchDetails={true}
+            GooglePlacesSearchQuery={{
+              rankby: 'distance',
+            }}
+            renderDescription={row => row.description} // custom description render
+            onPress={async (data, details = null) => {
+              // 'details' is provided when fetchDetails = true
+              //console.log(data, details);
+              getTravelGuidesAndItineraries(details.place_id);
+              placeRef.current.setAddressText('');
+              setCoordinate({
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              });
+              setTemp({
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              });
+              setRegion({
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              });
+              setShowMarker(true);
+              // console.log(
+              //   'photo reference: ' + details.photos[0].photo_reference,
+              // );
+              setPhoto(details.photos[0].photo_reference);
+              setDescription(data.description);
+            }}
+            //getDefaultValue={() => ''}
 
-          query={{
-            // available options: https://developers.google.com/places/web-service/autocomplete
-            key: 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g',
-            language: 'en', // language of the results
-            types: 'establishment', // default: 'geocode',
-            location: `${region.latitude}, ${region.longitude}`,
-            radius: 30000,
-          }}
-          styles={{
-            textInputContainer: {
-              width: '98%',
-            },
-            description: {
-              fontWeight: 'bold',
-            },
-            predefinedPlacesDescription: {
-              color: '#1faadb',
-            },
-            container: {
-              flex: 0,
-              position: 'absolute',
-              width: '98%',
-              zIndex: 1,
-              marginTop: 15,
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-            listView: {
-              backgroundColor: 'white',
-              width: '98%',
-            },
-          }}
-          currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-          currentLocationLabel="Current location"
-          nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-          GoogleReverseGeocodingQuery={
-            {
-              // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
+            query={{
+              // available options: https://developers.google.com/places/web-service/autocomplete
+              key: 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g',
+              language: 'en', // language of the results
+              types: 'establishment', // default: 'geocode',
+              location: `${region.latitude}, ${region.longitude}`,
+              radius: 30000,
+            }}
+            styles={{
+              textInputContainer: {
+                width: '98%',
+              },
+              description: {
+                fontWeight: 'bold',
+              },
+              predefinedPlacesDescription: {
+                color: '#1faadb',
+              },
+              container: {
+                flex: 0,
+                position: 'absolute',
+                width: '98%',
+                zIndex: 1,
+                marginTop: 15,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              listView: {
+                backgroundColor: 'white',
+                width: '98%',
+              },
+            }}
+            currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
+            currentLocationLabel="Current location"
+            nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
+            GoogleReverseGeocodingQuery={
+              {
+                // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
+              }
             }
-          }
-          filterReverseGeocodingByTypes={[
-            'locality',
-            'administrative_area_level_3',
-          ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-          keyboardShouldPersistTaps="handled"
-          debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-          //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
-          renderRightButton={() => <Text></Text>}
-        />
+            filterReverseGeocodingByTypes={[
+              'locality',
+              'administrative_area_level_3',
+            ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+            keyboardShouldPersistTaps="handled"
+            debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+            //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
+            renderRightButton={() => <Text></Text>}
+          />
+        )}
       </View>
       <MapView
         style={styles.mapStyle}
@@ -494,7 +508,19 @@ const Map = () => {
             onPress={toggleModal}
           />
         )}
-        <Circle center={region} radius={1000} />
+        {runningIti &&
+          runningIds.map((id, index) => {
+            return (
+              <MapViewDirections
+                key={index}
+                apikey="AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I"
+                strokeWidth={3}
+                strokeColor="green"
+                origin={index == 0 ? userLocation : runningIds[index - 1]}
+                destination={id}
+              />
+            );
+          })}
       </MapView>
       <FloatingAction
         actions={actions}
@@ -534,6 +560,18 @@ const Map = () => {
                   setShowTg(false);
                 }}>
                 <Text style={styles.backBtnArrow}>⟵</Text>
+              </Pressable>
+              <Pressable
+                style={styles.startItiButton}
+                onPress={() => {
+                  const ids = [];
+                  itiTg.map(tg => {
+                    ids.push(`place_id:${tg.placeId}`);
+                  });
+                  setRunningIds(ids);
+                  setRunningIti(true);
+                }}>
+                <Text style={styles.startItiWord}>Start</Text>
               </Pressable>
               <Text
                 style={{
@@ -797,6 +835,20 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '900',
     color: '#000',
+  },
+  startItiButton: {
+    position: 'absolute',
+    padding: 10,
+    right: 10,
+    backgroundColor: '#000',
+    top: 10,
+    borderRadius: 30,
+    width: 80,
+  },
+  startItiWord: {
+    color: '#fff',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
 });
 
