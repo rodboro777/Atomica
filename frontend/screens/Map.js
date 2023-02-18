@@ -11,8 +11,9 @@ import {
   FlatList,
   StatusBar,
   ActivityIndicator,
-  ScrollView,
+  SafeAreaView,
   LogBox,
+  Animated,
 } from 'react-native'; // Import Map and Marker
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import MapView, {Marker, Circle} from 'react-native-maps';
@@ -27,6 +28,9 @@ import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
 const Map = () => {
   Geolocation.requestAuthorization();
+  const modalAni = useRef(
+    new Animated.Value(Dimensions.get('window').height / 1.5),
+  ).current;
   const [coordinate, setCoordinate] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
@@ -60,6 +64,7 @@ const Map = () => {
   const [selectedIti, setSelectedIti] = useState(null);
   const [showTg, setShowTg] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [screenState, setScreenState] = useState('half');
   const [userLocation, setUserLocation] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
@@ -88,8 +93,27 @@ const Map = () => {
   const [runningIds, setRunningIds] = useState([]);
   const [tgMarkers, setTgMarkers] = useState([]);
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
+  const toggleModal = e => {
+    if (e.swipingDirection === 'up') {
+      setScreenState('full');
+      Animated.timing(modalAni, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      if (screenState === 'full') {
+        setScreenState('half');
+        Animated.timing(modalAni, {
+          toValue: Dimensions.get('window').height / 1.5,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      } else if (screenState === 'half') {
+        setModalVisible(false);
+        modalAni.setValue(Dimensions.get('window').height / 1.5);
+      }
+    }
   };
 
   const playOrPause = async () => {
@@ -344,6 +368,12 @@ const Map = () => {
         for (let i = 0; i < tgUsername.length; i++) {
           modifiedTg.push({...tg[i], username: tgUsername[i]});
         }
+        const ids = [];
+        modifiedTg.map(tg => {
+          ids.push(`place_id:${tg.placeId}`);
+        });
+        setRunningIds(ids);
+        setRunningIti(true);
         setItiTg(modifiedTg);
       })
       .catch(err => {
@@ -358,8 +388,272 @@ const Map = () => {
     LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
   }, [currentPage]);
 
+  useEffect(() => {
+    if (!isModalVisible) {
+      styles.modalContent.bottom = '-70%';
+    }
+  }, [isModalVisible]);
+
+  const styles = StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+    },
+    mapStyle: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: Dimensions.get('window').width,
+      height: Dimensions.get('window').height,
+    },
+    searchContainer: {
+      position: 'absolute',
+      width: '90%',
+      backgroundColor: 'black',
+      padding: 0,
+      borderRadius: 8,
+      top: StatusBar.currentHeight,
+    },
+    input: {
+      borderBottomColor: '#888',
+      borderWidth: 1,
+    },
+    modal: {
+      position: 'relative',
+      margin: 0,
+    },
+    modalContent: {
+      position: 'absolute',
+      width: Dimensions.get('window').width,
+      backgroundColor: '#C5FAD5',
+      paddingTop: 12,
+      borderTopRightRadius: 20,
+      borderTopLeftRadius: 20,
+      overflow: 'hidden',
+      height: Dimensions.get('window').height,
+      bottom: -20,
+    },
+    center: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    barIcon: {
+      width: 60,
+      height: 5,
+      backgroundColor: '#bbb',
+      borderRadius: 3,
+    },
+    text: {
+      color: '#bbb',
+      fontSize: 20,
+      marginTop: 100,
+    },
+    bubble: {
+      flexDirection: 'row',
+      alignSelf: 'flex-start',
+      backgroundColor: 'white',
+      borderRadius: 6,
+      borderColor: '#ccc',
+      borderWidth: 0.5,
+      padding: 15,
+      width: 150,
+    },
+    widgetContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 0,
+      height: 60,
+      width: '100%',
+      backgroundColor: '#000',
+      marginTop: 0,
+      borderRadius: 10,
+    },
+    widgetMusicTitle: {
+      fontSize: 18,
+      color: '#fff',
+      fontWeight: 'bold',
+      marginTop: 12,
+      marginHorizontal: 10,
+      marginBottom: 1,
+    },
+    widgetArtisteTitle: {
+      fontSize: 14,
+      color: '#fff',
+      opacity: 0.8,
+      marginHorizontal: 10,
+      marginBottom: 12,
+      marginTop: 1,
+    },
+    widgetImageStyle: {
+      width: 55,
+      height: 50,
+      marginTop: 9,
+      marginLeft: 5,
+      borderRadius: 10,
+    },
+    musicTitle: {
+      fontSize: 15,
+      color: '#000',
+      fontWeight: 'bold',
+      marginTop: 1,
+      marginHorizontal: 20,
+      marginBottom: 1,
+    },
+    artisteTitle: {
+      fontSize: 16,
+      color: '#000',
+      opacity: 0.8,
+      marginHorizontal: 20,
+      marginBottom: 1,
+      marginTop: 1,
+    },
+    itemWrapperStyle: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderColor: '#ddd',
+      justifyContent: 'space-between',
+    },
+    itemImageStyle: {
+      width: 50,
+      height: 50,
+      marginRight: 16,
+    },
+    contentWrapperStyle: {
+      justifyContent: 'space-around',
+    },
+    txtNameStyle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    txtEmailStyle: {
+      color: '#777',
+    },
+    loaderStyle: {
+      marginVertical: 16,
+      alignItems: 'center',
+    },
+    detailItiBackBtn: {
+      position: 'absolute',
+      top: -10,
+      left: 0,
+      padding: 10,
+    },
+    backBtnArrow: {
+      fontSize: 30,
+      fontWeight: '900',
+      color: '#000',
+    },
+    startItiButton: {
+      position: 'absolute',
+      padding: 10,
+      right: 10,
+      backgroundColor: '#000',
+      top: 10,
+      borderRadius: 30,
+      width: 80,
+    },
+    startItiWord: {
+      color: '#fff',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+  });
+
+  const mapStyleLight = [];
+  const mapStyleDark = [
+    {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+    {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+    {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+    {
+      featureType: 'administrative.locality',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#d59563'}],
+    },
+    {
+      featureType: 'poi',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#d59563'}],
+    },
+    {
+      featureType: 'poi.park',
+      elementType: 'geometry',
+      stylers: [{color: '#263c3f'}],
+    },
+    {
+      featureType: 'poi.park',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#6b9a76'}],
+    },
+    {
+      featureType: 'road',
+      elementType: 'geometry',
+      stylers: [{color: '#38414e'}],
+    },
+    {
+      featureType: 'road',
+      elementType: 'geometry.stroke',
+      stylers: [{color: '#212a37'}],
+    },
+    {
+      featureType: 'road',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#9ca5b3'}],
+    },
+    {
+      featureType: 'road.highway',
+      elementType: 'geometry',
+      stylers: [{color: '#746855'}],
+    },
+    {
+      featureType: 'road.highway',
+      elementType: 'geometry.stroke',
+      stylers: [{color: '#1f2835'}],
+    },
+    {
+      featureType: 'road.highway',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#f3d19c'}],
+    },
+    {
+      featureType: 'transit',
+      elementType: 'geometry',
+      stylers: [{color: '#2f3948'}],
+    },
+    {
+      featureType: 'transit.station',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#d59563'}],
+    },
+    {
+      featureType: 'water',
+      elementType: 'geometry',
+      stylers: [{color: '#17263c'}],
+    },
+    {
+      featureType: 'water',
+      elementType: 'labels.text.fill',
+      stylers: [{color: '#515c6d'}],
+    },
+    {
+      featureType: 'water',
+      elementType: 'labels.text.stroke',
+      stylers: [{color: '#17263c'}],
+    },
+  ];
+
   return (
-    <View style={{marginTop: 0, flex: 1}}>
+    <SafeAreaView style={{flex: 1}}>
       <View style={{alignItems: 'center'}}>
         {!runningIti && (
           <GooglePlacesAutocomplete
@@ -505,10 +799,12 @@ const Map = () => {
               latitude: region.latitude,
               longitude: region.longitude,
             }}
-            onPress={toggleModal}
+            onPress={() => {
+              setModalVisible(true);
+            }}
           />
         )}
-        {runningIti &&
+        {showDetailIti &&
           runningIds.map((id, index) => {
             return (
               <MapViewDirections
@@ -540,17 +836,23 @@ const Map = () => {
         onBackdropPress={() => setModalVisible(false)}
         onBackButtonPress={() => setModalVisible(false)}
         isVisible={isModalVisible}
-        swipeDirection="down"
-        onSwipeComplete={toggleModal}
-        animationIn="bounceInUp"
-        animationOut="bounceOutDown"
+        swipeDirection={screenState === 'full' ? 'down' : ['up', 'down']}
+        backdropOpacity={0}
+        onSwipeComplete={e => {
+          toggleModal(e);
+        }}
+        swipeThreshold={1}
         animationInTiming={900}
         animationOutTiming={500}
-        backdropTransitionInTiming={1000}
-        backdropTransitionOutTiming={500}
         style={styles.modal}
-        propagateSwipe>
-        <View style={styles.modalContent}>
+        useNativeDriver={true}>
+        <Animated.View
+          style={[
+            styles.modalContent,
+            {
+              transform: [{translateY: modalAni}],
+            },
+          ]}>
           {showDetailIti ? (
             <View style={styles.center}>
               <Pressable
@@ -558,18 +860,13 @@ const Map = () => {
                 onPress={() => {
                   setShowDetailIti(false);
                   setShowTg(false);
+                  setRunningIti(false);
                 }}>
                 <Text style={styles.backBtnArrow}>⟵</Text>
               </Pressable>
               <Pressable
                 style={styles.startItiButton}
                 onPress={() => {
-                  const ids = [];
-                  itiTg.map(tg => {
-                    ids.push(`place_id:${tg.placeId}`);
-                  });
-                  setRunningIds(ids);
-                  setRunningIti(true);
                 }}>
                 <Text style={styles.startItiWord}>Start</Text>
               </Pressable>
@@ -658,7 +955,7 @@ const Map = () => {
             </View>
           )}
           <StatusBar backgroundColor="#000" />
-          <View style={{height: 250}}>
+          <View style={{maxHeight:500}}>
             <FlatList
               data={showDetailIti ? itiTg : showTg ? travelGuides : itineraries}
               keyExtractor={item => item._id}
@@ -670,266 +967,10 @@ const Map = () => {
               contentContainerStyle={{flexGrow: 1}}
             />
           </View>
-        </View>
+        </Animated.View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default Map;
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  mapStyle: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  searchContainer: {
-    position: 'absolute',
-    width: '90%',
-    backgroundColor: 'black',
-    padding: 0,
-    borderRadius: 8,
-    top: StatusBar.currentHeight,
-  },
-  input: {
-    borderBottomColor: '#888',
-    borderWidth: 1,
-  },
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  modalContent: {
-    backgroundColor: '#C5FAD5',
-    paddingTop: 12,
-    paddingHorizontal: 12,
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
-    minHeight: 200,
-    paddingBottom: 20,
-  },
-  center: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  barIcon: {
-    width: 60,
-    height: 5,
-    backgroundColor: '#bbb',
-    borderRadius: 3,
-  },
-  text: {
-    color: '#bbb',
-    fontSize: 20,
-    marginTop: 100,
-  },
-  bubble: {
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    backgroundColor: 'white',
-    borderRadius: 6,
-    borderColor: '#ccc',
-    borderWidth: 0.5,
-    padding: 15,
-    width: 150,
-  },
-  widgetContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 0,
-    height: 60,
-    width: '100%',
-    backgroundColor: '#000',
-    marginTop: 0,
-    borderRadius: 10,
-  },
-  widgetMusicTitle: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-    marginTop: 12,
-    marginHorizontal: 10,
-    marginBottom: 1,
-  },
-  widgetArtisteTitle: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
-    marginHorizontal: 10,
-    marginBottom: 12,
-    marginTop: 1,
-  },
-  widgetImageStyle: {
-    width: 55,
-    height: 50,
-    marginTop: 9,
-    marginLeft: 5,
-    borderRadius: 10,
-  },
-  musicTitle: {
-    fontSize: 15,
-    color: '#000',
-    fontWeight: 'bold',
-    marginTop: 1,
-    marginHorizontal: 20,
-    marginBottom: 1,
-  },
-  artisteTitle: {
-    fontSize: 16,
-    color: '#000',
-    opacity: 0.8,
-    marginHorizontal: 20,
-    marginBottom: 1,
-    marginTop: 1,
-  },
-  itemWrapperStyle: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
-    justifyContent: 'space-between',
-  },
-  itemImageStyle: {
-    width: 50,
-    height: 50,
-    marginRight: 16,
-  },
-  contentWrapperStyle: {
-    justifyContent: 'space-around',
-  },
-  txtNameStyle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  txtEmailStyle: {
-    color: '#777',
-  },
-  loaderStyle: {
-    marginVertical: 16,
-    alignItems: 'center',
-  },
-  detailItiBackBtn: {
-    position: 'absolute',
-    top: -10,
-    left: 0,
-    padding: 10,
-  },
-  backBtnArrow: {
-    fontSize: 30,
-    fontWeight: '900',
-    color: '#000',
-  },
-  startItiButton: {
-    position: 'absolute',
-    padding: 10,
-    right: 10,
-    backgroundColor: '#000',
-    top: 10,
-    borderRadius: 30,
-    width: 80,
-  },
-  startItiWord: {
-    color: '#fff',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  },
-});
-
-const mapStyleLight = [];
-const mapStyleDark = [
-  {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
-  {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
-  {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
-  {
-    featureType: 'administrative.locality',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#d59563'}],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#d59563'}],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'geometry',
-    stylers: [{color: '#263c3f'}],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#6b9a76'}],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry',
-    stylers: [{color: '#38414e'}],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry.stroke',
-    stylers: [{color: '#212a37'}],
-  },
-  {
-    featureType: 'road',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#9ca5b3'}],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry',
-    stylers: [{color: '#746855'}],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry.stroke',
-    stylers: [{color: '#1f2835'}],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#f3d19c'}],
-  },
-  {
-    featureType: 'transit',
-    elementType: 'geometry',
-    stylers: [{color: '#2f3948'}],
-  },
-  {
-    featureType: 'transit.station',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#d59563'}],
-  },
-  {
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{color: '#17263c'}],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.fill',
-    stylers: [{color: '#515c6d'}],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.stroke',
-    stylers: [{color: '#17263c'}],
-  },
-];
