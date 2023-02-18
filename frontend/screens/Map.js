@@ -12,7 +12,6 @@ import {
   StatusBar,
   ActivityIndicator,
   SafeAreaView,
-  LogBox,
   Animated,
 } from 'react-native'; // Import Map and Marker
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
@@ -70,6 +69,8 @@ const Map = () => {
     longitude: -6.3945,
   });
   const placeRef = useRef(null);
+  const mapRef = useRef(null);
+  const tgNumber = useRef(0);
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
@@ -217,9 +218,17 @@ const Map = () => {
         style={styles.itemWrapperStyle}
         onPress={() => {
           if (!showTg) {
-            setShowDetailIti(true);
+            if (screenState === 'full') {
+              setScreenState('half');
+              Animated.timing(modalAni, {
+                toValue: Dimensions.get('window').height / 1.5,
+                duration: 300,
+                useNativeDriver: true,
+              }).start();
+            }
             getTravelGuidesFromItinerary(item.travelGuideId);
             setSelectedIti(item);
+            setShowDetailIti(true);
             setShowTg(true);
           } else togglePlayAudio(item);
         }}>
@@ -372,8 +381,35 @@ const Map = () => {
         modifiedTg.map(tg => {
           ids.push(`place_id:${tg.placeId}`);
         });
+        const coordinates = [];
+        coordinates.push(userLocation);
+        for (let i = 0; i < modifiedTg.length; i++) {
+          let res = await axios.get(
+            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${modifiedTg[i].placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
+          );
+          let data = res.data.result;
+          coordinates.push({
+            latitude: data.geometry.location.lat,
+            longitude: data.geometry.location.lng,
+          });
+          setTgMarkers(prev => {
+            return [
+              ...prev,
+              {
+                id: data.place_id,
+                name: data.name,
+                description: data.description,
+                latitude: data.geometry.location.lat,
+                longitude: data.geometry.location.lng,
+              },
+            ];
+          });
+        }
+        mapRef.current.fitToCoordinates(coordinates, {
+          edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+          animated: true,
+        });
         setRunningIds(ids);
-        setRunningIti(true);
         setItiTg(modifiedTg);
       })
       .catch(err => {
@@ -382,17 +418,31 @@ const Map = () => {
   }
 
   useEffect(() => {
-    // getUsers();
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-    LogBox.ignoreLogs(['Encountered two children with the same key']);
-    LogBox.ignoreLogs(['Possible Unhandled Promise Rejection']);
-  }, [currentPage]);
+    const watchId = Geolocation.watchPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setUserLocation({
+          latitude: latitude,
+          longitude: longitude,
+        });
+      },
+      error => console.log(error),
+      {enableHighAccuracy: true, distanceFilter: 10},
+    );
 
-  useEffect(() => {
-    if (!isModalVisible) {
-      styles.modalContent.bottom = '-70%';
-    }
-  }, [isModalVisible]);
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
+
+  function modalSwipeRule() {
+    if (screenState === 'full') return 'down';
+    else if (showDetailIti) return 'up';
+    else return ['up', 'down'];
+  }
+
+  function runItinerary() {
+    setModalVisible(false);
+    setRunningIti(true);
+  }
 
   const styles = StyleSheet.create({
     container: {
@@ -546,7 +596,7 @@ const Map = () => {
     detailItiBackBtn: {
       position: 'absolute',
       top: -10,
-      left: 0,
+      left: 10,
       padding: 10,
     },
     backBtnArrow: {
@@ -655,7 +705,7 @@ const Map = () => {
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{alignItems: 'center'}}>
-        {!runningIti && (
+        {!showDetailIti && (
           <GooglePlacesAutocomplete
             ref={placeRef}
             placeholder="Find a place or an Itinerary"
@@ -752,6 +802,7 @@ const Map = () => {
         )}
       </View>
       <MapView
+        ref={mapRef}
         style={styles.mapStyle}
         initialRegion={{
           latitude: 53.9854,
@@ -804,16 +855,48 @@ const Map = () => {
             }}
           />
         )}
+        {showDetailIti && runningIti ? (
+          <Marker
+            pinColor="cyan"
+            coordinate={{
+              latitude: tgMarkers[tgNumber.current].latitude,
+              longitude: tgMarkers[tgNumber.current].longitude,
+            }}
+          />
+        ) : (
+          tgMarkers.map((marker, index) => {
+            return (
+              <Marker
+                key={index}
+                pinColor="cyan"
+                coordinate={{
+                  latitude: marker.latitude,
+                  longitude: marker.longitude,
+                }}
+              />
+            );
+          })
+        )}
         {showDetailIti &&
           runningIds.map((id, index) => {
             return (
               <MapViewDirections
-                key={index}
+                key={id}
                 apikey="AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I"
                 strokeWidth={3}
                 strokeColor="green"
-                origin={index == 0 ? userLocation : runningIds[index - 1]}
-                destination={id}
+                origin={
+                  runningIti
+                    ? userLocation
+                    : index == 0
+                    ? userLocation
+                    : runningIds[index - 1]
+                }
+                destination={runningIti ? runningIds[tgNumber.current] : id}
+                mode="WALKING"
+                onReady={result => {
+                  console.log(result.legs[0].steps);
+                }}
               />
             );
           })}
@@ -833,10 +916,10 @@ const Map = () => {
         distanceToEdge={{horizontal: 20, vertical: 40}}
       />
       <Modal
-        onBackdropPress={() => setModalVisible(false)}
-        onBackButtonPress={() => setModalVisible(false)}
+        onBackdropPress={() => !showDetailIti && setModalVisible(false)}
+        onBackButtonPress={() => !showDetailIti && setModalVisible(false)}
         isVisible={isModalVisible}
-        swipeDirection={screenState === 'full' ? 'down' : ['up', 'down']}
+        swipeDirection={modalSwipeRule()}
         backdropOpacity={0}
         onSwipeComplete={e => {
           toggleModal(e);
@@ -855,6 +938,7 @@ const Map = () => {
           ]}>
           {showDetailIti ? (
             <View style={styles.center}>
+              <View style={styles.barIcon} />
               <Pressable
                 style={styles.detailItiBackBtn}
                 onPress={() => {
@@ -867,6 +951,7 @@ const Map = () => {
               <Pressable
                 style={styles.startItiButton}
                 onPress={() => {
+                  runItinerary();
                 }}>
                 <Text style={styles.startItiWord}>Start</Text>
               </Pressable>
@@ -955,7 +1040,7 @@ const Map = () => {
             </View>
           )}
           <StatusBar backgroundColor="#000" />
-          <View style={{maxHeight:500}}>
+          <View style={{maxHeight: 500}}>
             <FlatList
               data={showDetailIti ? itiTg : showTg ? travelGuides : itineraries}
               keyExtractor={item => item._id}
