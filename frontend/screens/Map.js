@@ -14,6 +14,8 @@ import {
   SafeAreaView,
   Animated,
 } from 'react-native'; // Import Map and Marker
+import TopInfoCard from '../components/TopInfoCard';
+import BottomInfoCard from '../components/BottomInfoCard';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import MapView, {Marker, Circle} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -63,18 +65,31 @@ const Map = () => {
   const [selectedIti, setSelectedIti] = useState(null);
   const [showTg, setShowTg] = useState(true);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [showDirection, setShowDirection] = useState(false);
   const [screenState, setScreenState] = useState('half');
   const [userLocation, setUserLocation] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
   });
+  const [destinationInfo, setDestinationInfo] = useState([]);
+  const [nextRouteInfo, setNextRouteInfo] = useState(null);
+  const [dirDistance, setDirDistance] = useState(0);
+  const [directionIdx, setDirectionIdx] = useState(0);
+  const [destinationDistance, setDestinationDistance] = useState(null);
+  const [tgNumber, setTgNumber] = useState(0);
   const placeRef = useRef(null);
+  const directionIdxRef = useRef(0);
   const mapRef = useRef(null);
-  const tgNumber = useRef(0);
+  const distance = useRef(null);
+  const expectedCoords = useRef(null);
+  const isOnTrack = useRef(false);
+  const expIdx = useRef(0);
+  const destinationCoord = useRef(null);
+  const userLocationRef = useRef(null);
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
-  key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
+  const key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
   const url =
     'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
     photo +
@@ -229,7 +244,9 @@ const Map = () => {
             getTravelGuidesFromItinerary(item.travelGuideId);
             setSelectedIti(item);
             setShowDetailIti(true);
+            setShowMarker(false);
             setShowTg(true);
+            setShowDirection(true);
           } else togglePlayAudio(item);
         }}>
         <View style={styles.contentWrapperStyle}>
@@ -259,21 +276,6 @@ const Map = () => {
     );
   };
 
-  // const playAudiohaha = async id => {
-  //   console.log('_id: ', id);
-  //   setIsPlaying(!isPlaying);
-  //   SoundPlayer.stop();
-  //   // get travel guide with the id
-  //   let audioUrl = '';
-  //   for (let i = 0; i < travelGuides.length; i++) {
-  //     if (travelGuides[i]._id == id) {
-  //       audioUrl = travelGuides[i].audioUrl;
-  //       console.log('AUdio url: ', audioUrl);
-  //       SoundPlayer.playUrl(audioUrl);
-  //     }
-  //   }
-  // };
-
   async function togglePlayAudio(tg) {
     if (currentlyPlaying[0] == null || currentlyPlaying[0] != tg._id) {
       await SoundPlayer.stop();
@@ -288,18 +290,11 @@ const Map = () => {
       await SoundPlayer.resume();
     }
   }
-
-  const stopAndResume = () => {
-    setIsPlaying(!isPlaying);
-    if (isPlaying) {
-      console.log('Resume');
-      SoundPlayer.play();
-    } else {
-      console.log('pause');
-      SoundPlayer.pause();
-    }
-  };
-
+  useEffect(() => {
+    SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
+      setCurrentlyPlaying([null, false]);
+    });
+  }, []);
   const renderLoader = () => {
     return isLoading ? (
       <View style={styles.loaderStyle}>
@@ -307,7 +302,6 @@ const Map = () => {
       </View>
     ) : null;
   };
-  const [placeId, setPlaceId] = useState('');
   const loadMoreItem = () => {
     setCurrentPage(currentPage + 1);
   };
@@ -388,6 +382,18 @@ const Map = () => {
             `https://maps.googleapis.com/maps/api/place/details/json?place_id=${modifiedTg[i].placeId}&key=AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g`,
           );
           let data = res.data.result;
+          setDestinationInfo(prev => {
+            return [
+              ...prev,
+              {
+                name: data.name,
+                imageUrl:
+                  'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
+                  data.photos[0].photo_reference +
+                  '&sensor=false&maxheight=500&maxwidth=500&key=AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I',
+              },
+            ];
+          });
           coordinates.push({
             latitude: data.geometry.location.lat,
             longitude: data.geometry.location.lng,
@@ -417,21 +423,138 @@ const Map = () => {
       });
   }
 
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // distance in km
+    return d * 1000; // distance in m
+  };
+
+  const deg2rad = deg => {
+    return deg * (Math.PI / 180);
+  };
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      pos => {
+        setTemp({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+        setUserLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+        userLocationRef.current = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        };
+      },
+      error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
+      {enableHighAccuracy: true},
+    );
+  }, []);
+
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       position => {
         const {latitude, longitude} = position.coords;
+        if (runningIti && isOnTrack.current) {
+          let range = getDistance(
+            latitude,
+            longitude,
+            destinationCoord.current.lat,
+            destinationCoord.current.lng,
+          );
+          setDestinationDistance(Math.round(range));
+          if (range <= 100) {
+            setShowDirection(false);
+            destinationCoord.current = null;
+            setDestinationDistance(0);
+            isOnTrack.current = false;
+            expIdx.current = 0;
+            directionIdxRef.current = 0;
+            setDirectionIdx(0);
+            distance.current = null;
+          }
+          //check if user is on track
+          const testD = Math.round(
+            getDistance(
+              latitude,
+              longitude,
+              expectedCoords.current[expIdx.current].latitude,
+              expectedCoords.current[expIdx.current].longitude,
+            ),
+          );
+          if (distance.current == null || distance.current >= testD)
+            distance.current = testD;
+          else if (distance.current < testD) {
+            isOnTrack.current = false;
+            expIdx.current = 0;
+            directionIdxRef.current = 0;
+            setDirectionIdx(0);
+            distance.current = null;
+            return;
+          }
+          //contantly update user and destination distance
+          const desD = Math.round(
+            getDistance(
+              latitude,
+              longitude,
+              nextRouteInfo[directionIdxRef.current].end_location.lat,
+              nextRouteInfo[directionIdxRef.current].end_location.lng,
+            ),
+          );
+          setDirDistance(desD);
+          console.log(
+            'lat: ' +
+              latitude +
+              ' long: ' +
+              longitude +
+              ' distance: ' +
+              desD +
+              'm',
+          );
+          if (
+            testD <= 20 &&
+            expIdx.current < expectedCoords.current.length - 1
+          ) {
+            expIdx.current++;
+            distance.current = null;
+          }
+          if (
+            desD <= 20 &&
+            directionIdxRef.current < nextRouteInfo.length - 1
+          ) {
+            directionIdxRef.current++;
+            setDirectionIdx(directionIdxRef.current);
+          }
+        }
         setUserLocation({
           latitude: latitude,
           longitude: longitude,
         });
+        userLocationRef.current = {
+          lat: latitude,
+          lng: longitude,
+        };
       },
       error => console.log(error),
       {enableHighAccuracy: true, distanceFilter: 10},
     );
 
     return () => Geolocation.clearWatch(watchId);
-  }, []);
+  }, [runningIti, nextRouteInfo]);
 
   function modalSwipeRule() {
     if (screenState === 'full') return 'down';
@@ -701,9 +824,32 @@ const Map = () => {
       stylers: [{color: '#17263c'}],
     },
   ];
-
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, position: 'relative'}}>
+      {runningIti && (
+        <TopInfoCard
+          tg={itiTg}
+          tgNumber={tgNumber}
+          setTgNumber={setTgNumber}
+          setRunningIti={setRunningIti}
+          setModalVisible={setModalVisible}
+        />
+      )}
+      {runningIti && (
+        <BottomInfoCard
+          placeInfo={destinationInfo}
+          tgNumber={tgNumber}
+          nextRouteInfo={nextRouteInfo}
+          togglePlayAudio={togglePlayAudio}
+          tg={itiTg}
+          showDirection={showDirection}
+          currentlyPlaying={currentlyPlaying}
+          expIdx={expIdx}
+          directionIdx={directionIdx}
+          dirDistance={dirDistance}
+          destinationDistance={destinationDistance}
+        />
+      )}
       <View style={{alignItems: 'center'}}>
         {!showDetailIti && (
           <GooglePlacesAutocomplete
@@ -804,12 +950,6 @@ const Map = () => {
       <MapView
         ref={mapRef}
         style={styles.mapStyle}
-        initialRegion={{
-          latitude: 53.9854,
-          longitude: -6.3945,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
         showsUserLocation
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
@@ -855,36 +995,37 @@ const Map = () => {
             }}
           />
         )}
-        {showDetailIti && runningIti ? (
+        {runningIti && (
           <Marker
             pinColor="cyan"
             coordinate={{
-              latitude: tgMarkers[tgNumber.current].latitude,
-              longitude: tgMarkers[tgNumber.current].longitude,
+              latitude: tgMarkers[tgNumber].latitude,
+              longitude: tgMarkers[tgNumber].longitude,
             }}
           />
-        ) : (
+        )}
+        {showDetailIti &&
+          !runningIti &&
           tgMarkers.map((marker, index) => {
             return (
               <Marker
                 key={index}
-                pinColor="cyan"
                 coordinate={{
                   latitude: marker.latitude,
                   longitude: marker.longitude,
                 }}
               />
             );
-          })
-        )}
+          })}
         {showDetailIti &&
+          showDirection &&
           runningIds.map((id, index) => {
             return (
               <MapViewDirections
                 key={id}
                 apikey="AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I"
-                strokeWidth={3}
-                strokeColor="green"
+                strokeWidth={5}
+                strokeColor="black"
                 origin={
                   runningIti
                     ? userLocation
@@ -892,11 +1033,38 @@ const Map = () => {
                     ? userLocation
                     : runningIds[index - 1]
                 }
-                destination={runningIti ? runningIds[tgNumber.current] : id}
+                destination={runningIti ? runningIds[tgNumber] : id}
                 mode="WALKING"
                 onReady={result => {
-                  console.log(result.legs[0].steps);
+                  if (runningIti) {
+                    if (!isOnTrack.current) {
+                      setNextRouteInfo(result.legs[0].steps);
+                      isOnTrack.current = true;
+                      expectedCoords.current = result.coordinates;
+                      let distance = getDistance(
+                        userLocationRef.current.latitude,
+                        userLocationRef.current.longitude,
+                        expectedCoords.current[0].latitude,
+                        expectedCoords.current[0].longitude,
+                      );
+                      distance.current = Math.round(distance);
+                    }
+                    if (destinationCoord.current == null) {
+                      destinationCoord.current =
+                        result.legs[0].steps[
+                          result.legs[0].steps.length - 1
+                        ].end_location;
+                      let distance = getDistance(
+                        userLocationRef.current.lat,
+                        userLocationRef.current.lng,
+                        destinationCoord.current.lat,
+                        destinationCoord.current.lng,
+                      );
+                      setDestinationDistance(Math.round(distance));
+                    }
+                  }
                 }}
+                resetOnChange={false}
               />
             );
           })}
@@ -944,7 +1112,7 @@ const Map = () => {
                 onPress={() => {
                   setShowDetailIti(false);
                   setShowTg(false);
-                  setRunningIti(false);
+                  setShowMarker(true);
                 }}>
                 <Text style={styles.backBtnArrow}>⟵</Text>
               </Pressable>
