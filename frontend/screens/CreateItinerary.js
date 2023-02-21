@@ -21,9 +21,7 @@ export default function CreateItinerary({navigation, route}) {
     title: '',
     travelGuides: [],
     description: '',
-    isPublic: true,
   });
-  const [isPublic, setIsPublic] = useState(true);
   const [availableTravelGuides, setAvailableTravelGuides] = useState([]);
   const isEmpty = useRef(true);
   const [search, setSearch] = useState('');
@@ -70,19 +68,17 @@ export default function CreateItinerary({navigation, route}) {
     const formData = new FormData();
     formData.append('name', itinerary.title);
     formData.append('description', itinerary.description);
-    formData.append('public', itinerary.isPublic);
     formData.append('travelGuideIds', tgId);
     const data = {
       name: itinerary.title,
       description: itinerary.description,
-      public: itinerary.isPublic,
       travelGuideIds: tgId,
     };
     await axios
       .post(`http://${ip.ip}:8000/itinerary`, data)
       .then(res => {
         console.log('success');
-        navigation.goBack();
+        navigation.navigate('Lib');
       })
       .catch(err => {
         console.log(err);
@@ -162,17 +158,6 @@ export default function CreateItinerary({navigation, route}) {
         }}
         value={itinerary.description}
       />
-      <TouchableOpacity
-        style={styles.buttonItiStyle}
-        activeOpacity={0.5}
-        onPress={() => setIsPublic(!isPublic)}>
-        <Image
-          source={isPublic ? Eye : CEye}
-          style={styles.buttonImageIconStyle}
-        />
-        <View style={styles.buttonIconSeparatorStyle} />
-        <Text style={styles.buttonTextStyle}>Public</Text>
-      </TouchableOpacity>
       <View
         style={{
           justifyContent: 'center',
