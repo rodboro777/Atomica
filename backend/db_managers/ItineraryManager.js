@@ -1,6 +1,6 @@
 "use strict";
 
-var ObjectID = require('mongodb').ObjectID;
+var ObjectID = require("mongodb").ObjectID;
 const ItineraryModel = require("../models/itineraryModel");
 
 class ItineraryManager {
@@ -51,8 +51,12 @@ class ItineraryManager {
     await ItineraryModel.create(this.constructItinerary(itinerary));
   }
 
-  static async updateItinerary(itinerary, id) {
-    await ItineraryModel.findByIdAndUpdate(id, this.constructItinerary(itinerary));
+  static async updateItinerary(id, itinerary) {
+    return await ItineraryModel.findByIdAndUpdate(
+      id,
+      this.constructItinerary(itinerary),
+      { new: true }
+    );
   }
 
   static async removeItinerary(itineraryId) {
@@ -70,7 +74,9 @@ class ItineraryManager {
       creatorId: new ObjectID(itinerary.creatorId),
       travelGuideId: travelGuideIds,
       public: itinerary.isPublic,
-    }
+      rating: itinerary.rating,
+      ratingCount: itinerary.ratingCount,
+    };
   }
 }
 

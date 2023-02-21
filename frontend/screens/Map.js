@@ -13,9 +13,11 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Animated,
+  TouchableOpacity,
 } from 'react-native'; // Import Map and Marker
 import TopInfoCard from '../components/TopInfoCard';
 import BottomInfoCard from '../components/BottomInfoCard';
+import RatingStars from '../components/RatingStars';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import MapView, {Marker, Circle} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -52,13 +54,14 @@ const Map = () => {
   });
   const [runningIti, setRunningIti] = useState(false);
   const [isLight, setLight] = useState(true);
+  const [ratingValue, setRatingValue] = useState(0);
   const ratingMap = {
     0: 'No rating',
-    1: '⭐',
-    2: '⭐⭐',
-    3: '⭐⭐⭐',
-    4: '⭐⭐⭐⭐',
-    5: '⭐⭐⭐⭐⭐',
+    1: '★',
+    2: '★★',
+    3: '★★★',
+    4: '★★★★',
+    5: '★★★★★',
   };
   const [showMarker, setShowMarker] = useState(false);
   const [showDetailIti, setShowDetailIti] = useState(false);
@@ -67,6 +70,7 @@ const Map = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [showDirection, setShowDirection] = useState(false);
   const [screenState, setScreenState] = useState('half');
+  const [showRating, setShowRating] = useState(false);
   const [userLocation, setUserLocation] = useState({
     latitude: 53.9854,
     longitude: -6.3945,
@@ -108,6 +112,7 @@ const Map = () => {
   const [MPdesc, setMPdes] = useState('Default Artist');
   const [runningIds, setRunningIds] = useState([]);
   const [tgMarkers, setTgMarkers] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleModal = e => {
     if (e.swipingDirection === 'up') {
@@ -131,7 +136,6 @@ const Map = () => {
       }
     }
   };
-
   const actions = [
     {
       text: 'Current Location',
@@ -526,7 +530,7 @@ const Map = () => {
       ...userLocation,
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
-    })
+    });
   }
   function resetRouteVariables() {
     destinationCoord.current = null;
@@ -550,6 +554,33 @@ const Map = () => {
       edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
       animated: true,
     });
+  }
+
+  async function submitReview() {
+    setSubmitting(true);
+    let avgRating = selectedIti.rating + ratingValue;
+    avgRating = avgRating / (selectedIti.ratingCount + 1);
+    await axios
+      .post(`http://${ip.ip}:8000/itinerary/`, {
+        name: selectedIti.name,
+        itineraryId: selectedIti._id,
+        rating: avgRating,
+        ratingCount: selectedIti.ratingCount + 1,
+        travelGuideId: selectedIti.travelGuideId,
+        creatorId: selectedIti.creatorId,
+        description: selectedIti.description,
+      })
+      .then(res => {
+        if (res.data.success) {
+          setSubmitting(false);
+          setShowRating(false);
+          setRatingValue(0);
+          setSelectedIti(res.data.result);
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   const styles = StyleSheet.create({
@@ -590,7 +621,7 @@ const Map = () => {
     modalContent: {
       position: 'absolute',
       width: Dimensions.get('window').width,
-      backgroundColor: '#C5FAD5',
+      backgroundColor: '#AA96DA',
       paddingTop: 12,
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
@@ -602,12 +633,20 @@ const Map = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: '#AA96DA',
+      elevation: 10,
+      shadowOffset: {width: 0, height: 2},
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 0.5,
+      marginTop: -10,
     },
     barIcon: {
       width: 60,
       height: 5,
       backgroundColor: '#bbb',
       borderRadius: 3,
+      marginTop: 10,
     },
     text: {
       color: '#bbb',
@@ -693,9 +732,10 @@ const Map = () => {
     txtNameStyle: {
       fontSize: 16,
       fontWeight: 'bold',
+      color: 'white',
     },
     txtEmailStyle: {
-      color: '#777',
+      color: 'white',
     },
     loaderStyle: {
       marginVertical: 16,
@@ -710,21 +750,31 @@ const Map = () => {
     backBtnArrow: {
       fontSize: 30,
       fontWeight: '900',
-      color: '#000',
+      color: 'white',
     },
     startItiButton: {
       position: 'absolute',
       padding: 10,
       right: 10,
-      backgroundColor: '#000',
+      backgroundColor: 'white',
       top: 10,
       borderRadius: 30,
       width: 80,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 3,
+      },
+      shadowOpacity: 0.27,
+      shadowRadius: 4.65,
+      elevation: 6,
     },
     startItiWord: {
-      color: '#fff',
+      color: '#AA96DA',
       marginLeft: 'auto',
       marginRight: 'auto',
+      fontWeight: 'bold',
+      fontSize: 16,
     },
   });
 
@@ -836,6 +886,11 @@ const Map = () => {
           directionIdx={directionIdx}
           dirDistance={dirDistance}
           destinationDistance={destinationDistance}
+          resetRouteVariables={resetRouteVariables}
+          setModalVisible={setModalVisible}
+          setRunningIti={setRunningIti}
+          setShowDirection={setShowDirection}
+          setShowRating={setShowRating}
         />
       )}
       <View style={{alignItems: 'center'}}>
@@ -1013,8 +1068,8 @@ const Map = () => {
               <MapViewDirections
                 key={id}
                 apikey="AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I"
-                strokeWidth={5}
-                strokeColor="black"
+                strokeWidth={3}
+                strokeColor="hotpink"
                 origin={
                   runningIti
                     ? userLocation
@@ -1099,10 +1154,32 @@ const Map = () => {
               transform: [{translateY: modalAni}],
             },
           ]}>
-          {showDetailIti ? (
+          {showRating ? (
             <View style={styles.center}>
               <View style={styles.barIcon} />
-              <Pressable
+              <View style={{padding: 10, width: '100%'}}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    color: 'white',
+                    fontWeight: 'bold',
+                    letterSpacing: 5,
+                  }}>
+                  Please Rate Your Experience
+                </Text>
+                <RatingStars
+                  setRatingValue={setRatingValue}
+                  ratingValue={ratingValue}
+                  submitting={submitting}
+                  submitReview={submitReview}
+                />
+              </View>
+            </View>
+          ) : showDetailIti ? (
+            <View style={styles.center}>
+              <View style={styles.barIcon} />
+              <TouchableOpacity
                 style={styles.detailItiBackBtn}
                 onPress={() => {
                   setShowDetailIti(false);
@@ -1110,40 +1187,64 @@ const Map = () => {
                   setShowMarker(true);
                 }}>
                 <Text style={styles.backBtnArrow}>⟵</Text>
-              </Pressable>
-              <Pressable
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={styles.startItiButton}
                 onPress={() => {
                   runItinerary();
                 }}>
                 <Text style={styles.startItiWord}>Start</Text>
-              </Pressable>
+              </TouchableOpacity>
               <Text
                 style={{
-                  fontWeight: '400',
-                  color: '#000',
-                  fontSize: 15,
+                  fontWeight: '700',
+                  color: 'white',
+                  fontSize: 25,
                   marginTop: 5,
+                  overflow: 'hidden',
+                  width: 250,
                 }}>
                 {selectedIti.name}
               </Text>
-              <Text
+              <View
                 style={{
-                  fontWeight: '400',
-                  color: '#000',
-                  fontSize: 15,
-                  marginTop: 5,
+                  flexDirection: 'row',
+                  width: 250,
+                  display: 'flex',
+                  justifyContent: 'space-between',
                 }}>
-                {selectedIti.rating
-                  ? ratingMap[selectedIti.rating]
-                  : 'no rating'}
-              </Text>
+                <Text
+                  style={{
+                    fontWeight: '400',
+                    color: 'white',
+                    fontSize: 15,
+                  }}>
+                  {selectedIti.username} |
+                </Text>
+                <Text
+                  style={{
+                    fontWeight: '400',
+                    color: 'yellow',
+                    fontSize: 15,
+                    marginRight: 'auto',
+                    marginLeft: 'auto',
+                  }}>
+                  {selectedIti.rating
+                    ? ratingMap[Math.round(selectedIti.rating)]
+                    : 'no rating'}
+                </Text>
+              </View>
               <Text
                 style={{
                   fontWeight: '400',
-                  color: '#000',
+                  color: 'white',
                   fontSize: 15,
                   marginTop: 5,
+                  borderTopWidth: 1,
+                  borderTopColor: 'white',
+                  width: '100%',
+                  padding: 10,
+                  textAlign: 'center',
                 }}>
                 {selectedIti.description}
               </Text>
@@ -1162,9 +1263,9 @@ const Map = () => {
               <View style={styles.barIcon} />
               <Text
                 style={{
-                  fontWeight: '400',
-                  color: '#000',
-                  fontSize: 15,
+                  fontWeight: '800',
+                  color: 'white',
+                  fontSize: 20,
                   marginTop: 5,
                 }}>
                 {description}
@@ -1184,37 +1285,72 @@ const Map = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginTop: 10,
+                  padding: 10,
                 }}>
                 <View style={{width: 150}}>
-                  <Button
-                    title="Travel guides"
-                    color="#000"
-                    onPress={() => setShowTg(true)}
-                  />
+                  <Pressable
+                    style={{
+                      backgroundColor: showTg ? 'whitesmoke' : '#AA96DA',
+                      padding: 10,
+                      borderRadius: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onPress={() => setShowTg(true)}>
+                    <Text
+                      style={{
+                        color: showTg ? '#AA96DA' : 'white',
+                        fontWeight: '900',
+                        fontSize: 15,
+                        letterSpacing: 1,
+                      }}>
+                      Travel Guides
+                    </Text>
+                  </Pressable>
                 </View>
                 <View style={{marginLeft: 70, width: 150}}>
-                  <Button
-                    title="Itineraries"
-                    color="#000"
-                    onPress={() => setShowTg(false)}
-                  />
+                  <Pressable
+                    style={{
+                      backgroundColor: showTg ? '#AA96DA' : 'whitesmoke',
+                      padding: 10,
+                      borderRadius: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onPress={() => setShowTg(false)}>
+                    <Text
+                      style={{
+                        color: showTg ? 'white' : '#AA96DA',
+                        fontWeight: '900',
+                        fontSize: 15,
+                        letterSpacing: 1,
+                      }}>
+                      Itineraries
+                    </Text>
+                  </Pressable>
                 </View>
               </View>
             </View>
           )}
-          <StatusBar backgroundColor="#000" />
-          <View style={{maxHeight: 500}}>
-            <FlatList
-              data={showDetailIti ? itiTg : showTg ? travelGuides : itineraries}
-              keyExtractor={item => item._id}
-              renderItem={renderItem}
-              ListFooterComponent={renderLoader}
-              onEndReached={loadMoreItem}
-              onEndReachedThreshold={2}
-              showsVerticalScrollIndicator={true}
-              contentContainerStyle={{flexGrow: 1}}
-            />
-          </View>
+          {/* <StatusBar backgroundColor="#000" /> */}
+          {!showRating && (
+            <View style={{maxHeight: 500}}>
+              <FlatList
+                data={
+                  showDetailIti ? itiTg : showTg ? travelGuides : itineraries
+                }
+                keyExtractor={item => item._id}
+                renderItem={renderItem}
+                ListFooterComponent={renderLoader}
+                onEndReached={loadMoreItem}
+                onEndReachedThreshold={2}
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={{flexGrow: 1}}
+              />
+            </View>
+          )}
         </Animated.View>
       </Modal>
     </SafeAreaView>

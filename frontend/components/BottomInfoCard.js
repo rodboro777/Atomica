@@ -23,6 +23,11 @@ export default function BottomInfoCard(props) {
     directionIdx,
     dirDistance, //might use this for UI enhancement so don't remove
     destinationDistance,
+    setModalVisible,
+    resetRouteVariables,
+    setRunningIti,
+    setShowDirection,
+    setShowRating
   } = props;
   const styles = StyleSheet.create({
     bottomCardHolder: {
@@ -105,7 +110,11 @@ export default function BottomInfoCard(props) {
                 }
               }}
               source={{
-                html: `<p style="color:white; font-size:5.8vw; font-weight: 400; margin-left:-3vw;">${showDirection?nextRouteInfo[directionIdx].html_instructions:"Destination Reached"}</p>`,
+                html: `<p style="color:white; font-size:5.8vw; font-weight: 400; margin-left:-3vw;">${
+                  showDirection
+                    ? nextRouteInfo[directionIdx].html_instructions
+                    : 'Destination Reached'
+                }</p>`,
               }}
             />
           )}
@@ -148,10 +157,40 @@ export default function BottomInfoCard(props) {
                     justifyContent: 'center',
                     textAlignVertical: 'center',
                     color: 'white',
-                    marginLeft:10,
+                    marginLeft: 10,
                   }}>
-                  {currentlyPlaying[1] ? 'Pause Audio' : currentlyPlaying[0]==tg[tgNumber]._id?'Resume Audio':'Play Audio'}
+                  {currentlyPlaying[1]
+                    ? 'Pause Audio'
+                    : currentlyPlaying[0] == tg[tgNumber]._id
+                    ? 'Resume Audio'
+                    : 'Play Audio'}
                 </Text>
+                {tgNumber == tg.length - 1 && (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: 5,
+                      padding: 5,
+                    }}
+                    onPress={() => {
+                      setModalVisible(true);
+                      setRunningIti(false);
+                      setShowDirection(true);
+                      setShowRating(true);
+                      resetRouteVariables();
+                    }}>
+                    <Text
+                      style={{
+                        color: '#AA96DA',
+                        fontSize: 15,
+                        fontWeight: '500',
+                        textAlignVertical: 'center',
+                        textAlignHorizontal: 'center',
+                      }}>
+                      End Tour
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           </View>
