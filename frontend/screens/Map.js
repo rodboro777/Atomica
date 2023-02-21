@@ -132,28 +132,6 @@ const Map = () => {
     }
   };
 
-  const playOrPause = async () => {
-    console.log('playor pause');
-    playAudio();
-    setMPlayerdetails();
-  };
-
-  const playAudio = () => {
-    setIsPlaying(!isPlaying);
-    console.log('isplaying: ', isPlaying);
-    if (isPlaying) {
-      SoundPlayer.stop();
-    } else {
-      fetchAudio();
-    }
-  };
-
-  const setMPlayerdetails = item => {
-    setMPtitle(item.name);
-    setMPdes(item.description);
-    console.log('MPtitle: ' + MPtitle + 'MPdesc: ' + MPdesc);
-  };
-
   const actions = [
     {
       text: 'Current Location',
@@ -206,25 +184,6 @@ const Map = () => {
     }
     const usernames = await Promise.all(promises);
     return usernames;
-  };
-
-  const fetchAudio = async () => {
-    try {
-      console.log('Trying to play audio');
-      // play the file tone.mp3
-      SoundPlayer.playSoundFile('sound', 'mp3');
-      console.log('Playing');
-      //       or play from url
-      //  SoundPlayer.playUrl('https://storage.googleapis.com/guidify_bucket/12345.mpeg')
-      try {
-        const info = await SoundPlayer.getInfo(); // Also, you need to await this because it is async
-        console.log('getInfo', info); // {duration: 12.416, currentTime: 7.691}
-      } catch (e) {
-        console.log('There is no song playing', e);
-      }
-    } catch (e) {
-      console.log(`cannot play the sound file`, e);
-    }
   };
 
   const renderItem = ({item}) => {
@@ -486,6 +445,7 @@ const Map = () => {
             directionIdxRef.current = 0;
             setDirectionIdx(0);
             distance.current = null;
+            return;
           }
           //check if user is on track
           const testD = Math.round(
@@ -500,9 +460,6 @@ const Map = () => {
             distance.current = testD;
           else if (distance.current < testD) {
             isOnTrack.current = false;
-            expIdx.current = 0;
-            directionIdxRef.current = 0;
-            setDirectionIdx(0);
             distance.current = null;
             return;
           }
@@ -545,8 +502,8 @@ const Map = () => {
           longitude: longitude,
         });
         userLocationRef.current = {
-          lat: latitude,
-          lng: longitude,
+          latitude: latitude,
+          longitude: longitude,
         };
       },
       error => console.log(error),
@@ -565,6 +522,34 @@ const Map = () => {
   function runItinerary() {
     setModalVisible(false);
     setRunningIti(true);
+    mapRef.current.animateToRegion({
+      ...userLocation,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    })
+  }
+  function resetRouteVariables() {
+    destinationCoord.current = null;
+    isOnTrack.current = false;
+    expIdx.current = 0;
+    directionIdxRef.current = 0;
+    distance.current = null;
+    expectedCoords.current = null;
+    setDestinationDistance(null);
+    setDirectionIdx(0);
+    setTgNumber(0);
+    setNextRouteInfo(null);
+    const coordinates = [];
+    tgMarkers.map(tg => {
+      coordinates.push({
+        latitude: tg.latitude,
+        longitude: tg.longitude,
+      });
+    });
+    mapRef.current.fitToCoordinates(coordinates, {
+      edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+      animated: true,
+    });
   }
 
   const styles = StyleSheet.create({
@@ -833,6 +818,9 @@ const Map = () => {
           setTgNumber={setTgNumber}
           setRunningIti={setRunningIti}
           setModalVisible={setModalVisible}
+          setShowDirection={setShowDirection}
+          resetRouteVariables={resetRouteVariables}
+          destinationCoord={destinationCoord}
         />
       )}
       {runningIti && (
@@ -1010,6 +998,7 @@ const Map = () => {
             return (
               <Marker
                 key={index}
+                pinColor="cyan"
                 coordinate={{
                   latitude: marker.latitude,
                   longitude: marker.longitude,
@@ -1039,6 +1028,9 @@ const Map = () => {
                   if (runningIti) {
                     if (!isOnTrack.current) {
                       setNextRouteInfo(result.legs[0].steps);
+                      directionIdxRef.current = 0;
+                      setDirectionIdx(0);
+                      expIdx.current = 0;
                       isOnTrack.current = true;
                       expectedCoords.current = result.coordinates;
                       let distance = getDistance(
@@ -1055,12 +1047,15 @@ const Map = () => {
                           result.legs[0].steps.length - 1
                         ].end_location;
                       let distance = getDistance(
-                        userLocationRef.current.lat,
-                        userLocationRef.current.lng,
+                        userLocationRef.current.latitude,
+                        userLocationRef.current.longitude,
                         destinationCoord.current.lat,
                         destinationCoord.current.lng,
                       );
-                      setDestinationDistance(Math.round(distance));
+                      if (distance < 100) {
+                        setDestinationDistance(null);
+                        setShowDirection(false);
+                      } else setDestinationDistance(Math.round(distance));
                     }
                   }
                 }}

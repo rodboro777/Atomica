@@ -6,20 +6,21 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Button,
-  Alert,
-  Pressable,
-  FlatList,
-  StatusBar,
-  ActivityIndicator,
-  SafeAreaView,
-  Animated,
 } from 'react-native';
 import nextIcon from '../assets/next.png';
 import cancelIcon from '../assets/close.png';
 
 export default function TopInfoCard(props) {
-  const {tg, tgNumber, setTgNumber, setRunningIti, setModalVisible} = props;
+  const {
+    tg,
+    tgNumber,
+    setTgNumber,
+    setRunningIti,
+    setModalVisible,
+    setShowDirection,
+    resetRouteVariables,
+    destinationCoord,
+  } = props;
 
   const styles = StyleSheet.create({
     topCardHolder: {
@@ -46,7 +47,7 @@ export default function TopInfoCard(props) {
       width: '90%',
       height: '100%',
       borderRadius: 15,
-      marginTop:10,
+      marginTop: 10,
     },
     topCardTitleView: {
       position: 'absolute',
@@ -82,25 +83,31 @@ export default function TopInfoCard(props) {
         </View>
         <View style={styles.topCardTgNumber}>
           <Text style={{color: 'white', fontSize: 17, letterSpacing: 3}}>
-            {tg.length > 0 && `${tgNumber+1}/${tg.length}`}
+            {tg.length > 0 && `${tgNumber + 1}/${tg.length}`}
           </Text>
         </View>
         <View style={styles.topCardControllerView}>
           {tgNumber > 0 && (
-            <TouchableOpacity style={{marginRight: 10}} onPress={()=>{
-              setTgNumber(tgNumber-1);
-            }}>
+            <TouchableOpacity
+              style={{marginRight: 10}}
+              onPress={() => {
+                setTgNumber(tgNumber - 1);
+                setShowDirection(true);
+                destinationCoord.current = null;
+              }}>
               <Image
                 source={nextIcon}
                 style={{width: 25, height: 25, transform: [{rotate: '180deg'}]}}
               />
             </TouchableOpacity>
           )}
-          {tgNumber < tg.length-1 && (
+          {tgNumber < tg.length - 1 && (
             <TouchableOpacity
               style={{marginRight: 20}}
               onPress={() => {
-                setTgNumber(tgNumber+1);
+                setTgNumber(tgNumber + 1);
+                setShowDirection(true);
+                destinationCoord.current = null;
               }}>
               <Image source={nextIcon} style={{width: 25, height: 25}} />
             </TouchableOpacity>
@@ -109,7 +116,8 @@ export default function TopInfoCard(props) {
             onPress={() => {
               setRunningIti(false);
               setModalVisible(true);
-              setTgNumber(0);
+              setShowDirection(true);
+              resetRouteVariables();
             }}>
             <Image source={cancelIcon} style={{width: 25, height: 25}} />
           </TouchableOpacity>

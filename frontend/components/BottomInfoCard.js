@@ -5,18 +5,12 @@ import {
   Text,
   View,
   Image,
-  Button,
-  Alert,
-  Pressable,
-  FlatList,
-  StatusBar,
-  ActivityIndicator,
-  SafeAreaView,
   TouchableOpacity,
-  Animated,
 } from 'react-native';
 import playIcon from '../assets/play_1.png';
 import pauseIcon from '../assets/pause_1.png';
+import {WebView} from 'react-native-webview';
+
 export default function BottomInfoCard(props) {
   const {
     placeInfo,
@@ -27,7 +21,7 @@ export default function BottomInfoCard(props) {
     showDirection,
     currentlyPlaying,
     directionIdx,
-    dirDistance,
+    dirDistance, //might use this for UI enhancement so don't remove
     destinationDistance,
   } = props;
   const styles = StyleSheet.create({
@@ -72,7 +66,18 @@ export default function BottomInfoCard(props) {
     bottomCardPlayerHolder: {
       marginTop: 10,
     },
+    bottomCardWebView: {
+      backgroundColor: '#AA96DA',
+      overflow: 'hidden',
+      display: 'flex',
+      justifyContent: 'center',
+    },
   });
+  const handleViewportMeta = () => {
+    const viewportMeta =
+      "var meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta);";
+    return viewportMeta;
+  };
   return (
     <View style={styles.bottomCardHolder}>
       <View style={styles.bottomCardContentHolder}>
@@ -83,17 +88,32 @@ export default function BottomInfoCard(props) {
           />
         </View>
         <View style={styles.bottomCardInfoHolder}>
-          <Text style={{color: 'white', fontSize: 15}}>
-            {nextRouteInfo && nextRouteInfo[directionIdx].maneuver
-              ? nextRouteInfo[directionIdx].maneuver
-              : 'Go Straight'}
-          </Text>
+          {nextRouteInfo && (
+            <WebView
+              style={styles.bottomCardWebView}
+              bounces={false}
+              scalesPageToFit={false}
+              domStorageEnabled={true}
+              useWebView2={true}
+              javaScriptEnabled={false}
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+              scrollEnabled={false}
+              onMessage={event => {
+                if (event.nativeEvent.data === 'viewportmeta') {
+                  event.target.injectJavaScript(handleViewportMeta());
+                }
+              }}
+              source={{
+                html: `<p style="color:white; font-size:5.8vw; font-weight: 400; margin-left:-3vw;">${showDirection?nextRouteInfo[directionIdx].html_instructions:"Destination Reached"}</p>`,
+              }}
+            />
+          )}
           <Text
             style={{
               color: 'white',
               fontWeight: 'bold',
               fontSize: 18,
-              marginTop: 5,
             }}>
             {placeInfo[tgNumber].name}
           </Text>
@@ -128,8 +148,9 @@ export default function BottomInfoCard(props) {
                     justifyContent: 'center',
                     textAlignVertical: 'center',
                     color: 'white',
+                    marginLeft:10,
                   }}>
-                  {currentlyPlaying[1] ? 'Pause Audio' : 'Play Audio'}
+                  {currentlyPlaying[1] ? 'Pause Audio' : currentlyPlaying[0]==tg[tgNumber]._id?'Resume Audio':'Play Audio'}
                 </Text>
               </View>
             )}
