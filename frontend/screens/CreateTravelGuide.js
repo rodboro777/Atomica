@@ -65,7 +65,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
           console.log(resBody);
           if (resBody.statusCode == 200) {
             console.log("success");
-            navigation.goBack();
+            navigation.navigate('Lib')
           } else if (resBody.statusCode == 403) {
             // TODO user entered the wrong credentials. add a UI for this.
             console.log("failed");
@@ -254,18 +254,7 @@ const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818
           <View style={styles.buttonIconSeparatorStyle} />
           <Text style={styles.buttonTextStyle}>Upload Image</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-          style={styles.buttonItiStyle}
-          activeOpacity={0.5}
-          onPress={() => setEicon(CEye)}
-          >
-          <Image
-            source={eicon}
-            style={styles.buttonImageIconStyle}
-          />
-          <View style={styles.buttonIconSeparatorStyle} />
-          <Text style={styles.buttonTextStyle}>Public</Text>
-      </TouchableOpacity>
+
       <View style={{justifyContent: 'center', alignContent: 'center', alignItems:'center'}}>
        <TouchableOpacity
           style={styles.buttonDONEStyle}
