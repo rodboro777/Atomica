@@ -15,6 +15,8 @@ import CreateItinerary from './screens/CreateItinerary';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import EditItinerary from './screens/EditItinerary';
 import EditTravelGuide from './screens/CreateTravelGuide';
+import User from './screens/User';
+import EditUser from './screens/EditUser';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -54,8 +56,25 @@ function MyTabs() {
          />
         )
       } }}/>
+      <Tab.Screen name="UserProfile" component={UStackNav} options={{ headerShown: false,tabBarLabel: "", tabBarIcon: (tabInfo) => {
+         return (
+               <Image
+                source={require("./assets/user.png")}
+                style={styles.mapicon}
+               />
+              )
+      } }}/>
     </Tab.Navigator>
   );
+}
+
+const UStackNav = () => {
+  return(
+    <Stack.Navigator initialRouteName='User'>
+      <Stack.Screen name='User' component={User} options={{ headerShown: false }}/>
+      <Stack.Screen name='Edit User' component={EditUser} />
+    </Stack.Navigator>
+  )
 }
 
 const LStackNav = () => {
@@ -99,7 +118,7 @@ const App = () => {
   return (
 
     <NavigationContainer>
-     <Stack.Navigator initialRouteName="Home">
+     <Stack.Navigator initialRouteName="MyTabs">
         <Stack.Screen name="Home" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name="MyTabs" component={MyTabs} options={{ headerShown: false }} />
