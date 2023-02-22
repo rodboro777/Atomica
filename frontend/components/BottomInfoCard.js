@@ -178,7 +178,8 @@ export default function BottomInfoCard(props) {
                       setShowDirection(true);
                       setShowRating(true);
                       resetRouteVariables();
-                    }}>
+                    }}
+                    >
                     <Text
                       style={{
                         color: '#AA96DA',

@@ -95,7 +95,7 @@ export default function RatingStars(props) {
       <TouchableOpacity
         style={styles.submitBtn}
         onPress={submitReview}
-        disabled={false}>
+        disabled={submitting ? true : false}>
         {submitting ? (
           <ActivityIndicator size="large" color="#AA96DA" />
         ) : (

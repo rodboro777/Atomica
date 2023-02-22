@@ -558,8 +558,9 @@ const Map = () => {
 
   async function submitReview() {
     setSubmitting(true);
-    let avgRating = selectedIti.rating + ratingValue;
-    avgRating = avgRating / (selectedIti.ratingCount + 1);
+    const avgRating =
+      (selectedIti.rating * selectedIti.ratingCount + ratingValue) /
+      (selectedIti.ratingCount + 1);
     await axios
       .post(`http://${ip.ip}:8000/itinerary/`, {
         name: selectedIti.name,
@@ -572,10 +573,29 @@ const Map = () => {
       })
       .then(res => {
         if (res.data.success) {
+          const updated = res.data.result;
           setSubmitting(false);
           setShowRating(false);
           setRatingValue(0);
-          setSelectedIti(res.data.result);
+          setItineraries(prev => {
+            return prev.map(itinerary => {
+              if (itinerary._id === updated._id) {
+                return {
+                  ...itinerary,
+                  rating: updated.rating,
+                  ratingCount: updated.ratingCount,
+                };
+              }
+              return itinerary;
+            });
+          });
+          setSelectedIti(prev => {
+            return {
+              ...prev,
+              rating: updated.rating,
+              ratingCount: updated.ratingCount,
+            };
+          });
         }
       })
       .catch(err => {
@@ -634,7 +654,7 @@ const Map = () => {
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#AA96DA',
-      elevation: 10,
+      elevation: showRating ? 0 : 10,
       shadowOffset: {width: 0, height: 2},
       shadowColor: '#000',
       shadowOpacity: 0.2,
