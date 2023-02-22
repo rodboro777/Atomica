@@ -10,9 +10,9 @@ This is The repository for Release 1 for the application Guidify being developed
 
 
 ### Setup
-1. Change the IP address in the code to the IPv4 address of the machine
+3. `git clone` the repository
+1. Change the IP address in the code to the IPv4 address in the file `frontend/ip.json`
 2. Start an emulator with an API version 32
-3. git clone the repository
 4. `cd backend`
 5. `npm i`
 6. `npm start`
