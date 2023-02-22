@@ -3,7 +3,6 @@
 var ObjectID = require("mongodb").ObjectID;
 const TravelGuideModel = require("../models/travelGuideModel");
 const TravelGuideRequestModel = require("../models/travelGuideRequestModel");
-const STATUS = require("../models/travelGuideRequestModel");
 
 class TravelGuideManager {
   //returns a list of travel guides
@@ -57,9 +56,9 @@ class TravelGuideManager {
     return docs;
   }
 
-  static async getTravelGuideRequests() {
+  static async getTravelGuideRequests(status) {
     try {
-      const docs = await TravelGuideRequestModel.find({});
+      const docs = await TravelGuideRequestModel.find({status: status});
       return docs;
     } catch (err) {
       throw err;
@@ -74,20 +73,21 @@ class TravelGuideManager {
     }
   }
 
-  static async approveTravelGuideRequest(requestId) {
+  static async approveTravelGuideRequest(requestId, reviewerComment) {
     // change the status of the request to approved.
     const request = await TravelGuideRequestModel.findByIdAndUpdate(requestId, {
-      status: STATUS.APPROVED,
+      status: TravelGuideRequestModel.STATUS.APPROVED,
+      reviewerComment: reviewerComment,
     });
 
     // create a new travel guide from the request.
     await TravelGuideModel.create(this.constructTravelGuide(request));
   }
 
-  static rejectTravelGuideRequest(requestId, reviewerComment) {
+  static async rejectTravelGuideRequest(requestId, reviewerComment) {
     // change the status fo the request to rejected and add the reviewerComment.
-    TravelGuideRequestModel.findByIdAndUpdate(requestId, {
-      status: STATUS.REJECTED,
+    await TravelGuideRequestModel.findByIdAndUpdate(requestId, {
+      status: TravelGuideRequestModel.STATUS.REJECTED,
       reviewerComment: reviewerComment,
     });
   }
@@ -122,7 +122,7 @@ class TravelGuideManager {
       await TravelGuideRequestModel.create(
         {
           ...this.constructTravelGuide(request),
-          status: STATUS.PENDING,
+          status: TravelGuideRequestModel.STATUS.PENDING,
           reviewerComment: '',
         }
       );

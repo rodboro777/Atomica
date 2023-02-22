@@ -1,6 +1,7 @@
 * {
   margin: 0;
   padding: 0;
+  font-family: 'Lexend', sans-serif;
 }
 .top-bar {
   padding: 1vw;
@@ -8,17 +9,20 @@
   position: sticky;
 }
 #audio-div {
-  height: 40vw;
+  height: 50vw;
+  background-color: #f0f2f5;
   overflow: auto;
   padding: 1vw;
 }
 .audio-single {
+  background-color: white;
   border-radius: 0.3vw;
-  text-align: center;
   width: 50vw;
   margin: auto;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   margin-top: 1.5vw;
+  overflow:auto; 
+  padding: 20px;
 }
 .audio {
   display: grid;
@@ -55,9 +59,6 @@
 }
 .classify:active {
   background-color: #2a6a8c;
-}
-#audio {
-  margin: auto;
 }
 .nothing {
   text-align: center;

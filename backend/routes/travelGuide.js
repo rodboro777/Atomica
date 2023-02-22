@@ -110,8 +110,14 @@ router.get("/byUser", async (req, res) => {
 
 // Get pending TravelGuide applications
 router.get("/applications", async (req, res) => {
+  if (!req.query.status) {
+    res.send({
+      travelGuidesRequests: [],
+    })
+  }
+
   const travelGuidesRequests =
-    await TravelGuideManager.getTravelGuideRequests();
+    await TravelGuideManager.getTravelGuideRequests(req.query.status);
   res.send({
     travelGuidesRequests: travelGuidesRequests,
   });
@@ -123,20 +129,21 @@ router.post("/applicationAction", async (req, res) => {
   // the request will be approved. otherwise it will be rejected.
   const approve = req.body.approve;
   const requestId = req.body.requestId;
+  const reviewerComment = req.body.reviewerComment;
   try {
     if (approve) {
-      await TravelGuideManager.createTravelGuideFromRequest(requestId);
+      await TravelGuideManager.approveTravelGuideRequest(requestId, reviewerComment);
     } else {
-      await TravelGuideManager.removeTravelGuideRequest(requestId);
+      await TravelGuideManager.rejectTravelGuideRequest(requestId, reviewerComment);
     }
     res.send({
       statusCode: 200,
     });
   } catch (err) {
+    console.log(err);
     res.send({
       statusCode: 500,
     });
-    console.log(err);
   }
 });
 

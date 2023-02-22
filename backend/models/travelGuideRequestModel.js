@@ -24,3 +24,4 @@ const travelGuideRequestSchema = new mongoose.Schema({
 const TravelGuideRequest = new mongoose.model('TravelGuideRequest', travelGuideRequestSchema);
 
 module.exports = TravelGuideRequest;
+module.exports.STATUS = STATUS;

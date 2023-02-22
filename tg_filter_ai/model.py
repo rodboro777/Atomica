@@ -119,8 +119,11 @@ class TGFilterModel:
             
         logits = output.logits.detach().cpu()
         logits = F.softmax(logits, dim=-1)
-        i = np.argmax(logits.numpy(), axis=1).flatten()[0]
-        return label_dict_inverse[i]
+        res = dict()
+        for i, prob in enumerate(logits.numpy().flatten()):
+            res[label_dict_inverse[i]] = str(prob)
+
+        return res
 
     def __prepare_data(self, df):
         labels_unique = df.status.unique()
