@@ -3,6 +3,7 @@
 var ObjectID = require("mongodb").ObjectID;
 const TravelGuideModel = require("../models/travelGuideModel");
 const TravelGuideRequestModel = require("../models/travelGuideRequestModel");
+const STATUS = require("../models/travelGuideRequestModel");
 
 class TravelGuideManager {
   //returns a list of travel guides
@@ -73,6 +74,24 @@ class TravelGuideManager {
     }
   }
 
+  static async approveTravelGuideRequest(requestId) {
+    // change the status of the request to approved.
+    const request = await TravelGuideRequestModel.findByIdAndUpdate(requestId, {
+      status: STATUS.APPROVED,
+    });
+
+    // create a new travel guide from the request.
+    await TravelGuideModel.create(this.constructTravelGuide(request));
+  }
+
+  static rejectTravelGuideRequest(requestId, reviewerComment) {
+    // change the status fo the request to rejected and add the reviewerComment.
+    TravelGuideRequestModel.findByIdAndUpdate(requestId, {
+      status: STATUS.REJECTED,
+      reviewerComment: reviewerComment,
+    });
+  }
+
   static async createTravelGuideFromRequest(requestId) {
     try {
       const request = await TravelGuideRequestModel.findById(requestId);
@@ -94,13 +113,19 @@ class TravelGuideManager {
       imageUrl: request.imageUrl,
       audioLength: request.audioLength,
       placeId: request.placeId,
-      public: true,
+      public: true
     };
   }
 
   static async createTravelGuideRequest(request) {
     try {
-      await TravelGuideRequestModel.create(this.constructTravelGuide(request));
+      await TravelGuideRequestModel.create(
+        {
+          ...this.constructTravelGuide(request),
+          status: STATUS.PENDING,
+          reviewerComment: '',
+        }
+      );
     } catch (err) {
       throw err;
     }
