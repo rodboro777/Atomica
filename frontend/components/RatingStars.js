@@ -52,6 +52,7 @@ export default function RatingStars(props) {
       fontWeight: '700',
       fontSize: 20,
       letterSpacing: 2,
+      fontFamily:'Lexend-ExtraLight',
     },
   });
 
@@ -95,7 +96,7 @@ export default function RatingStars(props) {
       <TouchableOpacity
         style={styles.submitBtn}
         onPress={submitReview}
-        disabled={false}>
+        disabled={submitting ? true : false}>
         {submitting ? (
           <ActivityIndicator size="large" color="#AA96DA" />
         ) : (

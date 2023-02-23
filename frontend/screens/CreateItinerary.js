@@ -8,23 +8,28 @@ import {
   Button,
   FlatList,
   ScrollView,
+  Dimensions,
+  ActivityIndicator,
 } from 'react-native';
-import {React, useState, useRef} from 'react';
-import Eye from '../assets/eye.png';
-import CEye from '../assets/ceye.png';
+import {React, useState, useRef, useEffect} from 'react';
 import Done from '../assets/done.png';
 import axios from 'axios';
 import ip from '../ip';
+import upArrow from '../assets/uparrow.png';
+import trash from '../assets/trash.png';
 
 export default function CreateItinerary({navigation, route}) {
+  const {item, isEdit} = route.params;
   const [itinerary, setItinerary] = useState({
-    title: '',
-    travelGuides: [],
-    description: '',
+    title: isEdit ? item.name : '',
+    travelGuides: isEdit ? item.travelGuides && item.travelGuides : [],
+    description: isEdit ? item.description : '',
   });
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [availableTravelGuides, setAvailableTravelGuides] = useState([]);
   const isEmpty = useRef(true);
   const [search, setSearch] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSearch(name) {
     if (name.trim().length == 0) {
@@ -32,13 +37,10 @@ export default function CreateItinerary({navigation, route}) {
       isEmpty.current = true;
       return;
     }
-    await fetch(
-      `http://${ip.ip}:8000/travelGuide/startsWith?prefix=${name}`,
-      {
-        credentials: 'include',
-        method: 'GET',
-      },
-    )
+    await fetch(`http://${ip.ip}:8000/travelGuide/startsWith?prefix=${name}`, {
+      credentials: 'include',
+      method: 'GET',
+    })
       .then(res => res.json())
       .then(resBody => {
         if (resBody.travelGuides.length > 0) {
@@ -65,15 +67,19 @@ export default function CreateItinerary({navigation, route}) {
 
   const createItinerary = async () => {
     const tgId = itinerary.travelGuides.map(tg => tg._id);
-    const formData = new FormData();
-    formData.append('name', itinerary.title);
-    formData.append('description', itinerary.description);
-    formData.append('travelGuideIds', tgId);
-    const data = {
+    let data = {
       name: itinerary.title,
       description: itinerary.description,
-      travelGuideIds: tgId,
+      travelGuideId: tgId,
+      rating: item.rating,
+      ratingCount: item.ratingCount,
     };
+    if (isEdit) {
+      data = {
+        ...data,
+        itineraryId: item._id,
+      };
+    }
     await axios
       .post(`http://${ip.ip}:8000/itinerary`, data)
       .then(res => {
@@ -85,11 +91,142 @@ export default function CreateItinerary({navigation, route}) {
       });
   };
 
+  useEffect(() => {
+    if (isEdit) {
+      axios
+        .post(`http://${ip.ip}:8000/travelGuide/byIds`, item.travelGuideId)
+        .then(res => {
+          setItinerary({
+            ...itinerary,
+            travelGuides: res.data.travelGuides,
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+  }, []);
+  async function handleDelete(id) {
+    console.log('HI');
+    fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
+      credentials: 'include',
+      method: 'DELETE',
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        console.log('HI');
+        navigation.navigate('Lib');
+      })
+      .catch(err => {
+        console.log('error');
+        console.log(err);
+      });
+  }
+
   return (
     <View style={styles.container}>
+      {confirmDelete && (
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 3,
+            width: Dimensions.get('window').width,
+            height: Dimensions.get('window').height,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              height: '30%',
+              width: '80%',
+              backgroundColor: '#AA96DA',
+              borderRadius: 10,
+            }}>
+            <Text
+              style={{
+                padding: 10,
+                fontFamily: 'Lexend-ExtraLight',
+                fontSize: 15,
+                fontWeight: '700',
+                letterSpacing: 1,
+                color: 'white',
+                marginTop: 10,
+              }}>
+              Are you sure you want to delete this itinerary?
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                marginTop: 'auto',
+                padding: 10,
+                height: 100,
+                display: 'flex',
+                justifyContent: 'space-around',
+              }}>
+              <TouchableOpacity
+                style={{...styles.buttonDONEStyle, backgroundColor: 'red'}}
+                disabled={submitting}
+                onPress={() => {
+                  setSubmitting(true);
+                  handleDelete(item._id);
+                }}>
+                {submitting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text
+                    style={{color: 'white', fontWeight: 'bold', fontSize: 17}}>
+                    Yes
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {!submitting && (
+                <TouchableOpacity
+                  style={{...styles.buttonDONEStyle}}
+                  onPress={() => {
+                    setConfirmDelete(false);
+                  }}>
+                  <Text
+                    style={{color: 'white', fontWeight: 'bold', fontSize: 17}}>
+                    No
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+      )}
+      <View style={styles.pageNameHolder}>
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            left: 20,
+            transform: [{rotate: '-90deg'}],
+            height: 30,
+            width: 30,
+          }}
+          onPress={() => navigation.navigate('Lib')}>
+          <Image
+            source={upArrow}
+            style={{tintColor: 'white', width: '100%', height: '100%'}}
+          />
+        </TouchableOpacity>
+        <Text
+          style={{
+            fontFamily: 'Lexend-ExtraLight',
+            fontSize: 15,
+            fontWeight: '700',
+            letterSpacing: 1,
+            color: 'white',
+          }}>
+          {isEdit ? 'Edit Itinerary' : 'Create Itinerary'}
+        </Text>
+      </View>
+
       <TextInput
         placeholder="Type Itinerary title here.."
-        placeholderTextColor="#9a73ef"
+        placeholderTextColor="white"
         style={styles.input}
         value={itinerary.title}
         onChangeText={e => {
@@ -128,27 +265,40 @@ export default function CreateItinerary({navigation, route}) {
         />
       )}
       <ScrollView style={styles.choosenTravelGuideList}>
-        {itinerary.travelGuides.map(item => (
-          <View style={styles.choosenTravelGuideItem} key={item._id}>
-            <Text>{item.name}</Text>
-            <TouchableOpacity
-              onPress={() => {
-                setItinerary({
-                  ...itinerary,
-                  travelGuides: itinerary.travelGuides.filter(
-                    tg => tg._id != item._id,
-                  ),
-                });
-              }}
-              style={styles.removeButton}>
-              <Text>X</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+        {itinerary.travelGuides &&
+          itinerary.travelGuides.map(item => (
+            <View style={styles.choosenTravelGuideItem} key={item._id}>
+              <Text
+                style={{
+                  fontFamily: 'Lexend-ExtraLight',
+                  fontSize: 15,
+                  fontWeight: '700',
+                  letterSpacing: 1,
+                  color: 'white',
+                }}>
+                {item.name}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setItinerary({
+                    ...itinerary,
+                    travelGuides: itinerary.travelGuides.filter(
+                      tg => tg._id != item._id,
+                    ),
+                  });
+                }}
+                style={styles.removeButton}>
+                <Image
+                  source={trash}
+                  style={{height: '100%', width: '100%', tintColor: 'white'}}
+                />
+              </TouchableOpacity>
+            </View>
+          ))}
       </ScrollView>
       <TextInput
         placeholder="Description..."
-        placeholderTextColor="#9a73ef"
+        placeholderTextColor="white"
         style={styles.description}
         onChangeText={e => {
           setItinerary({
@@ -163,15 +313,36 @@ export default function CreateItinerary({navigation, route}) {
           justifyContent: 'center',
           alignContent: 'center',
           alignItems: 'center',
+          marginTop: 30,
+          padding: 10,
         }}>
         <TouchableOpacity
           style={styles.buttonDONEStyle}
           activeOpacity={0.5}
           onPress={() => {
+            setSubmitting(true);
             createItinerary();
           }}>
-          <Image source={Done} style={styles.buttonImageIconStyle} />
+          {submitting ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Image source={Done} style={styles.buttonImageIconStyle} />
+          )}
         </TouchableOpacity>
+        {isEdit && (
+          <TouchableOpacity
+            style={{
+              ...styles.buttonDONEStyle,
+              marginTop: 10,
+              backgroundColor: 'red',
+            }}
+            activeOpacity={0.5}
+            onPress={() => {
+              setConfirmDelete(true);
+            }}>
+            <Image source={trash} style={styles.buttonImageIconStyle} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -179,29 +350,55 @@ export default function CreateItinerary({navigation, route}) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    margin: 0,
-    marginTop: 0,
-    padding: 30,
-    backgroundColor: '#C5FAD5',
+    height: Dimensions.get('window').height,
+    backgroundColor: 'white',
+  },
+  pageNameHolder: {
+    width: '100%',
+    padding: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    backgroundColor: '#AA96DA',
+    height: 60,
   },
   input: {
-    margin: 5,
-    height: 50,
-    borderColor: '#7a42f4',
-    borderWidth: 1,
-    borderRadius: 10,
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    margin: 10,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#AA96DA',
+    color: 'white',
+    fontFamily: 'Lexend-ExtraLight',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 5,
   },
   description: {
-    margin: 5,
-    height: 100,
-    borderColor: '#7a42f4',
-    borderWidth: 1,
+    margin: 10,
     borderRadius: 10,
     fontSize: 15,
     fontWeight: 'bold',
+    color: 'white',
+    minHeight: 200,
+    backgroundColor: '#AA96DA',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+    textAlignVertical: 'top',
+    padding: 10,
   },
   buttonItiStyle: {
     flexDirection: 'row',
@@ -215,10 +412,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonImageIconStyle: {
-    padding: 10,
-    margin: 5,
-    height: 25,
-    width: 25,
+    height: 30,
+    width: 30,
     resizeMode: 'stretch',
     tintColor: 'white',
   },
@@ -227,11 +422,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginLeft: 10,
     fontWeight: 'bold',
-  },
-  buttonIconSeparatorStyle: {
-    backgroundColor: '#fff',
-    width: 1,
-    height: 40,
   },
   buttonHeaderStyle: {
     color: '#000',
@@ -242,16 +432,21 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   buttonDONEStyle: {
-    alignItems: 'center',
-    backgroundColor: '#485a96',
-    borderWidth: 0.5,
-    borderColor: '#fff',
-    height: 40,
-    borderRadius: 5,
-    margin: 5,
-    marginTop: 30,
-    width: 100,
+    width: 150,
+    borderRadius: 20,
+    height: 50,
+    backgroundColor: '#34ad68',
+    display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 6,
   },
   MainContainer: {
     flex: 1,
@@ -296,22 +491,35 @@ const styles = StyleSheet.create({
   },
   choosenTravelGuideList: {
     textAlign: 'center',
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: 'gray',
-    maxHeight: 200,
-    minHeight: 200,
+    padding: 10,
+    borderColor: '#AA96DA',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    maxHeight: 180,
+    backgroundColor: 'whitesmoke',
   },
   choosenTravelGuideItem: {
     margin: 'auto',
     marginTop: 10,
-    padding: 5,
-    color: 'black',
-    fontWeight: 'bold',
-    borderBottomWidth: 1,
+    padding: 10,
+    backgroundColor: '#AA96DA',
+    borderRadius: 10,
+    flexDirection: 'row',
+    height: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
   },
   removeButton: {
-    borderRadius: 10,
     width: 20,
     height: 20,
   },
