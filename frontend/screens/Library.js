@@ -18,8 +18,14 @@ import ip from '../ip';
 
 const Library = ({navigation}) => {
   const [travelGuides, setTravelGuides] = useState([]);
+  const [rejectedTravelGuides, setRejectedTravelGuides] = useState([]);
   const [itineraries, setItineraries] = useState([]);
   const isFocused = useIsFocused();
+  const TG_STATUS = {
+    PENDING: 'pending',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+  };
 
   useEffect(() => {
     fetch(`http://${ip.ip}:8000/travelGuide/byUser`, {
@@ -36,6 +42,7 @@ const Library = ({navigation}) => {
           });
         });
         setTravelGuides(totalTravelGuides);
+        setRejectedTravelGuides(resBody.rejectedTravelGuides);
       })
       .catch(err => {
         console.log(err);
@@ -53,8 +60,7 @@ const Library = ({navigation}) => {
       });
   }, [isFocused]);
 
-  const Item_ITI = (item, type) => {
-    const res = item.item;
+  const Item_ITI = (res, type) => {
     return (
       <View style={styles.item}>
         <View style={{marginLeft: 10}}>
@@ -69,7 +75,7 @@ const Library = ({navigation}) => {
                 })
               }>
               <Image
-                source={EditIcon}
+                source={type === TG_STATUS.PENDING ? PendingIcon : !(type === TG_STATUS.REJECTED) && EditIcon}
                 style={{
                   tintColor: '#fff',
                   height: '100%',
@@ -80,6 +86,9 @@ const Library = ({navigation}) => {
           </View>
           <View style={{flexDirection: 'row', width: '80%'}}>
             <Text style={styles.desc}>{res.description}</Text>
+          </View>
+          <View style={{flexDirection: 'row', width: '80%'}}>
+            {type === TG_STATUS.REJECTED && <Text style={styles.desc}>Comment from reviewer: {res.reviewerComment}</Text>}
           </View>
         </View>
       </View>
@@ -134,22 +143,32 @@ const Library = ({navigation}) => {
           </View>
         </TouchableOpacity>
         <View>
-          <Text style={styles.buttonHeaderStyle}>Itinerary</Text>
+          <Text style={styles.buttonHeaderStyle}>Itineraries</Text>
           <FlatList
             data={itineraries}
-            renderItem={item => {
+            renderItem={({item}) => {
               return Item_ITI(item, 'Itinerary');
             }}
             keyExtractor={item => item._id}
           />
         </View>
         <View>
-          <Text style={styles.buttonHeaderStyle}>TravelGuide</Text>
+          <Text style={styles.buttonHeaderStyle}>TravelGuides</Text>
           <FlatList
             keyExtractor={item => item._id}
             data={travelGuides}
-            renderItem={item => {
-              return Item_ITI(item, item.pending ? 'pending' : 'approved');
+            renderItem={({item}) => {
+              return Item_ITI(item, item.pending ? TG_STATUS.PENDING : TG_STATUS.APPROVED);
+            }}
+          />
+        </View>
+        <View>
+          <Text style={styles.buttonHeaderStyle}>Rejected TravelGuides</Text>
+          <FlatList
+            keyExtractor={item => item._id}
+            data={rejectedTravelGuides}
+            renderItem={({item}) => {
+              return Item_ITI(item, TG_STATUS.REJECTED);
             }}
           />
         </View>

@@ -5,6 +5,7 @@ const GCSManager = require("../GCS_manager");
 const multer = require("multer");
 const upload = multer();
 const crypto = require("crypto");
+const TravelGuideRequestModel = require("../models/travelGuideRequestModel");
 
 router.use((err, req, res, next) => {
   if (req.session.user) {
@@ -94,16 +95,19 @@ router.get("/byUser", async (req, res) => {
 
   try {
     const travelGuides = await TravelGuideManager.getTravelGuidesByUser(userId);
-    const pendingTravelGuides = await TravelGuideManager.getPendingTravelGuidesByUser(userId);
+    const pendingTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(userId, TravelGuideRequestModel.STATUS.PENDING);
+    const rejectedTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(userId, TravelGuideRequestModel.STATUS.REJECTED);
     res.send({
       travelGuides: travelGuides,
       pendingTravelGuides: pendingTravelGuides,
+      rejectedTravelGuides: rejectedTravelGuides,
     });
   } catch (err) {
     console.log(err);
     res.send({
       travelGuides: [],
       pendingTravelGuides: [],
+      rejectedTravelGuides: [],
     });
   }
 });

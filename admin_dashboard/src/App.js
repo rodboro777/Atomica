@@ -31,7 +31,7 @@ function App() {
 
   // SPEECH-TO-TEXT STUFFS
   // Load the contents of the JSON credentials file
-  const keyFile = require('./guidify-369315-568789271b3b.json');
+  const keyFile = require('./guidify-369315-c18eaa71882a.json');
   // Create a new GoogleAuth client with the credentials
   const auth = new GoogleAuth({
     credentials: keyFile,
@@ -215,6 +215,23 @@ function App() {
     })
   }
 
+  function getBarChartBorderColor(id) {
+    let validProb = parseFloat(autoClassifyData[id][CLASSIFICATION.VALID]);
+    let invalidOthersProb = parseFloat(autoClassifyData[id][CLASSIFICATION.INVALID_OTHERS]);
+    let invalidHarassmentProb = parseFloat(autoClassifyData[id][CLASSIFICATION.INVALID_HARASSMENT]);
+    if (validProb > invalidOthersProb && validProb > invalidHarassmentProb) {
+      return '#6cac57';
+    }
+
+    if (invalidOthersProb > validProb && invalidOthersProb > invalidHarassmentProb) {
+      return '#e6a800';
+    }
+
+    if (invalidHarassmentProb > validProb && invalidHarassmentProb > invalidOthersProb) {
+      return '#eb5980';
+    }
+  }
+
   return (
     <>
       <Navbar
@@ -266,7 +283,7 @@ function App() {
                     {autoClassifyData[request._id] ? <>
                     <br/>
                     <p>AI Confidence Level</p>
-                    <Bar style={{border:'solid', borderColor: '#6cac57', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px', borderRadius: '3%', padding: '5px', width: '100%'}} options={options} data={{
+                    <Bar style={{border:'solid', borderColor: getBarChartBorderColor(request._id), boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px', borderRadius: '3%', padding: '5px', width: '100%'}} options={options} data={{
                       labels,
                       datasets: [
                         {
@@ -275,8 +292,8 @@ function App() {
                             parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_OTHERS]),
                             parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_HARASSMENT])
                           ],
-                          borderColor: "#2c733f",
-                          backgroundColor: '#6cac57',
+                          borderColor: ["#2c733f", "#b88600", "#f20041"],
+                          backgroundColor: ['#6cac57', '#e6a800', '#eb5980'],
                         }
                       ]
                     }} /> </> : 
