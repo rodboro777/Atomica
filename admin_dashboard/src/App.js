@@ -31,7 +31,7 @@ function App() {
 
   // SPEECH-TO-TEXT STUFFS
   // Load the contents of the JSON credentials file
-  const keyFile = require('./guidify-369315-c18eaa71882a.json');
+  const keyFile = require('./guidify-378710-18ee2573f57f.json');
   // Create a new GoogleAuth client with the credentials
   const auth = new GoogleAuth({
     credentials: keyFile,
