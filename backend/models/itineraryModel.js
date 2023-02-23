@@ -8,6 +8,7 @@ const itinerarySchema = new mongoose.Schema({
     travelGuideId: [ObjectID],
     public: Boolean,
     rating: Number,
+    ratingCount: Number,
 });
 
 const Itinerary = new mongoose.model('Itinerary', itinerarySchema);

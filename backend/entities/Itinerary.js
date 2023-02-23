@@ -9,6 +9,7 @@ class Itinerary {
       const travelGuideId = build.travelGuideId;
       const isPublic = build.isPublic;
       const rating = build.rating;
+      const ratingCount = build.ratingCount;
 
       Object.defineProperties(this, {
         name: {
@@ -35,6 +36,10 @@ class Itinerary {
           value: rating,
           writable: false,
         },
+        ratingCount:{
+          value: ratingCount,
+          writable: false,
+        }
       });
     }
   }
@@ -70,6 +75,10 @@ class Itinerary {
 
       setRating(rating) {
         this.rating = rating;
+        return this;
+      }
+      setRatingCount(ratingCount) {
+        this.ratingCount = ratingCount;
         return this;
       }
       build() {
