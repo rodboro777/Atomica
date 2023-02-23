@@ -28,7 +28,7 @@ class TGFilterModel:
                                             num_warmup_steps=0,
                                             num_training_steps=len(self.dataloader_train)*self.epochs)
 
-        self.device = torch.device('mps')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'mps')
         self.model.to(self.device)
 
     def train(self):
