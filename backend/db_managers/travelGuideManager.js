@@ -56,9 +56,14 @@ class TravelGuideManager {
     return docs;
   }
 
-  static async getTravelGuideRequests() {
+  static async getTravelGuideRequestsByUser(userId, status) {
+    const docs = await TravelGuideRequestModel.find({status: status, creatorId: new ObjectID(userId)});
+    return docs;
+  }
+
+  static async getTravelGuideRequests(status) {
     try {
-      const docs = await TravelGuideRequestModel.find({});
+      const docs = await TravelGuideRequestModel.find({status: status});
       return docs;
     } catch (err) {
       throw err;
@@ -71,6 +76,25 @@ class TravelGuideManager {
     } catch (err) {
       throw err;
     }
+  }
+
+  static async approveTravelGuideRequest(requestId, reviewerComment) {
+    // change the status of the request to approved.
+    const request = await TravelGuideRequestModel.findByIdAndUpdate(requestId, {
+      status: TravelGuideRequestModel.STATUS.APPROVED,
+      reviewerComment: reviewerComment,
+    });
+
+    // create a new travel guide from the request.
+    await TravelGuideModel.create(this.constructTravelGuide(request));
+  }
+
+  static async rejectTravelGuideRequest(requestId, reviewerComment) {
+    // change the status fo the request to rejected and add the reviewerComment.
+    await TravelGuideRequestModel.findByIdAndUpdate(requestId, {
+      status: TravelGuideRequestModel.STATUS.REJECTED,
+      reviewerComment: reviewerComment,
+    });
   }
 
   static async createTravelGuideFromRequest(requestId) {
@@ -94,13 +118,19 @@ class TravelGuideManager {
       imageUrl: request.imageUrl,
       audioLength: request.audioLength,
       placeId: request.placeId,
-      public: true,
+      public: true
     };
   }
 
   static async createTravelGuideRequest(request) {
     try {
-      await TravelGuideRequestModel.create(this.constructTravelGuide(request));
+      await TravelGuideRequestModel.create(
+        {
+          ...this.constructTravelGuide(request),
+          status: TravelGuideRequestModel.STATUS.PENDING,
+          reviewerComment: '',
+        }
+      );
     } catch (err) {
       throw err;
     }
