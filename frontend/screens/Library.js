@@ -33,7 +33,7 @@ const Library = ({navigation}) => {
           totalTravelGuides.push({
             ...tg,
             pending: true,
-          })
+          });
         });
         setTravelGuides(totalTravelGuides);
       })
@@ -53,195 +53,93 @@ const Library = ({navigation}) => {
       });
   }, [isFocused]);
 
-  async function handleDelete(type, id) {
-    if (type === 'itinerary') {
-      fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
-        credentials: 'include',
-        method: 'DELETE',
-      })
-        .then(res => res.json())
-        .then(resBody => {
-          console.log('success');
-          //remove itinerary from itineraries
-          setItineraries(itineraries.filter(itinerary => itinerary._id !== id));
-        })
-        .catch(err => {
-          console.log('error');
-          console.log(err);
-        });
-    } else {
-      fetch(`http://${ip.ip}:8000/travelGuide?id=${id}`, {
-        credentials: 'include',
-        method: 'DELETE',
-      })
-        .then(res => res.json())
-        .then(resBody => {
-          console.log('success');
-          setTravelGuides(
-            travelGuides.filter(travelGuide => travelGuide._id !== id),
-          );
-        })
-        .catch(err => {
-          console.log('error');
-          console.log(err);
-        });
-    }
-  }
-
-  const Item_ITI = ({title, desc, id}) => (
-    <View style={styles.item}>
-      <View style={{marginLeft: 10}}>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={styles.title}>{title}</Text>
-          <Image
-            source={EditIcon}
-            style={{
-              height: 20,
-              tintColor: '#fff',
-              width: 20,
-              marginRight: 10,
-              position: 'absolute',
-              right: 0,
-              marginTop: 14,
-            }}
-          />
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Image
-            source={DownloadIcon}
-            style={{height: 20, tintColor: '#000', width: 20, marginRight: 10}}
-          />
-          <Text style={styles.desc}>{desc}</Text>
-        </View>
-        <TouchableOpacity
-          style={{
-            height: 20,
-            tintColor: '#fff',
-            width: 20,
-            marginRight: 10,
-            position: 'absolute',
-            right: 30,
-            marginTop: 15,
-          }}
-          onPress={() => handleDelete('itinerary', id)}>
-          <Image
-            source={DeleteIcon}
-            style={{
-              height: 20,
-              tintColor: '#fff',
-              width: 20,
-            }}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-  const Item_TG = ({title, desc}) => (
-    <View style={styles.item}>
-      <View style={{marginLeft: 10}}>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={styles.title}>{title}</Text>
-          <Image
-            source={EditIcon}
-            style={{
-              height: 20,
-              tintColor: '#fff',
-              width: 20,
-              marginRight: 10,
-              position: 'absolute',
-              right: 0,
-              marginTop: 14,
-            }}
-          />
-          <TouchableOpacity
-            style={{
-              height: 20,
-              tintColor: '#fff',
-              width: 20,
-              marginRight: 10,
-              position: 'absolute',
-              right: 30,
-              marginTop: 15,
-            }}>
-            <Image
-              source={DeleteIcon}
-              style={{
-                height: 20,
-                tintColor: '#fff',
-                width: 20,
-              }}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Image
-            source={DownloadIcon}
-            style={{height: 20, tintColor: '#000', width: 20, marginRight: 10}}
-          />
-          <Text style={styles.desc}>{desc}</Text>
+  const Item_ITI = (item, type) => {
+    const res = item.item;
+    return (
+      <View style={styles.item}>
+        <View style={{marginLeft: 10}}>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.title}>{res.name}</Text>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() =>
+                navigation.navigate('Create Itinerary', {
+                  item: res,
+                  isEdit: true,
+                })
+              }>
+              <Image
+                source={EditIcon}
+                style={{
+                  tintColor: '#fff',
+                  height: '100%',
+                  width: '100%',
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{flexDirection: 'row', width: '80%'}}>
+            <Text style={styles.desc}>{res.description}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
-  const Item_PTG = ({title, desc}) => (
-    <View style={styles.item}>
-      <View style={{marginLeft: 10}}>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={styles.title}>{title}</Text>
-          <Image
-            source={PendingIcon}
-            style={{
-              height: 20,
-              tintColor: '#fff',
-              width: 20,
-              marginRight: 10,
-              position: 'absolute',
-              right: 0,
-              marginTop: 14,
-            }}
-          />
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Image
-            source={DownloadIcon}
-            style={{height: 20, tintColor: '#000', width: 20, marginRight: 10}}
-          />
-          <Text style={styles.desc}>{desc}</Text>
-        </View>
-      </View>
-    </View>
-  );
-
+    );
+  };
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.buttonItiStyle}
           activeOpacity={0.5}
-          onPress={() => navigation.navigate('Create Itinerary')}>
-          <Image source={Plus} style={styles.buttonImageIconStyle} />
-          <View style={styles.buttonIconSeparatorStyle} />
+          onPress={() =>
+            navigation.navigate('Create Itinerary', {
+              item: {},
+              isEdit: false,
+            })
+          }>
           <Text style={styles.buttonTextStyle}>Create Itinerary</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+              borderRadius: 40,
+              borderColor: 'white',
+            }}>
+            <Image source={Plus} style={styles.buttonImageIconStyle} />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.buttonTGStyle}
+          style={styles.buttonItiStyle}
           activeOpacity={0.5}
           onPress={() => navigation.navigate('Create TravelGuide')}>
-          <Image source={Plus} style={styles.buttonImageIconStyle} />
-          <View style={styles.buttonIconSeparatorStyle} />
           <Text style={styles.buttonTextStyle}>Create Travel Guide</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 40,
+              width: 40,
+              borderRadius: 40,
+              borderColor: 'white',
+            }}>
+            <Image source={Plus} style={styles.buttonImageIconStyle} />
+          </View>
         </TouchableOpacity>
         <View>
           <Text style={styles.buttonHeaderStyle}>Itinerary</Text>
           <FlatList
             data={itineraries}
-            renderItem={({item}) => (
-              <Item_ITI
-                title={item.name}
-                desc={item.description}
-                id={item._id}
-              />
-            )}
+            renderItem={item => {
+              return Item_ITI(item, 'Itinerary');
+            }}
             keyExtractor={item => item._id}
           />
         </View>
@@ -250,11 +148,8 @@ const Library = ({navigation}) => {
           <FlatList
             keyExtractor={item => item._id}
             data={travelGuides}
-            renderItem={({item}) => {
-              if (item.pending) {
-                return <Item_PTG title={item.name} desc={item.description} />
-              }
-              return <Item_TG title={item.name} desc={item.description} />
+            renderItem={item => {
+              return Item_ITI(item, item.pending ? 'pending' : 'approved');
             }}
           />
         </View>
@@ -271,7 +166,7 @@ const styles = StyleSheet.create({
     margin: 0,
     marginTop: 0,
     padding: 30,
-    backgroundColor: '#C5FAD5',
+    backgroundColor: 'whitesmoke',
   },
   buttonTGStyle: {
     flexDirection: 'row',
@@ -286,27 +181,35 @@ const styles = StyleSheet.create({
   buttonItiStyle: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#485a96',
-    borderWidth: 0.5,
+    backgroundColor: '#AA96DA',
     borderColor: '#fff',
-    height: 40,
-    borderRadius: 5,
+    borderRadius: 15,
     margin: 5,
     marginTop: 10,
+    padding: 10,
+    paddingLeft: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 4.65,
+    elevation: 10,
   },
   buttonImageIconStyle: {
-    padding: 10,
-    margin: 5,
-    height: 25,
-    width: 25,
+    height: 30,
+    width: 30,
     resizeMode: 'stretch',
     tintColor: 'white',
+    borderWidth: 2,
   },
   buttonTextStyle: {
     color: '#fff',
-    marginBottom: 4,
-    marginLeft: 10,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontFamily: 'Lexend-ExtraLight',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
   buttonIconSeparatorStyle: {
     backgroundColor: '#fff',
@@ -314,12 +217,12 @@ const styles = StyleSheet.create({
     height: 40,
   },
   buttonHeaderStyle: {
-    color: '#000',
+    color: '#AA96DA',
     marginTop: 10,
     marginLeft: 10,
     fontWeight: 'bold',
-    fontSize: 22,
-    fontFamily: 'monospace',
+    fontSize: 25,
+    fontFamily: 'Lexend-ExtraLight',
   },
   item: {
     backgroundColor: '#AA96DA',
@@ -327,15 +230,26 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 5,
     borderRadius: 10,
+    position: 'relative',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    fontFamily: 'Lexend-ExtraLight',
   },
   desc: {
     fontSize: 15,
     color: '#403f3d',
     fontWeight: 'bold',
+    fontFamily: 'Lexend-ExtraLight',
+    textAlign: 'justify',
+  },
+  editButton: {
+    width: 15,
+    height: 15,
+    position: 'absolute',
+    right: 10,
+    top: 10,
   },
 });

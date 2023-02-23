@@ -77,12 +77,24 @@ export default function TopInfoCard(props) {
     <View style={styles.topCardHolder}>
       <View style={styles.topCardContentHolder}>
         <View style={styles.topCardTitleView}>
-          <Text style={{color: 'white', fontWeight: 'bold', fontSize: 18}}>
+          <Text
+            style={{
+              color: 'white',
+              fontWeight: 'bold',
+              fontFamily: 'Lexend-ExtraLight',
+              fontSize: 18,
+            }}>
             {tg.length > 0 && tg[tgNumber].name}
           </Text>
         </View>
         <View style={styles.topCardTgNumber}>
-          <Text style={{color: 'white', fontSize: 17, letterSpacing: 3}}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 17,
+              letterSpacing: 3,
+              fontFamily: 'Lexend-ExtraLight',
+            }}>
             {tg.length > 0 && `${tgNumber + 1}/${tg.length}`}
           </Text>
         </View>

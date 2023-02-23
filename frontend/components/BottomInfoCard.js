@@ -27,7 +27,7 @@ export default function BottomInfoCard(props) {
     resetRouteVariables,
     setRunningIti,
     setShowDirection,
-    setShowRating
+    setShowRating,
   } = props;
   const styles = StyleSheet.create({
     bottomCardHolder: {
@@ -129,7 +129,13 @@ export default function BottomInfoCard(props) {
           <View style={styles.bottomCardPlayerHolder}>
             {showDirection ? (
               <View style={{flexDirection: 'row', marginTop: 20}}>
-                <Text style={{color: 'white', fontSize: 15, fontWeight: '400'}}>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontSize: 15,
+                    fontWeight: '400',
+                    fontFamily: 'Lexend-ExtraLight',
+                  }}>
                   {destinationDistance && `${destinationDistance}m left`}
                 </Text>
               </View>
@@ -158,6 +164,7 @@ export default function BottomInfoCard(props) {
                     textAlignVertical: 'center',
                     color: 'white',
                     marginLeft: 10,
+                    fontFamily: 'Lexend-ExtraLight',
                   }}>
                   {currentlyPlaying[1]
                     ? 'Pause Audio'
@@ -183,9 +190,11 @@ export default function BottomInfoCard(props) {
                       style={{
                         color: '#AA96DA',
                         fontSize: 15,
-                        fontWeight: '500',
+                        fontWeight: '700',
+                        letterSpacing:1,
                         textAlignVertical: 'center',
                         textAlignHorizontal: 'center',
+                        fontFamily: 'Lexend-ExtraLight',
                       }}>
                       End Tour
                     </Text>
