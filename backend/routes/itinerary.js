@@ -76,7 +76,6 @@ router.get("/byUser", async (req, res) => {
 
 // This route serves the function of creating and updating an itinerary.
 router.post("/", async (req, res) => {
-    console.log(req.body);
   let itinerary = new Itinerary.Builder()
     .setName(req.body.name)
     .setDescription(req.body.description)
@@ -115,6 +114,9 @@ router.delete("/", async (req, res) => {
   let itineraryId = req.query.id;
   try {
     await ItineraryManager.removeItinerary(itineraryId);
+    res.send({
+      success: true,
+    });
   } catch (err) {
     console.log(err);
     res.send({

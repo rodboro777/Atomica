@@ -12,7 +12,6 @@ import Submit from '../components/Submit';
 import Account from '../components/Account';
 
 const Login = props => {
-  
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -141,14 +140,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textTitle: {
-    fontFamily: 'Foundation',
+    fontFamily: 'Lexend-ExtraLight',
     fontSize: 40,
     marginVertical: 10,
     color: 'black',
     fontWeight: 'bold',
   },
   textBody: {
-    fontFamily: 'Foundation',
+    fontFamily: 'Lexend-ExtraLight',
     fontSize: 16,
     fontWeight: 'bold',
   },

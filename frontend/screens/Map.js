@@ -29,6 +29,7 @@ import PauseIcon from '../assets/pause.png';
 import axios from 'axios';
 import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
+import { Font } from 'expo-font';
 const Map = () => {
   Geolocation.requestAuthorization();
   const modalAni = useRef(
@@ -108,8 +109,6 @@ const Map = () => {
   const [travelGuides, setTravelGuides] = useState([]);
   const [itiTg, setItiTg] = useState([]);
   const [itineraries, setItineraries] = useState([]);
-  const [MPtitle, setMPtitle] = useState('Default Name');
-  const [MPdesc, setMPdes] = useState('Default Artist');
   const [runningIds, setRunningIds] = useState([]);
   const [tgMarkers, setTgMarkers] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -753,9 +752,11 @@ const Map = () => {
       fontSize: 16,
       fontWeight: 'bold',
       color: 'white',
+      fontFamily:'Lexend-ExtraLight',
     },
     txtEmailStyle: {
       color: 'white',
+      fontFamily:'Lexend-ExtraLight',
     },
     loaderStyle: {
       marginVertical: 16,
@@ -771,6 +772,7 @@ const Map = () => {
       fontSize: 30,
       fontWeight: '900',
       color: 'white',
+      fontFamily:'Lexend-ExtraLight',
     },
     startItiButton: {
       position: 'absolute',
@@ -795,6 +797,7 @@ const Map = () => {
       marginRight: 'auto',
       fontWeight: 'bold',
       fontSize: 16,
+      fontFamily:'Lexend-ExtraLight',
     },
   });
 
@@ -1185,6 +1188,7 @@ const Map = () => {
                     color: 'white',
                     fontWeight: 'bold',
                     letterSpacing: 5,
+                    fontFamily:'Lexend-ExtraLight',
                   }}>
                   Please Rate Your Experience
                 </Text>
@@ -1223,6 +1227,7 @@ const Map = () => {
                   marginTop: 5,
                   overflow: 'hidden',
                   width: 250,
+                  fontFamily:'Lexend-ExtraLight',
                 }}>
                 {selectedIti.name}
               </Text>
@@ -1238,6 +1243,7 @@ const Map = () => {
                     fontWeight: '400',
                     color: 'white',
                     fontSize: 15,
+                    fontFamily:'Lexend-ExtraLight',
                   }}>
                   {selectedIti.username} |
                 </Text>
@@ -1265,6 +1271,7 @@ const Map = () => {
                   width: '100%',
                   padding: 10,
                   textAlign: 'center',
+                  fontFamily:'Lexend-ExtraLight',
                 }}>
                 {selectedIti.description}
               </Text>
@@ -1274,6 +1281,7 @@ const Map = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginTop: 10,
+                  fontFamily:'Lexend-ExtraLight',
                 }}>
                 <View style={{width: 150}}></View>
               </View>
@@ -1287,6 +1295,7 @@ const Map = () => {
                   color: 'white',
                   fontSize: 20,
                   marginTop: 5,
+                  fontFamily:'Lexend-ExtraLight',
                 }}>
                 {description}
               </Text>
@@ -1324,6 +1333,7 @@ const Map = () => {
                         fontWeight: '900',
                         fontSize: 15,
                         letterSpacing: 1,
+                        fontFamily:'Lexend-ExtraLight',
                       }}>
                       Travel Guides
                     </Text>
@@ -1346,6 +1356,7 @@ const Map = () => {
                         fontWeight: '900',
                         fontSize: 15,
                         letterSpacing: 1,
+                        fontFamily:'Lexend-ExtraLight',
                       }}>
                       Itineraries
                     </Text>

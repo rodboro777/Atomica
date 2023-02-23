@@ -52,6 +52,7 @@ export default function RatingStars(props) {
       fontWeight: '700',
       fontSize: 20,
       letterSpacing: 2,
+      fontFamily:'Lexend-ExtraLight',
     },
   });
 
