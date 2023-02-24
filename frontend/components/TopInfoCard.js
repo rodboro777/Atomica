@@ -39,7 +39,7 @@ export default function TopInfoCard(props) {
         width: 0,
         height: 3,
       },
-      backgroundColor: '#AA96DA',
+      backgroundColor: 'black',
       shadowOpacity: 0.27,
       shadowRadius: 4.65,
       elevation: 6,
@@ -80,8 +80,7 @@ export default function TopInfoCard(props) {
           <Text
             style={{
               color: 'white',
-              fontWeight: 'bold',
-              fontFamily: 'Lexend-ExtraLight',
+              fontFamily: 'Lexend-Regular',
               fontSize: 18,
             }}>
             {tg.length > 0 && tg[tgNumber].name}
@@ -93,7 +92,7 @@ export default function TopInfoCard(props) {
               color: 'white',
               fontSize: 17,
               letterSpacing: 3,
-              fontFamily: 'Lexend-ExtraLight',
+              fontFamily: 'Lexend-Light',
             }}>
             {tg.length > 0 && `${tgNumber + 1}/${tg.length}`}
           </Text>

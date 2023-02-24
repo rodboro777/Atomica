@@ -48,7 +48,7 @@ export default function RatingStars(props) {
       elevation: 6,
     },
     submitBtnText: {
-      color: '#AA96DA',
+      color: 'black',
       fontWeight: '700',
       fontSize: 20,
       letterSpacing: 2,
@@ -98,7 +98,7 @@ export default function RatingStars(props) {
         onPress={submitReview}
         disabled={submitting ? true : false}>
         {submitting ? (
-          <ActivityIndicator size="large" color="#AA96DA" />
+          <ActivityIndicator size="large" color="black" />
         ) : (
           <Text style={styles.submitBtnText}>Submit</Text>
         )}

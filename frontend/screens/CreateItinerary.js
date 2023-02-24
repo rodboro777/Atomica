@@ -141,18 +141,18 @@ export default function CreateItinerary({navigation, route}) {
             style={{
               height: '30%',
               width: '80%',
-              backgroundColor: '#AA96DA',
+              backgroundColor: 'white',
               borderRadius: 10,
             }}>
             <Text
               style={{
                 padding: 10,
-                fontFamily: 'Lexend-ExtraLight',
+                fontFamily: 'Lexend-Regular',
                 fontSize: 15,
-                fontWeight: '700',
                 letterSpacing: 1,
-                color: 'white',
+                color: 'black',
                 marginTop: 10,
+                textAlign:'center'
               }}>
               Are you sure you want to delete this itinerary?
             </Text>
@@ -214,9 +214,8 @@ export default function CreateItinerary({navigation, route}) {
         </TouchableOpacity>
         <Text
           style={{
-            fontFamily: 'Lexend-ExtraLight',
-            fontSize: 15,
-            fontWeight: '700',
+            fontFamily: 'Lexend-Light',
+            fontSize: 20,
             letterSpacing: 1,
             color: 'white',
           }}>
@@ -258,7 +257,9 @@ export default function CreateItinerary({navigation, route}) {
               style={styles.travelGuideItem}
               onPressIn={() => addTravelGuide(item)}>
               <View>
-                <Text>{item.name}</Text>
+                <Text
+                 style={{fontFamily:"Lexend-Regular"}}
+                >{item.name}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -270,9 +271,8 @@ export default function CreateItinerary({navigation, route}) {
             <View style={styles.choosenTravelGuideItem} key={item._id}>
               <Text
                 style={{
-                  fontFamily: 'Lexend-ExtraLight',
+                  fontFamily: 'Lexend-Light',
                   fontSize: 15,
-                  fontWeight: '700',
                   letterSpacing: 1,
                   color: 'white',
                 }}>
@@ -360,16 +360,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     height: 60,
   },
   input: {
     fontSize: 15,
-    fontWeight: '600',
     margin: 10,
     borderRadius: 10,
     padding: 10,
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     color: 'white',
     fontFamily: 'Lexend-ExtraLight',
     shadowColor: '#000',
@@ -385,10 +384,10 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     fontSize: 15,
-    fontWeight: 'bold',
+    fontFamily:"Lexend-Regular",
     color: 'white',
     minHeight: 200,
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -492,7 +491,7 @@ const styles = StyleSheet.create({
   choosenTravelGuideList: {
     textAlign: 'center',
     padding: 10,
-    borderColor: '#AA96DA',
+    borderColor: 'black',
     borderTopWidth: 1,
     borderBottomWidth: 1,
     maxHeight: 180,
@@ -502,7 +501,7 @@ const styles = StyleSheet.create({
     margin: 'auto',
     marginTop: 10,
     padding: 10,
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     borderRadius: 10,
     flexDirection: 'row',
     height: 50,
