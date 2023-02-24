@@ -9,12 +9,13 @@ import {
   Image
 } from 'react-native';
 
-import {useTheme} from 'react-native-paper';
+import {useTheme, Avatar} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
+import { Button } from "@react-native-material/core";
 
 import ImagePicker from 'react-native-image-crop-picker';
 
@@ -77,7 +78,9 @@ export default function EditUser({navigation}) {
     </View>
   );
 
-  bs = React.createRef();
+  bs = React.createRef();<Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
+    fontFamily: 'Lexend-Regular'
+  }}/>
   fall = new Animated.Value(1);
 
   return (
@@ -94,7 +97,7 @@ export default function EditUser({navigation}) {
       <Animated.View style={{margin: 20,
         opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
     }}>
-        <View style={{alignItems: 'center'}}>
+        <View style={{alignItems: 'center', marginBottom: 30}}>
           <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
             <View
               style={{
@@ -116,26 +119,17 @@ export default function EditUser({navigation}) {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  <Icon
-                    name="camera"
-                    size={35}
-                    color="#fff"
-                    style={{
-                      opacity: 0.7,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: '#fff',
-                      borderRadius: 10,
-                    }}
+                  <Avatar.Image
+                    source={require('../assets/avatar.png')}
+                    size={85}
                   />
                 </View>
               </ImageBackground>
             </View>
           </TouchableOpacity>
-          <Text style={{marginTop: 10, fontSize: 18, fontWeight: 'bold'}}>
-            John Doe
-          </Text>
+          <Button onPress={() => this.bs.current.snapTo(0)} title="Change Profile Picture" variant='outlined' color="black" titleStyle={{
+          fontFamily: 'Lexend-Regular'
+        }} style={{borderColor: 'black'}}/>
         </View>
 
         <View style={styles.action}>
@@ -147,6 +141,8 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
+                fontSize: 15,
                 color: colors.text,
               },
             ]}
@@ -161,7 +157,9 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
                 color: colors.text,
+                fontSize: 15,
               },
             ]}
           />
@@ -176,7 +174,9 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
                 color: colors.text,
+                fontSize: 15,
               },
             ]}
           />
@@ -191,7 +191,9 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
                 color: colors.text,
+                fontSize: 15,
               },
             ]}
           />
@@ -205,7 +207,9 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
                 color: colors.text,
+                fontSize: 15,
               },
             ]}
           />
@@ -219,7 +223,9 @@ export default function EditUser({navigation}) {
             style={[
               styles.textInput,
               {
+                fontFamily: 'Lexend-Regular',
                 color: colors.text,
+                fontSize: 15,
               },
             ]}
           />
@@ -235,11 +241,12 @@ export default function EditUser({navigation}) {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: 'white'
     },
     commandButton: {
       padding: 15,
       borderRadius: 10,
-      backgroundColor: '#FF6347',
+      backgroundColor: 'black',
       alignItems: 'center',
       marginTop: 10,
     },
@@ -294,7 +301,7 @@ const styles = StyleSheet.create({
     },
     panelButtonTitle: {
       fontSize: 17,
-      fontWeight: 'bold',
+      fontFamily: 'Lexend-Regular',
       color: 'white',
     },
     action: {
@@ -316,6 +323,6 @@ const styles = StyleSheet.create({
       flex: 1,
       marginTop: Platform.OS === 'ios' ? 0 : -12,
       paddingLeft: 10,
-      color: '#05375a',
+      color: 'black',
     },
   });
