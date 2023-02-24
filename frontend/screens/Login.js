@@ -81,7 +81,7 @@ const Login = props => {
     <ScrollView style={{backgroundColor: 'white'}}>
       <View style={styles.container}>
         <Image
-          source={require('../assets/login.png')}
+          source={require('../assets/guidify_logo.png')}
           resizeMode={'cover'}
           style={styles.image}
         />
