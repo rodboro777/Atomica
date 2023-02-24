@@ -48,7 +48,7 @@ export default function BottomInfoCard(props) {
         width: 0,
         height: 3,
       },
-      backgroundColor: '#AA96DA',
+      backgroundColor: 'black',
       shadowOpacity: 0.27,
       shadowRadius: 4.65,
       elevation: 6,
@@ -72,7 +72,7 @@ export default function BottomInfoCard(props) {
       marginTop: 10,
     },
     bottomCardWebView: {
-      backgroundColor: '#AA96DA',
+      backgroundColor: 'black',
       overflow: 'hidden',
       display: 'flex',
       justifyContent: 'center',
@@ -121,8 +121,8 @@ export default function BottomInfoCard(props) {
           <Text
             style={{
               color: 'white',
-              fontWeight: 'bold',
               fontSize: 18,
+              fontFamily: 'Lexend-Regular',
             }}>
             {placeInfo[tgNumber].name}
           </Text>
@@ -134,7 +134,7 @@ export default function BottomInfoCard(props) {
                     color: 'white',
                     fontSize: 15,
                     fontWeight: '400',
-                    fontFamily: 'Lexend-ExtraLight',
+                    fontFamily: 'Lexend-Light',
                   }}>
                   {destinationDistance && `${destinationDistance}m left`}
                 </Text>
@@ -178,6 +178,14 @@ export default function BottomInfoCard(props) {
                       backgroundColor: 'white',
                       borderRadius: 5,
                       padding: 5,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 3.84,
+                      elevation: 5,
                     }}
                     onPress={() => {
                       setModalVisible(true);
@@ -188,13 +196,12 @@ export default function BottomInfoCard(props) {
                     }}>
                     <Text
                       style={{
-                        color: '#AA96DA',
+                        color: 'black',
                         fontSize: 15,
-                        fontWeight: '700',
-                        letterSpacing:1,
+                        letterSpacing: 0.3,
                         textAlignVertical: 'center',
                         textAlignHorizontal: 'center',
-                        fontFamily: 'Lexend-ExtraLight',
+                        fontFamily: 'Lexend-Regular',
                       }}>
                       End Tour
                     </Text>
