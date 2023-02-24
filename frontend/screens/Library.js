@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   buttonItiStyle: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     borderColor: '#fff',
     borderRadius: 15,
     margin: 5,
@@ -225,18 +225,12 @@ const styles = StyleSheet.create({
   },
   buttonTextStyle: {
     color: '#fff',
-    fontWeight: '700',
-    fontFamily: 'Lexend-ExtraLight',
+    fontFamily: 'Lexend-Light',
     fontSize: 18,
     letterSpacing: 0.5,
   },
-  buttonIconSeparatorStyle: {
-    backgroundColor: '#fff',
-    width: 1,
-    height: 40,
-  },
   buttonHeaderStyle: {
-    color: '#AA96DA',
+    color: 'black',
     marginTop: 10,
     marginLeft: 10,
     fontWeight: 'bold',
@@ -244,7 +238,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lexend-ExtraLight',
   },
   item: {
-    backgroundColor: '#AA96DA',
+    backgroundColor: 'black',
     padding: 5,
     marginVertical: 5,
     marginHorizontal: 5,
@@ -253,14 +247,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
     color: 'white',
-    fontFamily: 'Lexend-ExtraLight',
+    fontFamily: 'Lexend-Regular',
   },
   desc: {
     fontSize: 15,
-    color: '#403f3d',
-    fontWeight: 'bold',
+    color: 'white',
     fontFamily: 'Lexend-ExtraLight',
     textAlign: 'justify',
   },

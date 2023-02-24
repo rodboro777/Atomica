@@ -24,12 +24,12 @@ import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from '@react-native-community/geolocation';
 import {FloatingAction} from 'react-native-floating-action';
 import Modal from 'react-native-modal';
-import PlayIcon from '../assets/play.png';
+import PlayIcon from '../assets/play_1.png';
 import PauseIcon from '../assets/pause.png';
+import Arrow from '../assets/arrow.png';
 import axios from 'axios';
 import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
-import { Font } from 'expo-font';
 const Map = () => {
   Geolocation.requestAuthorization();
   const modalAni = useRef(
@@ -68,6 +68,7 @@ const Map = () => {
   const [showDetailIti, setShowDetailIti] = useState(false);
   const [selectedIti, setSelectedIti] = useState(null);
   const [showTg, setShowTg] = useState(true);
+  const [loadingAudio, setLoadingAudio] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [showDirection, setShowDirection] = useState(false);
   const [screenState, setScreenState] = useState('half');
@@ -189,57 +190,68 @@ const Map = () => {
     return usernames;
   };
 
+  function showItiDetail(item) {
+    if (screenState === 'full') {
+      setScreenState('half');
+      Animated.timing(modalAni, {
+        toValue: Dimensions.get('window').height / 1.5,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+    getTravelGuidesFromItinerary(item.travelGuideId);
+    setSelectedIti(item);
+    setShowDetailIti(true);
+    setShowMarker(false);
+    setShowTg(true);
+    setShowDirection(true);
+  }
+
   const renderItem = ({item}) => {
     return (
       <Pressable
         style={styles.itemWrapperStyle}
         onPress={() => {
           if (!showTg) {
-            if (screenState === 'full') {
-              setScreenState('half');
-              Animated.timing(modalAni, {
-                toValue: Dimensions.get('window').height / 1.5,
-                duration: 300,
-                useNativeDriver: true,
-              }).start();
-            }
-            getTravelGuidesFromItinerary(item.travelGuideId);
-            setSelectedIti(item);
-            setShowDetailIti(true);
-            setShowMarker(false);
-            setShowTg(true);
-            setShowDirection(true);
+            showItiDetail(item);
           } else togglePlayAudio(item);
         }}>
         <View style={styles.contentWrapperStyle}>
           <Text style={styles.txtNameStyle}>{`${item.name}`}</Text>
           <Text style={styles.txtEmailStyle}>{item.username}</Text>
         </View>
-        {showTg && (
-          <View style={{alignItems: 'center'}}>
-            <Pressable onPress={() => togglePlayAudio(item)}>
-              <Image
-                source={
-                  currentlyPlaying[0] == item._id && currentlyPlaying[1]
-                    ? PauseIcon
-                    : PlayIcon
-                }
-                style={{
-                  height: 30,
-                  tintColor: '#000',
-                  width: 30,
-                  marginRight: 10,
-                }}
-              />
-            </Pressable>
-          </View>
-        )}
+        <TouchableOpacity
+          onPress={() => {
+            showTg ? togglePlayAudio(item) : showItiDetail(item);
+          }}
+          style={{
+            marginTop: 'auto',
+            marginBottom: 'auto',
+            height: 35,
+            width: 35,
+          }}>
+          <Image
+            source={
+              showTg
+                ? currentlyPlaying[0] == item._id && currentlyPlaying[1]
+                  ? PauseIcon
+                  : PlayIcon
+                : Arrow
+            }
+            style={{
+              height: '100%',
+              tintColor: 'black',
+              width: '100%',
+            }}
+          />
+        </TouchableOpacity>
       </Pressable>
     );
   };
 
   async function togglePlayAudio(tg) {
     if (currentlyPlaying[0] == null || currentlyPlaying[0] != tg._id) {
+      setLoadingAudio(true);
       await SoundPlayer.stop();
       setCurrentlyPlaying([tg._id, true]);
       await SoundPlayer.loadUrl(tg.audioUrl);
@@ -255,6 +267,11 @@ const Map = () => {
   useEffect(() => {
     SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
       setCurrentlyPlaying([null, false]);
+    });
+  }, []);
+  useEffect(() => {
+    SoundPlayer.addEventListener('FinishedLoading', ({success}) => {
+      setLoadingAudio(false);
     });
   }, []);
   const renderLoader = () => {
@@ -640,7 +657,7 @@ const Map = () => {
     modalContent: {
       position: 'absolute',
       width: Dimensions.get('window').width,
-      backgroundColor: '#AA96DA',
+      backgroundColor: 'black',
       paddingTop: 12,
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
@@ -652,7 +669,7 @@ const Map = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#AA96DA',
+      backgroundColor: 'black',
       elevation: showRating ? 0 : 10,
       shadowOffset: {width: 0, height: 2},
       shadowColor: '#000',
@@ -736,9 +753,10 @@ const Map = () => {
       flexDirection: 'row',
       paddingHorizontal: 16,
       paddingVertical: 16,
-      borderBottomWidth: 1,
-      borderColor: '#ddd',
       justifyContent: 'space-between',
+      backgroundColor: 'white',
+      marginTop: 10,
+      borderRadius: 10,
     },
     itemImageStyle: {
       width: 50,
@@ -750,13 +768,12 @@ const Map = () => {
     },
     txtNameStyle: {
       fontSize: 16,
-      fontWeight: 'bold',
-      color: 'white',
-      fontFamily:'Lexend-ExtraLight',
+      color: 'black',
+      fontFamily: 'Lexend-ExtraBold',
     },
     txtEmailStyle: {
-      color: 'white',
-      fontFamily:'Lexend-ExtraLight',
+      color: 'black',
+      fontFamily: 'Lexend-Regular',
     },
     loaderStyle: {
       marginVertical: 16,
@@ -772,7 +789,7 @@ const Map = () => {
       fontSize: 30,
       fontWeight: '900',
       color: 'white',
-      fontFamily:'Lexend-ExtraLight',
+      fontFamily: 'Lexend-ExtraLight',
     },
     startItiButton: {
       position: 'absolute',
@@ -792,12 +809,12 @@ const Map = () => {
       elevation: 6,
     },
     startItiWord: {
-      color: '#AA96DA',
+      color: 'black',
       marginLeft: 'auto',
       marginRight: 'auto',
       fontWeight: 'bold',
       fontSize: 16,
-      fontFamily:'Lexend-ExtraLight',
+      fontFamily: 'Lexend-ExtraLight',
     },
   });
 
@@ -920,7 +937,7 @@ const Map = () => {
         {!showDetailIti && (
           <GooglePlacesAutocomplete
             ref={placeRef}
-            placeholder="Find a place or an Itinerary"
+            placeholder="Search for a location"
             minLength={2} // minimum length of text to search
             autoFocus={false}
             returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
@@ -958,7 +975,7 @@ const Map = () => {
               //   'photo reference: ' + details.photos[0].photo_reference,
               // );
               setPhoto(details.photos[0].photo_reference);
-              setDescription(data.description);
+              setDescription(data.structured_formatting.main_text);
             }}
             //getDefaultValue={() => ''}
 
@@ -970,28 +987,56 @@ const Map = () => {
               location: `${region.latitude}, ${region.longitude}`,
               radius: 30000,
             }}
+            textInputProps={{
+              placeholderTextColor: 'white',
+            }}
             styles={{
               textInputContainer: {
                 width: '98%',
               },
+              textInput: {
+                backgroundColor: 'black',
+                borderRadius: 10,
+                color: 'white',
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 10,
+              },
               description: {
-                fontWeight: 'bold',
+                fontFamily: 'Lexend-Regular',
+                color: 'white',
               },
               predefinedPlacesDescription: {
-                color: '#1faadb',
+                color: 'white',
               },
               container: {
-                flex: 0,
+                flex: 1,
                 position: 'absolute',
                 width: '98%',
                 zIndex: 1,
-                marginTop: 15,
+                top: 10,
                 alignItems: 'center',
-                justifyContent: 'center',
+                padding:10,
               },
               listView: {
-                backgroundColor: 'white',
                 width: '98%',
+              },
+              row: {
+                backgroundColor: 'black',
+              },
+              separator: {
+                backgroundColor: 'white',
+              },
+              powered: {
+                opacity: 0,
+              },
+              poweredContainer: {
+                opacity: 0,
               },
             }}
             currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
@@ -1009,13 +1054,13 @@ const Map = () => {
             keyboardShouldPersistTaps="handled"
             debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
             //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
-            renderRightButton={() => <Text></Text>}
           />
         )}
       </View>
       <MapView
         ref={mapRef}
         style={styles.mapStyle}
+        showsMyLocationButton={false}
         showsUserLocation
         provider="google"
         customMapStyle={isLight ? mapStyleLight : mapStyleDark}
@@ -1076,7 +1121,7 @@ const Map = () => {
             return (
               <Marker
                 key={index}
-                pinColor="cyan"
+                pinColor="black"
                 coordinate={{
                   latitude: marker.latitude,
                   longitude: marker.longitude,
@@ -1152,7 +1197,7 @@ const Map = () => {
             setLight(!isLight);
           }
         }}
-        color="orange"
+        color="black"
         position="right"
         distanceToEdge={{horizontal: 20, vertical: 40}}
       />
@@ -1186,9 +1231,8 @@ const Map = () => {
                     textAlign: 'center',
                     fontSize: 20,
                     color: 'white',
-                    fontWeight: 'bold',
                     letterSpacing: 5,
-                    fontFamily:'Lexend-ExtraLight',
+                    fontFamily: 'Lexend-Regular',
                   }}>
                   Please Rate Your Experience
                 </Text>
@@ -1221,13 +1265,12 @@ const Map = () => {
               </TouchableOpacity>
               <Text
                 style={{
-                  fontWeight: '700',
                   color: 'white',
-                  fontSize: 25,
+                  fontSize: 20,
                   marginTop: 5,
                   overflow: 'hidden',
                   width: 250,
-                  fontFamily:'Lexend-ExtraLight',
+                  fontFamily: 'Lexend-Regular',
                 }}>
                 {selectedIti.name}
               </Text>
@@ -1243,7 +1286,7 @@ const Map = () => {
                     fontWeight: '400',
                     color: 'white',
                     fontSize: 15,
-                    fontFamily:'Lexend-ExtraLight',
+                    fontFamily: 'Lexend-ExtraLight',
                   }}>
                   {selectedIti.username} |
                 </Text>
@@ -1271,7 +1314,7 @@ const Map = () => {
                   width: '100%',
                   padding: 10,
                   textAlign: 'center',
-                  fontFamily:'Lexend-ExtraLight',
+                  fontFamily: 'Lexend-ExtraLight',
                 }}>
                 {selectedIti.description}
               </Text>
@@ -1281,7 +1324,7 @@ const Map = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginTop: 10,
-                  fontFamily:'Lexend-ExtraLight',
+                  fontFamily: 'Lexend-ExtraLight',
                 }}>
                 <View style={{width: 150}}></View>
               </View>
@@ -1291,11 +1334,10 @@ const Map = () => {
               <View style={styles.barIcon} />
               <Text
                 style={{
-                  fontWeight: '800',
                   color: 'white',
                   fontSize: 20,
                   marginTop: 5,
-                  fontFamily:'Lexend-ExtraLight',
+                  fontFamily: 'Lexend-Light',
                 }}>
                 {description}
               </Text>
@@ -1311,15 +1353,16 @@ const Map = () => {
               <View
                 style={{
                   flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: 'flex',
                   marginTop: 10,
                   padding: 10,
+                  width: '100%',
+                  justifyContent: 'space-around',
                 }}>
                 <View style={{width: 150}}>
                   <Pressable
                     style={{
-                      backgroundColor: showTg ? 'whitesmoke' : '#AA96DA',
+                      backgroundColor: showTg ? 'whitesmoke' : 'black',
                       padding: 10,
                       borderRadius: 10,
                       display: 'flex',
@@ -1329,20 +1372,26 @@ const Map = () => {
                     onPress={() => setShowTg(true)}>
                     <Text
                       style={{
-                        color: showTg ? '#AA96DA' : 'white',
-                        fontWeight: '900',
+                        color: showTg ? 'black' : 'white',
                         fontSize: 15,
                         letterSpacing: 1,
-                        fontFamily:'Lexend-ExtraLight',
+                        fontFamily: 'Lexend-Light',
                       }}>
                       Travel Guides
                     </Text>
                   </Pressable>
                 </View>
-                <View style={{marginLeft: 70, width: 150}}>
+                <View
+                  style={{
+                    borderWidth: 0.5,
+                    height: '100%',
+                    borderColor: 'white',
+                  }}
+                />
+                <View style={{width: 150}}>
                   <Pressable
                     style={{
-                      backgroundColor: showTg ? '#AA96DA' : 'whitesmoke',
+                      backgroundColor: showTg ? 'black' : 'whitesmoke',
                       padding: 10,
                       borderRadius: 10,
                       display: 'flex',
@@ -1352,11 +1401,10 @@ const Map = () => {
                     onPress={() => setShowTg(false)}>
                     <Text
                       style={{
-                        color: showTg ? 'white' : '#AA96DA',
-                        fontWeight: '900',
+                        color: showTg ? 'white' : 'black',
                         fontSize: 15,
                         letterSpacing: 1,
-                        fontFamily:'Lexend-ExtraLight',
+                        fontFamily: 'Lexend-Light',
                       }}>
                       Itineraries
                     </Text>
@@ -1367,7 +1415,7 @@ const Map = () => {
           )}
           {/* <StatusBar backgroundColor="#000" /> */}
           {!showRating && (
-            <View style={{maxHeight: 500}}>
+            <View style={{maxHeight: 500, padding: 10}}>
               <FlatList
                 data={
                   showDetailIti ? itiTg : showTg ? travelGuides : itineraries

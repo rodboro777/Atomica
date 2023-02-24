@@ -54,6 +54,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lexend-ExtraLight.ttf</string>
+		<string>Lexend-Light.ttf</string>
+		<string>Lexend-Regular.ttf</string>
+		<string>Lexend-ExtraBold.ttf</string>
 	</array>
 </dict>
 </plist>
