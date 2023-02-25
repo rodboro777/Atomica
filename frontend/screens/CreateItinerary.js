@@ -5,9 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Button,
   FlatList,
-  ScrollView,
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
@@ -152,7 +150,7 @@ export default function CreateItinerary({navigation, route}) {
                 letterSpacing: 1,
                 color: 'black',
                 marginTop: 10,
-                textAlign:'center'
+                textAlign: 'center',
               }}>
               Are you sure you want to delete this itinerary?
             </Text>
@@ -209,7 +207,7 @@ export default function CreateItinerary({navigation, route}) {
           onPress={() => navigation.navigate('Lib')}>
           <Image
             source={upArrow}
-            style={{tintColor: 'white', width: '100%', height: '100%'}}
+            style={{tintColor: 'black', width: '100%', height: '100%'}}
           />
         </TouchableOpacity>
         <Text
@@ -217,15 +215,15 @@ export default function CreateItinerary({navigation, route}) {
             fontFamily: 'Lexend-Light',
             fontSize: 20,
             letterSpacing: 1,
-            color: 'white',
+            color: 'black',
           }}>
           {isEdit ? 'Edit Itinerary' : 'Create Itinerary'}
         </Text>
       </View>
 
       <TextInput
-        placeholder="Type Itinerary title here.."
-        placeholderTextColor="white"
+        placeholder="Itinerary Title..."
+        placeholderTextColor="black"
         style={styles.input}
         value={itinerary.title}
         onChangeText={e => {
@@ -238,8 +236,19 @@ export default function CreateItinerary({navigation, route}) {
 
       <View style={{flexDirection: 'row', padding: 10}}>
         <TextInput
-          style={{flex: 1, height: 40, borderColor: 'gray', borderWidth: 1}}
+          style={{
+            flex: 1,
+            height: 40,
+            borderColor: 'gray',
+            borderWidth: 1,
+            borderRadius: 5,
+            fontFamily: 'Lexend-Regular',
+            padding: 10,
+            backgroundColor: 'black',
+            color: 'white',
+          }}
           placeholder="Search for travel guides"
+          placeholderTextColor={'white'}
           value={search}
           onChangeText={e => {
             setSearch(e);
@@ -256,25 +265,24 @@ export default function CreateItinerary({navigation, route}) {
             <TouchableOpacity
               style={styles.travelGuideItem}
               onPressIn={() => addTravelGuide(item)}>
-              <View>
-                <Text
-                 style={{fontFamily:"Lexend-Regular"}}
-                >{item.name}</Text>
-              </View>
+              <Text style={{fontFamily: 'Lexend-Regular'}}>{item.name}</Text>
             </TouchableOpacity>
           )}
         />
       )}
-      <ScrollView style={styles.choosenTravelGuideList}>
-        {itinerary.travelGuides &&
-          itinerary.travelGuides.map(item => (
+      <View>
+        <FlatList
+          style={styles.choosenTravelGuideList}
+          data={itinerary.travelGuides && itinerary.travelGuides}
+          keyExtractor={item => item._id}
+          renderItem={({item}) => (
             <View style={styles.choosenTravelGuideItem} key={item._id}>
               <Text
                 style={{
                   fontFamily: 'Lexend-Light',
                   fontSize: 15,
                   letterSpacing: 1,
-                  color: 'white',
+                  color: 'black',
                 }}>
                 {item.name}
               </Text>
@@ -290,15 +298,16 @@ export default function CreateItinerary({navigation, route}) {
                 style={styles.removeButton}>
                 <Image
                   source={trash}
-                  style={{height: '100%', width: '100%', tintColor: 'white'}}
+                  style={{height: '100%', width: '100%', tintColor: 'black'}}
                 />
               </TouchableOpacity>
             </View>
-          ))}
-      </ScrollView>
+          )}
+        />
+      </View>
       <TextInput
         placeholder="Description..."
-        placeholderTextColor="white"
+        placeholderTextColor="black"
         style={styles.description}
         onChangeText={e => {
           setItinerary({
@@ -334,13 +343,16 @@ export default function CreateItinerary({navigation, route}) {
             style={{
               ...styles.buttonDONEStyle,
               marginTop: 10,
-              backgroundColor: 'red',
+              backgroundColor: 'black',
             }}
             activeOpacity={0.5}
             onPress={() => {
               setConfirmDelete(true);
             }}>
-            <Image source={trash} style={styles.buttonImageIconStyle} />
+            <Image
+              source={trash}
+              style={{...styles.buttonImageIconStyle, tintColor: 'red'}}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -360,17 +372,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     height: 60,
-  },
-  input: {
-    fontSize: 15,
-    margin: 10,
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: 'black',
-    color: 'white',
-    fontFamily: 'Lexend-ExtraLight',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -378,16 +381,27 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    elevation: 5,
+    elevation: 6,
+  },
+  input: {
+    fontSize: 18,
+    margin: 10,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: 'white',
+    color: 'black',
+    fontFamily: 'Lexend-Light',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgb(224, 212, 212)',
   },
   description: {
     margin: 10,
     borderRadius: 10,
     fontSize: 15,
-    fontFamily:"Lexend-Regular",
-    color: 'white',
+    fontFamily: 'Lexend-Regular',
+    color: 'black',
     minHeight: 200,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -434,7 +448,7 @@ const styles = StyleSheet.create({
     width: 150,
     borderRadius: 20,
     height: 50,
-    backgroundColor: '#34ad68',
+    backgroundColor: 'black',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -489,34 +503,26 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   choosenTravelGuideList: {
+    height: 150,
     textAlign: 'center',
-    padding: 10,
     borderColor: 'black',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    maxHeight: 180,
     backgroundColor: 'whitesmoke',
   },
   choosenTravelGuideItem: {
-    margin: 'auto',
-    marginTop: 10,
     padding: 10,
-    backgroundColor: 'black',
+    marginTop: 10,
+    backgroundColor: 'white',
     borderRadius: 10,
     flexDirection: 'row',
     height: 50,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderWidth: 1,
+    borderColor: 'rgb(224, 212, 212)',
   },
   removeButton: {
     width: 20,

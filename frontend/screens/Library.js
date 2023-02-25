@@ -68,14 +68,25 @@ const Library = ({navigation}) => {
             <Text style={styles.title}>{res.name}</Text>
             <TouchableOpacity
               style={styles.editButton}
-              onPress={() =>
-                navigation.navigate('Create Itinerary', {
-                  item: res,
-                  isEdit: true,
-                })
-              }>
+              onPress={() => {
+                if (type == 'Itinerary') {
+                  navigation.navigate('Create Itinerary', {
+                    item: res,
+                    isEdit: true,
+                  });
+                } else if (type === TG_STATUS.APPROVED) {
+                  navigation.navigate('Create TravelGuide', {
+                    item: res,
+                    isEdit: true,
+                  });
+                }
+              }}>
               <Image
-                source={type === TG_STATUS.PENDING ? PendingIcon : !(type === TG_STATUS.REJECTED) && EditIcon}
+                source={
+                  type === TG_STATUS.PENDING
+                    ? PendingIcon
+                    : !(type === TG_STATUS.REJECTED) && EditIcon
+                }
                 style={{
                   tintColor: '#fff',
                   height: '100%',
@@ -88,7 +99,11 @@ const Library = ({navigation}) => {
             <Text style={styles.desc}>{res.description}</Text>
           </View>
           <View style={{flexDirection: 'row', width: '80%'}}>
-            {type === TG_STATUS.REJECTED && <Text style={styles.desc}>Comment from reviewer: {res.reviewerComment}</Text>}
+            {type === TG_STATUS.REJECTED && (
+              <Text style={styles.desc}>
+                Comment from reviewer: {res.reviewerComment}
+              </Text>
+            )}
           </View>
         </View>
       </View>
@@ -125,7 +140,9 @@ const Library = ({navigation}) => {
         <TouchableOpacity
           style={styles.buttonItiStyle}
           activeOpacity={0.5}
-          onPress={() => navigation.navigate('Create TravelGuide')}>
+          onPress={() =>
+            navigation.navigate('Create TravelGuide', {item: {}, isEdit: false})
+          }>
           <Text style={styles.buttonTextStyle}>Create Travel Guide</Text>
           <View
             style={{
@@ -158,7 +175,10 @@ const Library = ({navigation}) => {
             keyExtractor={item => item._id}
             data={travelGuides}
             renderItem={({item}) => {
-              return Item_ITI(item, item.pending ? TG_STATUS.PENDING : TG_STATUS.APPROVED);
+              return Item_ITI(
+                item,
+                item.pending ? TG_STATUS.PENDING : TG_STATUS.APPROVED,
+              );
             }}
           />
         </View>
