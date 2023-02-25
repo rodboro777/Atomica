@@ -108,7 +108,7 @@ export default function User() {
           color="#841584"
           accessibilityLabel="Learn more about this purple button"
         /> */}
-        <Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
+        <Button title="Follow" variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
           fontFamily: 'Lexend-Regular'
         }}/>
       </View>

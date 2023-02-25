@@ -128,8 +128,9 @@ export default function EditUser({navigation}) {
             </View>
           </TouchableOpacity>
           <Button onPress={() => this.bs.current.snapTo(0)} title="Change Profile Picture" variant='outlined' color="black" titleStyle={{
-          fontFamily: 'Lexend-Regular'
-        }} style={{borderColor: 'black'}}/>
+          fontFamily: 'Lexend-Regular',
+          fontSize: 15
+        }} uppercase={false}/>
         </View>
 
         <View style={styles.action}>
@@ -285,19 +286,23 @@ const styles = StyleSheet.create({
     panelTitle: {
       fontSize: 27,
       height: 35,
+      fontFamily: 'Lexend-Bold',
+      color: 'black'
     },
     panelSubtitle: {
       fontSize: 14,
-      color: 'gray',
+      color: 'black',
       height: 30,
       marginBottom: 10,
+      fontFamily: 'Lexend-Regular'
     },
     panelButton: {
       padding: 13,
       borderRadius: 10,
-      backgroundColor: '#FF6347',
+      backgroundColor: 'black',
       alignItems: 'center',
       marginVertical: 7,
+      fontFamily: 'Lexend-Regular'
     },
     panelButtonTitle: {
       fontSize: 17,
@@ -309,7 +314,7 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginBottom: 10,
       borderBottomWidth: 1,
-      borderBottomColor: '#f2f2f2',
+      borderBottomColor: '#2e2e2e',
       paddingBottom: 5,
     },
     actionError: {

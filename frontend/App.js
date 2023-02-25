@@ -69,7 +69,9 @@ const UStackNav = () => {
   return(
     <Stack.Navigator initialRouteName='User'>
       <Stack.Screen name='User' component={User} options={{ headerShown: false }}/>
-      <Stack.Screen name='Edit User' component={EditUser} />
+      <Stack.Screen name='Edit User' component={EditUser} options={{
+        headerTitleStyle: {fontFamily: 'Lexend-SemiBold'}
+      }}/>
     </Stack.Navigator>
   )
 }
