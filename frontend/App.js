@@ -10,8 +10,6 @@ import Library from './screens/Library';
 import PlacesAutoComplete from './components/PlacesAutoComplete';
 import CreateItinerary from './screens/CreateItinerary';
 import CreateTravelGuide from './screens/CreateTravelGuide';
-import EditItinerary from './screens/EditItinerary';
-import EditTravelGuide from './screens/CreateTravelGuide';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -97,7 +95,11 @@ const LStackNav = () => {
         component={CreateItinerary}
         options={{headerShown: false}}
       />
-      <Stack.Screen name="Create TravelGuide" component={CreateTravelGuide} />
+      <Stack.Screen
+        name="Create TravelGuide"
+        component={CreateTravelGuide}
+        options={{headerShown: false}}
+      />
     </Stack.Navigator>
   );
 };

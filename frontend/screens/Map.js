@@ -113,6 +113,17 @@ const Map = () => {
   const [runningIds, setRunningIds] = useState([]);
   const [tgMarkers, setTgMarkers] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const shadowOpt = {
+    width: 160,
+    height: 170,
+    color: '#000',
+    border: 2,
+    radius: 3,
+    opacity: 0.2,
+    x: 0,
+    y: 3,
+    style: {marginVertical: 5},
+  };
 
   const toggleModal = e => {
     if (e.swipingDirection === 'up') {
@@ -653,29 +664,44 @@ const Map = () => {
     modal: {
       position: 'relative',
       margin: 0,
+      shadowColor: '#52006A',
+      elevation: 20,
     },
     modalContent: {
       position: 'absolute',
       width: Dimensions.get('window').width,
-      backgroundColor: 'black',
+      backgroundColor: 'white',
       paddingTop: 12,
       borderTopRightRadius: 20,
       borderTopLeftRadius: 20,
       overflow: 'hidden',
       height: Dimensions.get('window').height,
       bottom: -20,
+      shadowColor: 'black',
+      shadowOffset: {
+        width: 200,
+        height: 200,
+      },
+      shadowOpacity: 100,
+      shadowRadius: 100,
+      elevation: 50,
     },
     center: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'black',
-      elevation: showRating ? 0 : 10,
-      shadowOffset: {width: 0, height: 2},
-      shadowColor: '#000',
-      shadowOpacity: 0.2,
-      shadowRadius: 0.5,
-      marginTop: -10,
+      backgroundColor: 'white',
+      // elevation: showRating ? 0 : 10,
+      // shadowOffset: {width: 0, height: 2},
+      marginTop: -12,
+      shadowColor: 'black',
+      shadowOffset: {
+        width: 200,
+        height: 200,
+      },
+      shadowOpacity: 100,
+      shadowRadius: 100,
+      elevation: 10,
     },
     barIcon: {
       width: 60,
@@ -788,14 +814,14 @@ const Map = () => {
     backBtnArrow: {
       fontSize: 30,
       fontWeight: '900',
-      color: 'white',
+      color: 'black',
       fontFamily: 'Lexend-ExtraLight',
     },
     startItiButton: {
       position: 'absolute',
       padding: 10,
       right: 10,
-      backgroundColor: 'white',
+      backgroundColor: 'black',
       top: 10,
       borderRadius: 30,
       width: 80,
@@ -809,7 +835,7 @@ const Map = () => {
       elevation: 6,
     },
     startItiWord: {
-      color: 'black',
+      color: 'white',
       marginLeft: 'auto',
       marginRight: 'auto',
       fontWeight: 'bold',
@@ -1021,7 +1047,7 @@ const Map = () => {
                 zIndex: 1,
                 top: 10,
                 alignItems: 'center',
-                padding:10,
+                padding: 10,
               },
               listView: {
                 width: '98%',
@@ -1230,7 +1256,7 @@ const Map = () => {
                   style={{
                     textAlign: 'center',
                     fontSize: 20,
-                    color: 'white',
+                    color: 'black',
                     letterSpacing: 5,
                     fontFamily: 'Lexend-Regular',
                   }}>
@@ -1265,7 +1291,7 @@ const Map = () => {
               </TouchableOpacity>
               <Text
                 style={{
-                  color: 'white',
+                  color: 'black',
                   fontSize: 20,
                   marginTop: 5,
                   overflow: 'hidden',
@@ -1284,7 +1310,7 @@ const Map = () => {
                 <Text
                   style={{
                     fontWeight: '400',
-                    color: 'white',
+                    color: 'black',
                     fontSize: 15,
                     fontFamily: 'Lexend-ExtraLight',
                   }}>
@@ -1293,7 +1319,7 @@ const Map = () => {
                 <Text
                   style={{
                     fontWeight: '400',
-                    color: 'yellow',
+                    color: 'black',
                     fontSize: 15,
                     marginRight: 'auto',
                     marginLeft: 'auto',
@@ -1306,7 +1332,7 @@ const Map = () => {
               <Text
                 style={{
                   fontWeight: '400',
-                  color: 'white',
+                  color: 'black',
                   fontSize: 15,
                   marginTop: 5,
                   borderTopWidth: 1,
@@ -1334,7 +1360,7 @@ const Map = () => {
               <View style={styles.barIcon} />
               <Text
                 style={{
-                  color: 'white',
+                  color: 'black',
                   fontSize: 20,
                   marginTop: 5,
                   fontFamily: 'Lexend-Light',
@@ -1362,7 +1388,7 @@ const Map = () => {
                 <View style={{width: 150}}>
                   <Pressable
                     style={{
-                      backgroundColor: showTg ? 'whitesmoke' : 'black',
+                      backgroundColor: showTg ? 'black' : 'whitesmoke',
                       padding: 10,
                       borderRadius: 10,
                       display: 'flex',
@@ -1372,7 +1398,7 @@ const Map = () => {
                     onPress={() => setShowTg(true)}>
                     <Text
                       style={{
-                        color: showTg ? 'black' : 'white',
+                        color: showTg ? 'white' : 'black',
                         fontSize: 15,
                         letterSpacing: 1,
                         fontFamily: 'Lexend-Light',
@@ -1391,7 +1417,7 @@ const Map = () => {
                 <View style={{width: 150}}>
                   <Pressable
                     style={{
-                      backgroundColor: showTg ? 'black' : 'whitesmoke',
+                      backgroundColor: showTg ? 'whitesmoke' : 'black',
                       padding: 10,
                       borderRadius: 10,
                       display: 'flex',
@@ -1401,7 +1427,7 @@ const Map = () => {
                     onPress={() => setShowTg(false)}>
                     <Text
                       style={{
-                        color: showTg ? 'white' : 'black',
+                        color: showTg ? 'black' : 'white',
                         fontSize: 15,
                         letterSpacing: 1,
                         fontFamily: 'Lexend-Light',
