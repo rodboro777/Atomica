@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
         borderWidth: 0
     },
     submitText: {
-        fontSize: 22,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontFamily: 'Lexend-Regular',
         color: 'white',
         alignSelf: 'center',
         marginVertical: 10

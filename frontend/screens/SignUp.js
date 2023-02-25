@@ -6,13 +6,11 @@ import Submit from "../components/Submit";
 import ip from "../ip";
 
 const SignUp = props => {
-
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [passwd, setPasswd] = useState("");
-    const [phoneNo, setPhoneNo] = useState("");
     const [passwdRepeat, setPasswdRepeat] = useState("");
     const [fullName, setFullName] = useState("");
-
+    const [country, setCountry] = useState("");
 
    const registerLocal = async () => {
 
@@ -24,15 +22,17 @@ const SignUp = props => {
                       'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                      username: email,
+                      username: username,
                       password: passwd,
+                      fullName: fullName,
+                      country: country,
                     })
 
         })
         .then(res => res.json())
         .then(resBody => {
             if (resBody.statusCode == 200) {
-                props.navigation.navigate("Map");
+                props.navigation.navigate('MyTabs');
             } else {
                 // TODO: need a UI to handle failed registration.
                 console.log("Registration failed");
@@ -41,48 +41,50 @@ const SignUp = props => {
         .catch(err => console.log(err));
    };
     return (
-        <ScrollView style={{backgroundColor: 'white'}}>
-        <View style={styles.container}>
-            <Image source={require('../assets/guidify_logo.png')}
-            resizeMode="center" style={styles.image} />
-        <Text style={styles.textTile}>Let's Get Started</Text>
-        <Text style={styles.textbody}>Create an account to access all features</Text>
-        <Inputs name="Full name" icon="user" onChangeText={(fullName) => setFullName(fullName)}/>
-        <Inputs name="Email" icon="envelope" onChangeText={(email) => setEmail(email)}/>
-        <Inputs name="Phone" icon="phone" onChangeText={(phoneNo) => setPhoneNo(phoneNo)}/>
-        <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)}/>
-        <Inputs name="Confirm Password" icon="lock" pass={true} onChangeText={(passwdRepeat) => setPasswdRepeat(passwdRepeat)}/>
-        <Submit color="#0251ce" title="Create" handleSubmit={registerLocal}/>
-        <View style={{flexDirection: 'row'}}>
-            <Text style={styles.textBody}>Already have an account</Text>
-            <Text style={[styles.textBody, {color: 'blue'}]}
-            onPress={() => props.navigation.navigate('Home')}> Login here</Text>
-        </View>
-        </View>  
-        </ScrollView>
+            <View style={styles.container}>
+                <View style={styles.subContainer}>
+                <Text style={styles.textTile}>Let's Get Started</Text>
+                <Text style={{...styles.textBody, marginTop: 50}}>Create an account to access all features</Text>
+                <Inputs name="Full name" icon="user" onChangeText={(fullName) => setFullName(fullName)}/>
+                <Inputs name="Username" icon="user" onChangeText={(username) => setUsername(username)}/>
+                <Inputs name="Country" icon="map-pin" onChangeText={(country) => setCountry(country)}/>
+                <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)}/>
+                <Inputs name="Confirm Password" icon="lock" pass={true} onChangeText={(passwdRepeat) => setPasswdRepeat(passwdRepeat)}/>
+                <Submit color="black" title="Create" handleSubmit={registerLocal}/>
+                <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.textBody}>Already have an account?</Text>
+                    <Text style={[styles.textBody, {color: 'black', fontFamily: 'Lexend-SemiBold'}]}
+                    onPress={() => props.navigation.navigate('Home')}> Login here</Text>
+                </View>
+                </View>
+            </View>  
         
     )
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
+    subContainer: {
+        alignItems: 'center',
+        width: '100%',
+        marginTop: 80,
     },
-    image: {
-        width: 450,
-        height: 175,
-        marginVertical: 10,
+    container: {
+        alignItems: 'center',
+        borderStyle: 'solid',
+        borderColor: 'black',
+        borderWidth: 5,
+        flex: 1,
     },
     textTile: {
         fontSize: 40,
-        fontFamily: 'Lexend-ExtraLight',
+        fontFamily: 'Lexend-SemiBold',
         marginVertical: 5,
+        marginBottom: 30,
         color: 'black'
     },
     textBody: {
         fontSize: 16,
-        fontFamily: 'Lexend-ExtraLight',
+        fontFamily: 'Lexend-Regular',
         marginTop: 5
     }
 

@@ -4,15 +4,15 @@ const FollowModel = require("../models/FollowModel");
 var ObjectID = require("mongodb").ObjectID;
 
 class FollowManager {
-    static follow(followerId, followedId) {
-        FollowModel.create({
+    static async follow(followerId, followedId) {
+        await FollowModel.create({
             followerId: followerId,
             followedId: followedId
         });
     }
     
-    static unfollow(followerId, followedId) {
-        FollowModel.findOneAndDelete({
+    static async unfollow(followerId, followedId) {
+        await FollowModel.findOneAndDelete({
            followerId: followerId,
            followedId: followedId 
         });

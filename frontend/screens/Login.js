@@ -21,6 +21,7 @@ const Login = props => {
   }, []);
 
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState("");
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
@@ -31,14 +32,14 @@ const Login = props => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: email,
+        username: username,
         password: passwd,
       }),
     })
       .then(res => res.json())
       .then(resBody => {
         if (resBody.statusCode == 200) {
-          props.navigation.navigate('Map');
+          props.navigation.navigate('MyTabs');
         } else if (resBody.statusCode == 403) {
           // TODO user entered the wrong credentials. add a UI for this.
         }
@@ -82,16 +83,16 @@ const Login = props => {
       <View style={styles.container}>
         <Image
           source={require('../assets/guidify_logo.png')}
-          resizeMode={'cover'}
+          resizeMode={'contain'}
           style={styles.image}
         />
-        <Text style={styles.textTitle}>Welcome back</Text>
-        <Text style={styles.textBody}>Login into your existing account</Text>
-        <View style={{marginTop: 20}} />
         <Inputs
-          name="Email"
+          name="Username"
           icon="user"
-          onChangeText={email => setEmail(email)}
+          style={{
+            fontFamily: 'Lexend-Regular'
+          }}
+          onChangeText={username => setUsername(username)}
         />
         <Inputs
           name="Password"
@@ -104,20 +105,20 @@ const Login = props => {
             Forgot Password?
           </Text>
         </View>
-        <Submit title="LOG IN" color="#-" handleSubmit={localSignIn} />
-        <Text style={styles.textBody}>Or login using</Text>
+        <Submit title="Login" color="black" handleSubmit={localSignIn} />
+        <Text style={{...styles.textBody, marginTop: 20}}>Or login using</Text>
         <View style={{flexDirection: 'row'}}>
           <Account
-            color="#ec482f"
+            color="black"
             icon="google"
             title="Google"
             signInWithGoogle={signInWithGoogle}
           />
         </View>
         <View style={{flexDirection: 'row', marginVertical: 5}}>
-          <Text style={styles.textBody}>Don't have an account</Text>
+          <Text style={styles.textBody}>Don't have an account?</Text>
           <Text
-            style={[styles.textBody, {color: 'blue'}]}
+            style={[styles.textBody, {color: 'black'}]}
             onPress={() => props.navigation.navigate('SignUp')}>
             {' '}
             Sign Up
@@ -130,14 +131,12 @@ const Login = props => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: {
-    width: 400,
-    height: 250,
-    marginVertical: 10,
+    width: 300,
+    marginVertical: 40,
   },
   textTitle: {
     fontFamily: 'Lexend-ExtraLight',
@@ -147,9 +146,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   textBody: {
-    fontFamily: 'Lexend-ExtraLight',
+    fontFamily: 'Lexend-SemiBold',
     fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 

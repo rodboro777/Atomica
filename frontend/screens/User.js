@@ -1,5 +1,5 @@
 import { View, SafeAreaView, StyleSheet, FlatList, Image, TouchableOpacity, Text } from 'react-native';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Avatar,
     Title,
@@ -10,14 +10,83 @@ import { Button } from "@react-native-material/core";
   
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import ip from '../ip.json';
 
 
-
-export default function User() {
+export default function User({ownerId}) {
   const navigation = useNavigation();
   function handlePress() {
     navigation.navigate('Edit User');
   }
+
+  const [ownerInfo, setOwnerInfo] = useState({
+    id: ownerId,
+    fullName: "",
+    country: "",
+  });
+  const [userId, setUserId] = useState(null);
+  const [followInfo, setFollowInfo] = useState({
+    numOfFollowers: 0,
+    numOfFollowing: 0
+  });
+
+  useEffect(() => {
+    // Authenticate user.
+    fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (!resBody.isLoggedIn) {
+        navigation.navigate('Home');
+      }
+      setUserId(resBody.userId);
+    })
+
+    // Get User info of the owner (fullname, country)
+    fetch(`http://${ip.ip}:8000/user/info?id=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET'
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        console.log(resBody);
+        setOwnerInfo({
+          ...ownerInfo,
+          fullName: resBody.info.firstName + " " + resBody.info.lastName,
+          country: resBody.info.country,
+          username: resBody.info.username,
+        })
+      } else {
+        navigation.navigate("MyTabs");
+      }
+    })
+
+    // Get Follow info of the owner.
+    fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET'
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        setFollowInfo({
+          numOfFollowers: resBody.numOfFollowers,
+          numOfFollowing: resBody.numOfFollowing
+        });
+      } else {
+        navigation.navigate("MyTabs");
+      }
+    })
+
+    // Get the travel guides created by the owner.
+
+
+    // Get the itineraries created by the owner.
+
+  }, [])
 
   const SECTIONS = [
     {
@@ -34,8 +103,10 @@ export default function User() {
               color: 'black',
               fontSize: 20,
               fontFamily: 'Lexend-Bold',
-            }}>John Doe</Text>
-            <Caption style={styles.caption}>Ireland</Caption>
+              marginTop: ownerInfo.country ? 0 : 10,
+              marginBottom: ownerInfo.country? 0 : 5
+            }}>{ownerInfo.fullName}</Text>
+            {ownerInfo.country && <Caption style={styles.caption}>{ownerInfo.country}</Caption>}
             <View style={{flexDirection: 'row'}}>
               <View style={{flexDirection: 'row', flex: 1}}>
                 <Text style={{
@@ -46,7 +117,7 @@ export default function User() {
                   color: 'black',
                   fontFamily: 'Lexend-Bold',
                   paddingTop: 8,
-                }}>1,435</Text>
+                }}>{followInfo.numOfFollowers}</Text>
                 <Text style={{
                   marginTop: 10,
                   fontSize: 18,
@@ -75,7 +146,7 @@ export default function User() {
                     color: 'black',
                     fontFamily: 'Lexend-Bold',
                     paddingTop: 8,
-                  }}>1,435</Text>
+                  }}>{followInfo.numOfFollowing}</Text>
                   <Text style={{
                     marginTop: 10,
                     fontSize: 18,
@@ -108,7 +179,7 @@ export default function User() {
           color="#841584"
           accessibilityLabel="Learn more about this purple button"
         /> */}
-        <Button title="Follow" variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
+        <Button title={userId === ownerId ? "Edit Profile" : "Follow"} variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
           fontFamily: 'Lexend-Regular'
         }}/>
       </View>
@@ -163,7 +234,9 @@ export default function User() {
           </View>
           <View style={{flex: 1}}></View>
         </View>
-          <TouchableOpacity><View style={{
+          <TouchableOpacity
+            activeOpacity={0.75}
+          ><View style={{
           backgroundColor: 'black',
           height: 80,
           flexDirection: 'row',
@@ -191,7 +264,7 @@ export default function User() {
       </View>
     },
     {
-      id: 'testContent',
+      id: 'testContent0',
       component: <View style={{
         backgroundColor: 'white',
         borderColor: 'white',
@@ -235,7 +308,7 @@ export default function User() {
       </View>
     },
     {
-      id: 'testContent',
+      id: 'testContent1',
       component: <View style={{
         backgroundColor: 'white',
         borderColor: 'white',
@@ -279,7 +352,7 @@ export default function User() {
       </View>
     },
     {
-      id: 'testContent',
+      id: 'testContent2',
       component: <View style={{
         backgroundColor: 'white',
         borderColor: 'white',
@@ -335,7 +408,7 @@ export default function User() {
               fontFamily: 'Lexend-Bold',
               fontSize: 22,
               color: 'black',
-            }}>superawesome433</Text>
+            }}>{ownerInfo.username}</Text>
           </View>
       </View>
       <FlatList
@@ -378,12 +451,6 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       paddingBottom: 20,
     },
-    // userInfoSection: {
-    //   paddingHorizontal: 30,
-    //   marginBottom: 25,
-    //   marginTop: 10,
-    //   backgroundColor: 'white',
-    // },
     title: {
       fontSize: 24,
       fontWeight: 'bold',

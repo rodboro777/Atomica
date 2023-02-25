@@ -132,27 +132,10 @@ export default function EditUser({navigation}) {
           fontSize: 15
         }} uppercase={false}/>
         </View>
-
         <View style={styles.action}>
         <Image source={require('../assets/usericon.png')} style={{height:20, width:20}}/>
           <TextInput
-            placeholder="First Name"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            style={[
-              styles.textInput,
-              {
-                fontFamily: 'Lexend-Regular',
-                fontSize: 15,
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-        <Image source={require('../assets/usericon.png')} style={{height:20, width:20}}/>
-          <TextInput
-            placeholder="Last Name"
+            placeholder="Full Name"
             placeholderTextColor="#666666"
             autoCorrect={false}
             style={[

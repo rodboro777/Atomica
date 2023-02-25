@@ -29,4 +29,21 @@ router.get("/username", async (req, res) => {
     }
 });
 
+router.get("/info", async (req, res) => {
+  try {
+    const id = req.query.id;
+    const info = await UserManager.getInfoById(id);
+    console.log(info);
+    res.send({
+      statusCode: 200,
+      info: info,
+    })
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500
+    });
+  }
+});
+
 module.exports = router;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -14,6 +14,7 @@ import EditItinerary from './screens/EditItinerary';
 import EditTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
+import ip from './ip';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -21,6 +22,20 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.userId) {
+        setUserId(resBody.userId);
+      }
+    })
+  }, [])
   return (
     <Tab.Navigator initialRouteName="" screenOptions={{tabBarItemStyle:{
       backgroundColor:'#000',
@@ -53,22 +68,39 @@ function MyTabs() {
          />
         )
       } }}/>
-      <Tab.Screen name="UserProfile" component={UStackNav} options={{ headerShown: false,tabBarLabel: "", tabBarIcon: (tabInfo) => {
+      <Tab.Screen name="UserProfile" options={{ 
+        headerShown: false, 
+        tabBarLabel: "",
+        params: {
+          userId: 'hahaha'
+        },
+        tabBarIcon: (tabInfo) => {
          return (
                <Image
                 source={require("./assets/user.png")}
                 style={styles.mapicon}
                />
               )
-      } }}/>
+      } }}>
+        {(props) => {
+          return <UStackNav 
+            {...props}
+            ownerId={userId}
+          />
+        }}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
-const UStackNav = () => {
+const UStackNav = (passedProps) => {
   return(
     <Stack.Navigator initialRouteName='User'>
-      <Stack.Screen name='User' component={User} options={{ headerShown: false }}/>
+      <Stack.Screen name='User' options={{ headerShown: false }}>
+        {(props) => {
+          return <User {...props} {...passedProps}/>
+        }}
+      </Stack.Screen>
       <Stack.Screen name='Edit User' component={EditUser} options={{
         headerTitleStyle: {fontFamily: 'Lexend-SemiBold'}
       }}/>
