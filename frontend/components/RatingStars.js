@@ -24,7 +24,7 @@ export default function RatingStars(props) {
     },
     ratingStars: {
       fontSize: 30,
-      color: 'yellow',
+      color: 'black',
     },
     submitBtn: {
       position: 'absolute',
