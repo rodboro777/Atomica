@@ -43,7 +43,7 @@ const SignUp = props => {
     return (
         <ScrollView style={{backgroundColor: 'white'}}>
         <View style={styles.container}>
-            <Image source={require('../assets/signup.png')}
+            <Image source={require('../assets/guidify_logo.png')}
             resizeMode="center" style={styles.image} />
         <Text style={styles.textTile}>Let's Get Started</Text>
         <Text style={styles.textbody}>Create an account to access all features</Text>
@@ -76,13 +76,13 @@ const styles = StyleSheet.create({
     },
     textTile: {
         fontSize: 40,
-        fontFamily: 'Foundation',
+        fontFamily: 'Lexend-ExtraLight',
         marginVertical: 5,
         color: 'black'
     },
     textBody: {
         fontSize: 16,
-        fontFamily: 'Foundation',
+        fontFamily: 'Lexend-ExtraLight',
         marginTop: 5
     }
 
