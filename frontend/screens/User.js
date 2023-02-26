@@ -17,10 +17,7 @@ import SoundPlayer from 'react-native-sound-player';
 export default function User({ownerId}) {
   const navigation = useNavigation();
   function handlePress() {
-    
-    // navigation.navigate('Edit User');
-    SoundPlayer.stop();
-    SoundPlayer.playUrl("https://storage.googleapis.com/guidify_bucket/tg-audio-1.mpeg");
+    navigation.navigate('Edit User');
   }
 
   const [ownerInfo, setOwnerInfo] = useState({
@@ -149,6 +146,10 @@ export default function User({ownerId}) {
     }
     setContentList(candidateList);
   }, [ownerInfo, followInfo, travelGuides, itineraries, currentPage]);
+
+  useEffect(() => {
+    console.log("audio playing: " + currentPlayingTG);
+  }, [currentPlayingTG]);
 
   const PRIMARY_SECTIONS = [
     {

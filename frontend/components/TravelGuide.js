@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Image, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SoundPlayer from 'react-native-sound-player';
@@ -20,11 +20,12 @@ export default function TravelGuide({
 
     function handleAudioButtonPress() {
       if (!currentPlayingTG || currentPlayingTG != travelGuideId) {
-        console.log('now playing' + " " + audioUrl);
+        console.log(currentPlayingTG);
+        console.log(travelGuideId);
         setPaused(false);
         setCurrentPlayingTG(travelGuideId);
         SoundPlayer.stop();
-        SoundPlayer.playUrl("https://storage.googleapis.com/guidify_bucket/tg-audio-1.mpeg");
+        SoundPlayer.playUrl(audioUrl);
       } else if (isPaused) {
         SoundPlayer.resume();
         setPaused(false);
@@ -65,7 +66,7 @@ export default function TravelGuide({
               color: 'black',
             }}>{name}</Text>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
-            <Icon name={currentPlayingTG != travelGuideId ? "play-circle" : isPaused ? "pause-circle" : "play-circle"} color="black" size={50}/>
+            <Icon name={currentPlayingTG != travelGuideId ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
           </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row'}}>
