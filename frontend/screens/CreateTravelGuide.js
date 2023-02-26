@@ -269,7 +269,7 @@ export default function CreateTravelGuide({navigation, route}) {
       <TextInput
         placeholder="Description"
         multiline={true}
-        placeholderTextColor="white"
+        placeholderTextColor="black"
         style={styles.description}
         onChangeText={e => {
           setLocation({
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     padding: 10,
     fontFamily: 'Lexend-Light',
-    color: 'white',
+    color: 'black',
   },
   buttonItiStyle: {
     flexDirection: 'row',

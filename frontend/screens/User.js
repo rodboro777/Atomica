@@ -11,12 +11,16 @@ import { Button } from "@react-native-material/core";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import ip from '../ip.json';
-
+import TravelGuide from '../components/TravelGuide';
+import SoundPlayer from 'react-native-sound-player';
 
 export default function User({ownerId}) {
   const navigation = useNavigation();
   function handlePress() {
-    navigation.navigate('Edit User');
+    
+    // navigation.navigate('Edit User');
+    SoundPlayer.stop();
+    SoundPlayer.playUrl("https://storage.googleapis.com/guidify_bucket/tg-audio-1.mpeg");
   }
 
   const [ownerInfo, setOwnerInfo] = useState({
@@ -29,6 +33,19 @@ export default function User({ownerId}) {
     numOfFollowers: 0,
     numOfFollowing: 0
   });
+
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [itineraries, setItineraries] = useState([]);
+  const [applications, setApplications] = useState([]);
+
+  const PAGE_TYPE = {
+    GUIDES: 'guides',
+    ITINERARIES: 'itineraries',
+    APPLICATIONS: 'applications'
+  };
+  const [currentPage, setCurrentPage] = useState(PAGE_TYPE.GUIDES);
+  const [contentList, setContentList] = useState([]);
+  const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
 
   useEffect(() => {
     // Authenticate user.
@@ -52,13 +69,12 @@ export default function User({ownerId}) {
     .then(res => res.json())
     .then(resBody => {
       if (resBody.statusCode == 200) {
-        console.log(resBody);
         setOwnerInfo({
           ...ownerInfo,
           fullName: resBody.info.firstName + " " + resBody.info.lastName,
           country: resBody.info.country,
           username: resBody.info.username,
-        })
+        });
       } else {
         navigation.navigate("MyTabs");
       }
@@ -82,13 +98,59 @@ export default function User({ownerId}) {
     })
 
     // Get the travel guides created by the owner.
-
+    fetch(`http://${ip.ip}:8000/travelGuide/byCreator?creatorId=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET'
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        setTravelGuides(resBody.travelGuides);
+        setApplications([...resBody.pendingTravelGuides, ...resBody.rejectedTravelGuides]);
+      }
+    })
 
     // Get the itineraries created by the owner.
+    fetch(`http://${ip.ip}:8000/itinerary/byCreator?creatorId=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET'
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        setItineraries(resBody.itineraries);
+      }
+    })
 
   }, [])
 
-  const SECTIONS = [
+  useEffect(() => {
+    let candidateList = [...PRIMARY_SECTIONS];
+    if (currentPage == PAGE_TYPE.GUIDES) {
+      travelGuides.forEach(travelGuide => {
+        candidateList.push({
+          id: travelGuide._id,
+          component: <TravelGuide 
+            imageUrl={travelGuide.imageUrl}
+            name={travelGuide.name}
+            description={travelGuide.description}
+            audioUrl={travelGuide.audioUrl}
+            audioLength={travelGuide.audioLength}
+            currentPlayingTG={currentPlayingTG}
+            setCurrentPlayingTG={setCurrentPlayingTG}
+            travelGuideId={travelGuide._id}
+          />
+        });
+      });
+    } else if (currentPage == PAGE_TYPE.ITINERARIES) {
+
+    } else {
+      
+    }
+    setContentList(candidateList);
+  }, [ownerInfo, followInfo, travelGuides, itineraries, currentPage]);
+
+  const PRIMARY_SECTIONS = [
     {
       id: 'userInfoSection',
       component: <View style={styles.userInfoSection}>
@@ -173,12 +235,6 @@ export default function User({ownerId}) {
     {
       id: 'profileButton',
       component: <View style={{width: '100%', backgroundColor: 'white', paddingHorizontal: 30, paddingBottom: 30}}>
-        {/* <Button
-          style={{width: '80%', marginLeft: 'auto', marginRight: 'auto'}}
-          title="Learn More"
-          color="#841584"
-          accessibilityLabel="Learn more about this purple button"
-        /> */}
         <Button title={userId === ownerId ? "Edit Profile" : "Follow"} variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
           fontFamily: 'Lexend-Regular'
         }}/>
@@ -262,140 +318,7 @@ export default function User({ownerId}) {
           </View>
         </View></TouchableOpacity>
       </View>
-    },
-    {
-      id: 'testContent0',
-      component: <View style={{
-        backgroundColor: 'white',
-        borderColor: 'white',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderTopColor: '#f0f2f5',
-        paddingTop: 15,
-        paddingHorizontal: 15,
-        paddingBottom: 15
-      }}>
-        <Image 
-          source={require('../assets/dkit_campus.jpeg')}
-          style={{
-            flex: 1,
-            width: '100%',
-            height: 200,
-            resizeMode: 'contain',
-            borderRadius: 10
-          }}
-        />
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{
-              flex: 6,
-              marginTop:5 ,
-              marginBottom: 5,
-              fontFamily: 'Lexend-SemiBold',
-              fontSize: 18,
-              color: 'black',
-            }}>First Technological Campus in Dundalk, Louth</Text>
-          <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}>
-            <Icon name="play-circle" color="black" size={50}/>
-          </TouchableOpacity>
-        </View>
-        <Text style={{
-              marginTop:5,
-              marginBottom: 10,
-              fontFamily: 'Lexend-Regular',
-              fontSize: 16,
-              color: 'black',
-            }}>This guide covers all about the history and the engineering culture that the institute has until now.</Text>
-      </View>
-    },
-    {
-      id: 'testContent1',
-      component: <View style={{
-        backgroundColor: 'white',
-        borderColor: 'white',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderTopColor: '#f0f2f5',
-        paddingTop: 15,
-        paddingHorizontal: 15,
-        paddingBottom: 15
-      }}>
-        <Image 
-          source={require('../assets/dkit_campus.jpeg')}
-          style={{
-            flex: 1,
-            width: '100%',
-            height: 200,
-            resizeMode: 'contain',
-            borderRadius: 10
-          }}
-        />
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{
-              flex: 6,
-              marginTop:5 ,
-              marginBottom: 5,
-              fontFamily: 'Lexend-SemiBold',
-              fontSize: 18,
-              color: 'black',
-            }}>First Technological Campus in Dundalk, Louth</Text>
-          <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}>
-            <Icon name="play-circle" color="black" size={50}/>
-          </TouchableOpacity>
-        </View>
-        <Text style={{
-              marginTop:5,
-              marginBottom: 10,
-              fontFamily: 'Lexend-Regular',
-              fontSize: 16,
-              color: 'black',
-            }}>This guide covers all about the history and the engineering culture that the institute has until now.</Text>
-      </View>
-    },
-    {
-      id: 'testContent2',
-      component: <View style={{
-        backgroundColor: 'white',
-        borderColor: 'white',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderTopColor: '#f0f2f5',
-        paddingTop: 15,
-        paddingHorizontal: 15,
-        paddingBottom: 15
-      }}>
-        <Image 
-          source={require('../assets/dkit_campus.jpeg')}
-          style={{
-            flex: 1,
-            width: '100%',
-            height: 200,
-            resizeMode: 'contain',
-            borderRadius: 10
-          }}
-        />
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{
-              flex: 6,
-              marginTop:5 ,
-              marginBottom: 5,
-              fontFamily: 'Lexend-SemiBold',
-              fontSize: 18,
-              color: 'black',
-            }}>First Technological Campus in Dundalk, Louth</Text>
-          <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}>
-            <Icon name="play-circle" color="black" size={50}/>
-          </TouchableOpacity>
-        </View>
-        <Text style={{
-              marginTop:5,
-              marginBottom: 10,
-              fontFamily: 'Lexend-Regular',
-              fontSize: 16,
-              color: 'black',
-            }}>This guide covers all about the history and the engineering culture that the institute has until now.</Text>
-      </View>
-    },
-    
+    }
   ];
 
   return (
@@ -412,14 +335,14 @@ export default function User({ownerId}) {
           </View>
       </View>
       <FlatList
-        data={SECTIONS}
+        data={contentList}
         renderItem={({item}) => item.component}
         keyExtractor={item => item.id}
         bounces={false}
         alwaysBounceVertical={false}
         overScrollMode='never'
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[2]}
+        // stickyHeaderIndices={[2]}
       />
     </SafeAreaView>
   )

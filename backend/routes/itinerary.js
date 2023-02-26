@@ -52,6 +52,24 @@ router.get("/byLocation", async (req, res) => {
   }
 });
 
+router.get("/byCreator", async (req, res) => {
+  const creatorId = req.query.creatorId;
+
+  try {
+    const itineraries = await ItineraryManager.getItinerariesByUser(creatorId);
+    res.send({
+      statusCode: 200,
+      itineraries: itineraries,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500,
+      itineraries: [],
+    });
+  }
+});
+
 router.get("/byUser", async (req, res) => {
   const userId = req.session.user._id;
   if (!userId) {

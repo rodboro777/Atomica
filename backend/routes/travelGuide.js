@@ -84,6 +84,37 @@ router.get("/byLocation", async (req, res) => {
   }
 });
 
+router.get("/byCreator", async (req, res) => {
+  const creatorId = req.query.creatorId;
+
+  try {
+    const travelGuides = await TravelGuideManager.getTravelGuidesByUser(creatorId);
+
+    let pendingTravelGuides = [];
+    let rejectedTravelGuides = [];
+
+    if (req.session.user._id == creatorId) {
+      pendingTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(creatorId, TravelGuideRequestModel.STATUS.PENDING);
+      rejectedTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(creatorId, TravelGuideRequestModel.STATUS.REJECTED);
+    }
+
+    res.send({
+      statusCode: 200,
+      travelGuides: travelGuides,
+      pendingTravelGuides: pendingTravelGuides,
+      rejectedTravelGuides: rejectedTravelGuides,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500,
+      travelGuides: [],
+      pendingTravelGuides: [],
+      rejectedTravelGuides: [],
+    });
+  }
+});
+
 router.get("/byUser", async (req, res) => {
   const userId = req.session.user._id;
   if (!userId) {

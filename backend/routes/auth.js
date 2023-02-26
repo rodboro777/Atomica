@@ -37,7 +37,6 @@ router.post('/google', async (req,res) => {
         const userInfo = temp.data;
         const email = userInfo.email;
         const googleId = userInfo.id;
-        console.log(temp);
 
         let userData = await User.findOrCreate({ email: email, googleId: googleId });
 
