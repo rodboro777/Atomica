@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
 import TravelGuide from '../components/TravelGuide';
 import Itinerary from '../components/Itinerary';
+import Application from '../components/Application';
 import UserInfoSection from '../components/UserInfoSection';
 import ContentFilter from '../components/ContentFilter';
 import SoundPlayer from 'react-native-sound-player';
@@ -48,7 +49,7 @@ export default function User({ownerId, navigation, origin}) {
   useEffect(() => {
     this.bs.current.snapTo(1);
     if (origin == "CreateTravelGuide") {
-      setCurrentPage(PAGE_TYPE.GUIDES);
+      setCurrentPage(PAGE_TYPE.APPLICATIONS);
     } else if (origin == "CreateItinerary") {
       setCurrentPage(PAGE_TYPE.ITINERARIES);
     }
@@ -175,10 +176,16 @@ export default function User({ownerId, navigation, origin}) {
         })
       });
     } else {
-      
+      applications.forEach(application => {
+        candidateList.push({
+          id: application._id,
+          type: 'application',
+          application: application
+        });
+      });
     }
     setContentList(candidateList);
-  }, [ownerInfo, followInfo, travelGuides, itineraries, currentPage]);
+  }, [ownerInfo, followInfo, travelGuides, applications, itineraries, currentPage]);
 
   useEffect(() => {
     setCurrentPlayingTG(null);
@@ -211,6 +218,7 @@ export default function User({ownerId, navigation, origin}) {
         <ContentFilter 
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
+          isOwner={userId === ownerId}
         />
       )
     } else if (item.type == 'travelGuide') {
@@ -235,6 +243,21 @@ export default function User({ownerId, navigation, origin}) {
           description={item.itinerary.description}
           rating={item.itinerary.rating}
           navigation={navigation}
+        />
+      )
+    } else if (item.type == 'application') {
+      return (
+        <Application 
+          imageUrl={item.application.imageUrl}
+          name={item.application.name}
+          description={item.application.description}
+          audioUrl={item.application.audioUrl}
+          audioLength={item.application.audioLength}
+          currentPlayingTG={currentPlayingTG}
+          setCurrentPlayingTG={setCurrentPlayingTG}
+          applicationId={item.application._id}
+          status={item.application.status}
+          reviewerComment={item.application.reviewerComment}
         />
       )
     }
