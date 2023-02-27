@@ -232,6 +232,7 @@ export default function User({ownerId, navigation, origin}) {
             currentPlayingTG={currentPlayingTG}
             setCurrentPlayingTG={setCurrentPlayingTG}
             travelGuideId={item.travelGuide._id}
+            locationName={item.travelGuide.locationName}
         />
       )
     } else if (item.type == 'itinerary') {
@@ -258,6 +259,7 @@ export default function User({ownerId, navigation, origin}) {
           applicationId={item.application._id}
           status={item.application.status}
           reviewerComment={item.application.reviewerComment}
+          locationName={item.application.locationName}
         />
       )
     }

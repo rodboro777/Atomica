@@ -214,6 +214,7 @@ router.post(
       let request = new TravelGuide.Builder()
         .setName(req.body.name)
         .setDescription(req.body.description)
+        .setLocationName(req.body.locationName)
         .setCreatorId(req.session.user._id)
         .setAudioUrl(audioUrl)
         .setImageUrl(imageUrl)

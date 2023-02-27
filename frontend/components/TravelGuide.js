@@ -11,7 +11,8 @@ export default function TravelGuide({
     audioUrl,
     audioLength,
     currentPlayingTG,
-    setCurrentPlayingTG
+    setCurrentPlayingTG,
+    locationName
 }) {
     let secs = Math.floor(audioLength % 60);
     let mins = Math.floor(audioLength / 60);
@@ -61,7 +62,23 @@ export default function TravelGuide({
                 fontSize: 18,
                 color: 'black',
               }}>{name}</Text>
-            <View style={{flexDirection: 'row', marginTop: 5}}>
+            <View style={{
+              flexDirection: 'row',
+              marginTop: 5,
+              maxWidth: '90%'
+            }}>
+            <Icon name="map-marker" color="black" size={25}/>
+                <Text style={{
+                    marginBottom: 1,
+                    fontFamily: 'Lexend-SemiBold',
+                    fontSize: 16,
+                    color: 'black',
+                  }}>{locationName}</Text>
+            </View>
+            <View style={{
+              flexDirection: 'row', 
+              marginTop: 5,
+            }}>
               <Icon name="clock-time-eight" color="black" size={25}/>
                 <Text style={{
                     marginBottom: 1,

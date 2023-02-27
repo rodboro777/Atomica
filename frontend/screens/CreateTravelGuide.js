@@ -46,6 +46,7 @@ export default function CreateTravelGuide({navigation, route}) {
     const formData = new FormData();
     formData.append('placeId', location.placeId);
     formData.append('name', location.name);
+    formData.append('locationName', location.locationName);
     formData.append('description', location.description);
     formData.append('audio', {
       uri: location.audio.uri,
@@ -155,6 +156,7 @@ export default function CreateTravelGuide({navigation, route}) {
           renderDescription={row => row.description} // custom description render
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
+            console.log(data.structured_formatting.main_text);
             placeRef.current.setAddressText('');
             setRegion({
               latitude: details.geometry.location.lat,
