@@ -80,7 +80,7 @@ export default function Itinerary({
                   fontSize: 16,
                   fontFamily: 'Lexend-SemiBold'
                 }}
-              >{rating ? ratingMap[rating] : 'no rating'}</Text>
+              >{rating ? ratingMap[rating] : 'no rating yet'}</Text>
             </View>}
           </View>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}>

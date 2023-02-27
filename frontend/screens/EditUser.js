@@ -16,38 +16,71 @@ import Feather from 'react-native-vector-icons/Feather';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import { Button } from "@react-native-material/core";
+import DocumentPicker from 'react-native-document-picker';
 
 import ImagePicker from 'react-native-image-crop-picker';
+import ip from '../ip';
 
 
-export default function EditUser({navigation}) {
-    const [image, setImage] = useState('https://api.adorable.io/avatars/80/abott@adorable.png');
+export default function EditUser({navigation, route}) {
+  const {ownerInfo} = route.params;
+  
+  const [image, setImage] = useState({
+    uri: ownerInfo.imageUrl
+  });
   const {colors} = useTheme();
+  const [fullName, setFullName] = useState(ownerInfo.fullName);
+  const [username, setUsername] = useState(ownerInfo.username);
+  const [country, setCountry] = useState(ownerInfo.country);
 
-  const takePhotoFromCamera = () => {
-    ImagePicker.openCamera({
-      compressImageMaxWidth: 300,
-      compressImageMaxHeight: 300,
-      cropping: true,
-      compressImageQuality: 0.7
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
-    });
+  function handleSubmit() {
+    const formData = new FormData();
+    if (image.name) {
+      formData.append('image', image);
+    }
+    formData.append('username', username);
+    formData.append('country', country);
+    let tmp = fullName.split(" ");
+    let lastName = "";
+    if (tmp.length > 1) {
+      lastName = tmp.slice(1, tmp.length).join(" ");
+    }
+    let firstName = tmp[0];
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
+
+    fetch(`http://${ip.ip}:8000/user/editInfo`, {
+      credentials: 'include',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.statusCode == 200) {
+          navigation.navigate('User');
+        } else if (resBody.statusCode == 500) {
+          console.log('failed');
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-      compressImageQuality: 0.7
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
-    });
+  const choosePhotoFromLibrary = async () => {
+    try {
+      console.log()
+      const result = await DocumentPicker.pick({
+        type: ["image/jpg", "image/png", "image/jpeg"],
+      });
+      setImage(result[0]);
+      this.newbs.current.snapTo(1);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   renderInner = () => (
@@ -56,15 +89,12 @@ export default function EditUser({navigation}) {
         <Text style={styles.panelTitle}>Upload Photo</Text>
         <Text style={styles.panelSubtitle}>Choose Your Profile Picture</Text>
       </View>
-      <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-        <Text style={styles.panelButtonTitle}>Take Photo</Text>
-      </TouchableOpacity>
       <TouchableOpacity style={styles.panelButton} onPress={choosePhotoFromLibrary}>
         <Text style={styles.panelButtonTitle}>Choose From Library</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.panelButton}
-        onPress={() => this.bs.current.snapTo(1)}>
+        onPress={() => this.newbs.current.snapTo(1)}>
         <Text style={styles.panelButtonTitle}>Cancel</Text>
       </TouchableOpacity>
     </View>
@@ -78,7 +108,7 @@ export default function EditUser({navigation}) {
     </View>
   );
 
-  bs = React.createRef();<Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
+  newbs = React.createRef();<Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
     fontFamily: 'Lexend-Regular'
   }}/>
   fall = new Animated.Value(1);
@@ -86,7 +116,7 @@ export default function EditUser({navigation}) {
   return (
    <View style={styles.container}>
       <BottomSheet
-        ref={this.bs}
+        ref={this.newbs}
         snapPoints={[330, 0]}
         renderContent={this.renderInner}
         renderHeader={this.renderHeader}
@@ -98,7 +128,7 @@ export default function EditUser({navigation}) {
         opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
     }}>
         <View style={{alignItems: 'center', marginBottom: 30}}>
-          <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+          <TouchableOpacity onPress={() => this.newbs.current.snapTo(0)}>
             <View
               style={{
                 height: 100,
@@ -108,9 +138,6 @@ export default function EditUser({navigation}) {
                 alignItems: 'center',
               }}>
               <ImageBackground
-                source={{
-                  uri: image,
-                }}
                 style={{height: 100, width: 100}}
                 imageStyle={{borderRadius: 15}}>
                 <View
@@ -120,14 +147,14 @@ export default function EditUser({navigation}) {
                     alignItems: 'center',
                   }}>
                   <Avatar.Image
-                    source={require('../assets/avatar.png')}
+                    source={{uri: image.uri}}
                     size={85}
                   />
                 </View>
               </ImageBackground>
             </View>
           </TouchableOpacity>
-          <Button onPress={() => this.bs.current.snapTo(0)} title="Change Profile Picture" variant='outlined' color="black" titleStyle={{
+          <Button onPress={() => this.newbs.current.snapTo(0)} title="Change Profile Picture" variant='outlined' color="black" titleStyle={{
           fontFamily: 'Lexend-Regular',
           fontSize: 15
         }} uppercase={false}/>
@@ -138,23 +165,8 @@ export default function EditUser({navigation}) {
             placeholder="Full Name"
             placeholderTextColor="#666666"
             autoCorrect={false}
-            style={[
-              styles.textInput,
-              {
-                fontFamily: 'Lexend-Regular',
-                color: colors.text,
-                fontSize: 15,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-        <Image source={require('../assets/telephone.png')} style={{height:20, width:20}}/>
-          <TextInput
-            placeholder="Phone"
-            placeholderTextColor="#666666"
-            keyboardType="number-pad"
-            autoCorrect={false}
+            value={fullName}
+            onChangeText={(text) => setFullName(text)}
             style={[
               styles.textInput,
               {
@@ -168,10 +180,12 @@ export default function EditUser({navigation}) {
         <View style={styles.action}>
         <Image source={require('../assets/email.png')} style={{height:20, width:20}}/>
           <TextInput
-            placeholder="Email"
+            placeholder="Username"
             placeholderTextColor="#666666"
             keyboardType="email-address"
             autoCorrect={false}
+            value={username}
+            onChangeText={(text) => setUsername(text)}
             style={[
               styles.textInput,
               {
@@ -188,6 +202,8 @@ export default function EditUser({navigation}) {
             placeholder="Country"
             placeholderTextColor="#666666"
             autoCorrect={false}
+            value={country}
+            onChangeText={(text) => setCountry(text)}
             style={[
               styles.textInput,
               {
@@ -198,23 +214,7 @@ export default function EditUser({navigation}) {
             ]}
           />
         </View>
-        <View style={styles.action}>
-        <Image source={require('../assets/gps.png')} style={{height:20, width:20}}/>
-          <TextInput
-            placeholder="City"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            style={[
-              styles.textInput,
-              {
-                fontFamily: 'Lexend-Regular',
-                color: colors.text,
-                fontSize: 15,
-              },
-            ]}
-          />
-        </View>
-        <TouchableOpacity style={styles.commandButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.commandButton} onPress={() => {handleSubmit()}}>
           <Text style={styles.panelButtonTitle}>Submit</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -225,14 +225,18 @@ export default function EditUser({navigation}) {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: 'white'
+      backgroundColor: 'white',
     },
     commandButton: {
       padding: 15,
       borderRadius: 10,
       backgroundColor: 'black',
       alignItems: 'center',
-      marginTop: 10,
+      marginTop: 100,
+
+      borderStyle: 'solid',
+      borderColor: 'black',
+      borderWidth: 5
     },
     panel: {
       padding: 20,

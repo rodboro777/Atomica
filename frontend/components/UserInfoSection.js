@@ -18,7 +18,7 @@ export default function UserInfoSection({
         <View style={styles.userInfoSection}>
             <View style={{flex: 2, width: '20%'}}>
             <Avatar.Image
-                source={require('../assets/avatar.png')}
+                source={{uri: ownerInfo.imageUrl}}
                 size={85}
             />
             </View>

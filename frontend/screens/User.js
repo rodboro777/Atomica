@@ -13,12 +13,10 @@ import {useIsFocused} from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 
-export default function User({ownerId, navigation, route}) {
-  console.log("INFO " + ownerId);
-  console.log(route);
+export default function User({ownerId, navigation, origin}) {
   const isFocused = useIsFocused();
   function handlePress() {
-    navigation.navigate('Edit User');
+    navigation.navigate('Edit User', {ownerInfo: ownerInfo});
   }
 
   bs = React.createRef();
@@ -46,6 +44,15 @@ export default function User({ownerId, navigation, route}) {
         </TouchableOpacity>
       </View>
   );
+
+  useEffect(() => {
+    this.bs.current.snapTo(1);
+    if (origin == "CreateTravelGuide") {
+      setCurrentPage(PAGE_TYPE.GUIDES);
+    } else if (origin == "CreateItinerary") {
+      setCurrentPage(PAGE_TYPE.ITINERARIES);
+    }
+  }, [isFocused]);
 
   const [ownerInfo, setOwnerInfo] = useState({
     id: ownerId,
@@ -98,6 +105,7 @@ export default function User({ownerId, navigation, route}) {
           fullName: resBody.info.firstName + " " + resBody.info.lastName,
           country: resBody.info.country,
           username: resBody.info.username,
+          imageUrl: resBody.info.imageUrl
         });
       } else {
         navigation.navigate("MyTabs");
@@ -171,6 +179,10 @@ export default function User({ownerId, navigation, route}) {
     }
     setContentList(candidateList);
   }, [ownerInfo, followInfo, travelGuides, itineraries, currentPage]);
+
+  useEffect(() => {
+    setCurrentPlayingTG(null);
+  }, [currentPage]);
 
   useEffect(() => {
     SoundPlayer.addEventListener('FinishedPlaying', () => {

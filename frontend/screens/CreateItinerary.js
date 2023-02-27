@@ -82,7 +82,7 @@ export default function CreateItinerary({navigation, route}) {
       .post(`http://${ip.ip}:8000/itinerary`, data)
       .then(res => {
         console.log('success');
-        navigation.navigate('User');
+        navigation.navigate("User", {origin: "CreateItinerary"});
       })
       .catch(err => {
         console.log(err);

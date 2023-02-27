@@ -42,46 +42,45 @@ export default function CreateTravelGuide({navigation, route}) {
   });
 
   const createTravelGuide = () => {
-    navigation.navigate('User', {fromCreate: true});
-    // console.log(location);
-    // const formData = new FormData();
-    // formData.append('placeId', location.placeId);
-    // formData.append('name', location.name);
-    // formData.append('description', location.description);
-    // formData.append('audio', {
-    //   uri: location.audio.uri,
-    //   type: location.audio.type,
-    //   name: location.audio.name,
-    // });
+    console.log(location);
+    const formData = new FormData();
+    formData.append('placeId', location.placeId);
+    formData.append('name', location.name);
+    formData.append('description', location.description);
+    formData.append('audio', {
+      uri: location.audio.uri,
+      type: location.audio.type,
+      name: location.audio.name,
+    });
 
-    // if (location.uploadedPhoto) {
-    //   formData.append('image', location.uploadedPhoto);
-    // } else {
-    //   formData.append('imageUrl', defaultPhotoUrl);
-    // }
+    if (location.uploadedPhoto) {
+      formData.append('image', location.uploadedPhoto);
+    } else {
+      formData.append('imageUrl', defaultPhotoUrl);
+    }
 
-    // fetch(`http://${ip.ip}:8000/travelGuide`, {
-    //   credentials: 'include',
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data',
-    //   },
-    //   body: formData,
-    // })
-    //   .then(res => res.json())
-    //   .then(resBody => {
-    //     console.log(resBody);
-    //     if (resBody.statusCode == 200) {
-    //       console.log('success');
-    //       navigation.navigate('User', {fromCreate: true});
-    //     } else if (resBody.statusCode == 403) {
-    //       // TODO user entered the wrong credentials. add a UI for this.
-    //       console.log('failed');
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //   });
+    fetch(`http://${ip.ip}:8000/travelGuide`, {
+      credentials: 'include',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        console.log(resBody);
+        if (resBody.statusCode == 200) {
+          console.log('success');
+          navigation.navigate('User', {origin: "CreateTravelGuide"});
+        } else if (resBody.statusCode == 403) {
+          // TODO user entered the wrong credentials. add a UI for this.
+          console.log('failed');
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   return (
@@ -311,6 +310,7 @@ export default function CreateTravelGuide({navigation, route}) {
               const result = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
               });
+              console.log(result[0]);
               setLocation({
                 ...location,
                 uploadedPhoto: result[0],

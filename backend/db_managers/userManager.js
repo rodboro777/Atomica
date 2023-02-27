@@ -15,7 +15,18 @@ class UserManager {
             firstName: doc.firstName,
             lastName: doc.lastName,
             country: doc.country,
+            imageUrl: doc.imageUrl ? doc.imageUrl : "https://khoinguonsangtao.vn/wp-content/uploads/2022/07/avatar-gau-cute.jpg"
         }
+    }
+
+    static async editInfo(id, info) {
+        await UserModel.findByIdAndUpdate(id, {
+            username: info.username,
+            firstName: info.firstName,
+            lastName: info.lastName,
+            country: info.country,
+            imageUrl: info.imageUrl
+        })
     }
 }
 

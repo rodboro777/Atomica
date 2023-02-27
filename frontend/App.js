@@ -61,14 +61,6 @@ function MyTabs() {
          />
         )
       }}}/>
-      <Tab.Screen name="Library" component={LStackNav} options={{ headerShown: false,tabBarLabel: "", tabBarIcon: (tabInfo) => {
-        return (
-         <Image 
-          source={require("./assets/menu.png")}
-          style={styles.mapicon}
-         />
-        )
-      } }}/>
       <Tab.Screen name="UserProfile" options={{ 
         headerShown: false, 
         tabBarLabel: "",
@@ -99,25 +91,17 @@ const UStackNav = (passedProps) => {
     <Stack.Navigator initialRouteName='User'>
       <Stack.Screen name='User' options={{ headerShown: false }}>
         {(props) => {
-          return <UserWithNavigation {...props} {...passedProps}/>
+          return <UserWithNavigation 
+            {...props} 
+            {...passedProps} 
+            origin={props.route.params ? props.route.params.origin : null}
+          />
         }}
       </Stack.Screen>
       <Stack.Screen name='Edit User' component={EditUser} options={{
         headerTitleStyle: {fontFamily: 'Lexend-SemiBold'}
       }}/>
-    </Stack.Navigator>
-  )
-}
-
-const LStackNav = () => {
-  return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen
-        name="Lib"
-        component={Library}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
+       <Stack.Screen
         name="Create Itinerary"
         component={CreateItinerary}
         options={{headerShown: false}}
@@ -128,8 +112,8 @@ const LStackNav = () => {
         options={{headerShown: false}}
       />
     </Stack.Navigator>
-  );
-};
+  )
+}
 
 const SearchStack = () => {
   return (
