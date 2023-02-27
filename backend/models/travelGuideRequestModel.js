@@ -19,6 +19,7 @@ const travelGuideRequestSchema = new mongoose.Schema({
         enum: [STATUS.PENDING, STATUS.APPROVED, STATUS.REJECTED],
     },
     reviewerComment: String,
+    locationName: String,
 });
 
 const TravelGuideRequest = new mongoose.model('TravelGuideRequest', travelGuideRequestSchema);

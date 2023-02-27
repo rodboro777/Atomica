@@ -46,6 +46,7 @@ export default function CreateTravelGuide({navigation, route}) {
     const formData = new FormData();
     formData.append('placeId', location.placeId);
     formData.append('name', location.name);
+    formData.append('locationName', location.locationName);
     formData.append('description', location.description);
     formData.append('audio', {
       uri: location.audio.uri,
@@ -72,7 +73,7 @@ export default function CreateTravelGuide({navigation, route}) {
         console.log(resBody);
         if (resBody.statusCode == 200) {
           console.log('success');
-          navigation.navigate('Lib');
+          navigation.navigate('User', {origin: "CreateTravelGuide"});
         } else if (resBody.statusCode == 403) {
           // TODO user entered the wrong credentials. add a UI for this.
           console.log('failed');
@@ -94,7 +95,7 @@ export default function CreateTravelGuide({navigation, route}) {
             height: 30,
             width: 30,
           }}
-          onPress={() => navigation.navigate('Lib')}>
+          onPress={() => navigation.navigate('User')}>
           <Image
             source={upArrow}
             style={{tintColor: 'black', width: '100%', height: '100%'}}
@@ -155,6 +156,7 @@ export default function CreateTravelGuide({navigation, route}) {
           renderDescription={row => row.description} // custom description render
           onPress={(data, details = null) => {
             // 'details' is provided when fetchDetails = true
+            console.log(data.structured_formatting.main_text);
             placeRef.current.setAddressText('');
             setRegion({
               latitude: details.geometry.location.lat,
@@ -269,7 +271,7 @@ export default function CreateTravelGuide({navigation, route}) {
       <TextInput
         placeholder="Description"
         multiline={true}
-        placeholderTextColor="white"
+        placeholderTextColor="black"
         style={styles.description}
         onChangeText={e => {
           setLocation({
@@ -310,6 +312,7 @@ export default function CreateTravelGuide({navigation, route}) {
               const result = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
               });
+              console.log(result[0]);
               setLocation({
                 ...location,
                 uploadedPhoto: result[0],
@@ -399,7 +402,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     padding: 10,
     fontFamily: 'Lexend-Light',
-    color: 'white',
+    color: 'black',
   },
   buttonItiStyle: {
     flexDirection: 'row',

@@ -10,6 +10,7 @@ const travelGuideSchema = new mongoose.Schema({
     audioLength: Number,
     placeId: String,
     public: Boolean,
+    locationName: String,
 });
 
 

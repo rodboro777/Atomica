@@ -57,6 +57,8 @@
 		<string>Lexend-Light.ttf</string>
 		<string>Lexend-Regular.ttf</string>
 		<string>Lexend-ExtraBold.ttf</string>
+		<string>Lexend-Bold.ttf</string>
+		<string>Lexend-SemiBold.ttf</string>
 	</array>
 </dict>
 </plist>

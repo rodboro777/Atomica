@@ -2,6 +2,7 @@
 
 var ObjectID = require("mongodb").ObjectID;
 const ItineraryModel = require("../models/itineraryModel");
+const TravelGuideModel = require("../models/travelGuideModel");
 
 class ItineraryManager {
   static async getItineraryById(id) {
@@ -77,6 +78,17 @@ class ItineraryManager {
       rating: itinerary.rating,
       ratingCount: itinerary.ratingCount,
     };
+  }
+
+  static async getTotalTime(itineraryId) {
+    const itinerary = await ItineraryModel.findById(itineraryId);
+    let travelGuideIds = itinerary.travelGuideId;
+    let travelGuides = await TravelGuideModel.find({ _id: { $in: travelGuideIds } });
+    let totalTime = 0;
+    for (let i = 0; i < travelGuides.length; i++) {
+      totalTime += travelGuides[i].audioLength;
+    }
+    return totalTime;
   }
 }
 

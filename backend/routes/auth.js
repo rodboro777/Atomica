@@ -35,16 +35,31 @@ router.post('/google', async (req,res) => {
         });
         const temp = await oauth2.userinfo.get();
         const userInfo = temp.data;
-        const username = userInfo.email;
+        const email = userInfo.email;
         const googleId = userInfo.id;
 
-        const user = await User.findOrCreate({ username: username, googleId: googleId });
+        let userData = await User.findOrCreate({ email: email, googleId: googleId });
+
+        // Set username and full name if user is new.
+        if (!userData.doc.username) {
+            console.log(userData.doc._id);
+            userData = await User.findByIdAndUpdate(userData.doc._id, {
+                username: email.split("@")[0],
+                firstName: userInfo.given_name,
+                lastName: userInfo.family_name
+            })
+        } else {
+            userData = userData.doc;
+        }
 
         req.session.user = {
-            _id: user.doc._id,
-            username: user.doc.username,
-            googleId: user.doc.googleId,
+            _id: userData._id,
+            email: userData.email,
+            googleId: userData.googleId,
         };
+
+        console.log(req.session.user);
+
         res.send({
             statusCode: 200,
         });
@@ -58,7 +73,15 @@ router.post('/google', async (req,res) => {
 
 // register using local authentication.
 router.post("/register", (req, res) => {
-    User.register({username: req.body.username}, req.body.password, (err, user) => {
+    let tmp = req.body.fullName.split(" ");
+    let firstName = tmp[0];
+    let lastName = tmp.slice(1,tmp.length).join(" ");
+    User.register({
+        username: req.body.username,
+        firstName: firstName,
+        lastName: lastName,
+        country: req.body.country
+    }, req.body.password, (err, user) => {
         if (err) {
             console.log(err);
             res.send({
@@ -107,6 +130,7 @@ router.post("/login", (req, res) => {
 router.get("/isLoggedIn", (req, res) => {
     res.send({
         isLoggedIn: req.session.user ? true : false,
+        userId: req.session.user ? req.session.user._id : undefined,
     }); 
 });
 

@@ -9,6 +9,7 @@ const itinerarySchema = new mongoose.Schema({
     public: Boolean,
     rating: Number,
     ratingCount: Number,
+    imageUrl: String,
 });
 
 const Itinerary = new mongoose.model('Itinerary', itinerarySchema);

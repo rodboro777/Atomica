@@ -82,7 +82,7 @@ export default function CreateItinerary({navigation, route}) {
       .post(`http://${ip.ip}:8000/itinerary`, data)
       .then(res => {
         console.log('success');
-        navigation.navigate('Lib');
+        navigation.navigate("User", {origin: "CreateItinerary"});
       })
       .catch(err => {
         console.log(err);
@@ -113,7 +113,7 @@ export default function CreateItinerary({navigation, route}) {
       .then(res => res.json())
       .then(resBody => {
         console.log('HI');
-        navigation.navigate('Lib');
+        navigation.navigate('User');
       })
       .catch(err => {
         console.log('error');
@@ -204,7 +204,7 @@ export default function CreateItinerary({navigation, route}) {
             height: 30,
             width: 30,
           }}
-          onPress={() => navigation.navigate('Lib')}>
+          onPress={() => navigation.navigate('User')}>
           <Image
             source={upArrow}
             style={{tintColor: 'black', width: '100%', height: '100%'}}

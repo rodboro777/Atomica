@@ -4,8 +4,14 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new mongoose.Schema({
     username: String,
+    email: String,
     googleId: String,
     password: String,
+    firstName: String,
+    lastName: String,
+    description: String,
+    country: String,
+    imageUrl: String,
     numberOfTravelGuidesCreated: Number,
     numberOfItinerariesCreated: Number,
 });

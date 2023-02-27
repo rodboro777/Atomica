@@ -11,6 +11,7 @@ class TravelGuide {
       const audioLength = build.audioLength;
       const placeId = build.placeId;
       const isPublic = build.isPublic;
+      const locationName = build.locationName;
 
       Object.defineProperties(this, {
         name: {
@@ -45,6 +46,10 @@ class TravelGuide {
           value: isPublic,
           writable: false,
         },
+        locationName: {
+          value: locationName,
+          writable: false
+        }
       });
     }
   }
@@ -90,6 +95,11 @@ class TravelGuide {
 
       setIsPublic(isPublic) {
         this.isPublic = isPublic;
+        return this;
+      }
+
+      setLocationName(locationName) {
+        this.locationName = locationName;
         return this;
       }
 

@@ -118,6 +118,7 @@ class TravelGuideManager {
       imageUrl: request.imageUrl,
       audioLength: request.audioLength,
       placeId: request.placeId,
+      locationName: request.locationName,
       public: true
     };
   }

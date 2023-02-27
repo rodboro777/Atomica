@@ -52,6 +52,24 @@ router.get("/byLocation", async (req, res) => {
   }
 });
 
+router.get("/byCreator", async (req, res) => {
+  const creatorId = req.query.creatorId;
+
+  try {
+    const itineraries = await ItineraryManager.getItinerariesByUser(creatorId);
+    res.send({
+      statusCode: 200,
+      itineraries: itineraries,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500,
+      itineraries: [],
+    });
+  }
+});
+
 router.get("/byUser", async (req, res) => {
   const userId = req.session.user._id;
   if (!userId) {
@@ -121,6 +139,22 @@ router.delete("/", async (req, res) => {
     console.log(err);
     res.send({
       success: false,
+    });
+  }
+});
+
+router.get('/totalTime', async (req, res) => {
+  try {
+    const itineraryId = req.query.id;
+    const totalTime = await ItineraryManager.getTotalTime(itineraryId)
+    res.send({
+      statusCode: 200,
+      totalTime: totalTime
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500
     });
   }
 });

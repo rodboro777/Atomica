@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -10,87 +10,98 @@ import Library from './screens/Library';
 import PlacesAutoComplete from './components/PlacesAutoComplete';
 import CreateItinerary from './screens/CreateItinerary';
 import CreateTravelGuide from './screens/CreateTravelGuide';
+import User from './screens/User';
+import EditUser from './screens/EditUser';
+import ip from './ip';
+import { withNavigation } from '@react-navigation/compat';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const UserWithNavigation = withNavigation(User);
+
 function MyTabs() {
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.userId) {
+        setUserId(resBody.userId);
+      }
+    })
+  }, [])
   return (
-    <Tab.Navigator
-      initialRouteName=""
-      screenOptions={{
-        tabBarItemStyle: {
-          backgroundColor: '#000',
-          margin: 0,
-          borderRadius: 0,
+    <Tab.Navigator initialRouteName="" screenOptions={{tabBarItemStyle:{
+      backgroundColor:'#000',
+      margin:0,
+      borderRadius:0,
+    }, tabBarLabelStyle: {
+      fontWeight: "bold"
+    }}}>
+      <Tab.Screen name="Home" component={Map} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
+        return (
+         <Image 
+          source={require("./assets/home.png")}
+          style={styles.mapicon}
+         />
+        )
+      }}}/>
+      <Tab.Screen name="Search" component={SearchStack} options={{headerShown: false ,tabBarLabel: "", tabBarIcon: (tabInfo) => {
+        return (
+         <Image 
+          source={require("./assets/search.png")}
+          style={styles.mapicon}
+         />
+        )
+      }}}/>
+      <Tab.Screen name="UserProfile" options={{ 
+        headerShown: false, 
+        tabBarLabel: "",
+        params: {
+          userId: 'hahaha'
         },
-        tabBarLabelStyle: {
-          fontWeight: 'bold',
-        },
-      }}>
-      <Tab.Screen
-        name="Home"
-        component={Map}
-        options={{
-          headerShown: false,
-          tabBarLabel: '',
-          tabBarIcon: tabInfo => {
-            return (
-              <Image
-                source={require('./assets/home.png')}
+        tabBarIcon: (tabInfo) => {
+         return (
+               <Image
+                source={require("./assets/user.png")}
                 style={styles.mapicon}
-              />
-            );
-          },
+               />
+              )
+      } }}>
+        {(props) => {
+          return <UStackNav 
+            {...props}
+            ownerId={userId}
+          />
         }}
-      />
-      <Tab.Screen
-        name="Search"
-        component={SearchStack}
-        options={{
-          headerShown: false,
-          tabBarLabel: '',
-          tabBarIcon: tabInfo => {
-            return (
-              <Image
-                source={require('./assets/search.png')}
-                style={styles.mapicon}
-              />
-            );
-          },
-        }}
-      />
-      <Tab.Screen
-        name="Library"
-        component={LStackNav}
-        options={{
-          headerShown: false,
-          tabBarLabel: '',
-          tabBarIcon: tabInfo => {
-            return (
-              <Image
-                source={require('./assets/menu.png')}
-                style={styles.mapicon}
-              />
-            );
-          },
-        }}
-      />
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
-const LStackNav = () => {
-  return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen
-        name="Lib"
-        component={Library}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
+const UStackNav = (passedProps) => {
+  return(
+    <Stack.Navigator initialRouteName='User'>
+      <Stack.Screen name='User' options={{ headerShown: false }}>
+        {(props) => {
+          return <UserWithNavigation 
+            {...props} 
+            {...passedProps} 
+            origin={props.route.params ? props.route.params.origin : null}
+          />
+        }}
+      </Stack.Screen>
+      <Stack.Screen name='Edit User' component={EditUser} options={{
+        headerTitleStyle: {fontFamily: 'Lexend-SemiBold'}
+      }}/>
+       <Stack.Screen
         name="Create Itinerary"
         component={CreateItinerary}
         options={{headerShown: false}}
@@ -101,8 +112,8 @@ const LStackNav = () => {
         options={{headerShown: false}}
       />
     </Stack.Navigator>
-  );
-};
+  )
+}
 
 const SearchStack = () => {
   return (

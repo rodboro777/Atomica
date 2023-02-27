@@ -7,26 +7,31 @@ import { exp } from "react-native-reanimated";
 class Inputs extends Component {
     state = {isFocused: false};
 
-    onFocusChange = () => {
-        this.setState({isFocused: true})
+    onFocusChange = (v) => {
+        this.setState({isFocused: v})
     }
 
     render() {
        return (
         <View
-        style={[styles.container, {borderColor: this.state.isFocused ? '#0779ef': '#eee'}]}>
+        style={[styles.container, {
+            borderColor: this.state.isFocused ? 'black' : 'grey',
+            backgroundColor: this.state.isFocused ? 'white' : '#fafafa'
+        }]}>
         <Input 
+            onBlur={() => this.onFocusChange(false)}
             placeholder={this.props.name}
-            onFocus={this.onFocusChange}
+            onFocus={() => this.onFocusChange(true)}
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.inputText}
             secureTextEntry={this.props.pass}
             onChangeText={this.props.onChangeText}
+            
             leftIcon= {
                 <Icon
                     name={this.props.icon}
                     size={22}
-                    color={this.state.isFocused ? '#0779e4': 'grey'}
+                    color={'black'}
                 />
             }
         />
@@ -41,15 +46,15 @@ const styles = StyleSheet.create({
         width: '90%',
         height: 50,
         borderRadius: 100,
-        marginVertical: 10,
-        borderWidth: 3.5
+        marginBottom: 20,
+        borderWidth: 3,
     },
     inputContainer: {
         borderBottomWidth: 0
     },
     inputText: {
-        color: '#0779e4',
-        fontWeight: 'bold',
+        color: 'black',
+        fontFamily: 'Lexend-Regular',
         marginLeft: 5
     }
 
