@@ -20,8 +20,6 @@ export default function TravelGuide({
 
     function handleAudioButtonPress() {
       if (!currentPlayingTG || currentPlayingTG != travelGuideId) {
-        console.log(currentPlayingTG);
-        console.log(travelGuideId);
         setPaused(false);
         setCurrentPlayingTG(travelGuideId);
         SoundPlayer.stop();
@@ -57,34 +55,33 @@ export default function TravelGuide({
           }}
         />
         <View style={{flexDirection: 'row'}}>
-          <Text style={{
-              flex: 6,
-              marginTop:5 ,
-              marginBottom: 5,
-              fontFamily: 'Lexend-SemiBold',
-              fontSize: 18,
-              color: 'black',
-            }}>{name}</Text>
+          <View style={{flex: 6, marginTop: 5, marginBottom: 5}}>
+            <Text style={{
+                fontFamily: 'Lexend-SemiBold',
+                fontSize: 18,
+                color: 'black',
+              }}>{name}</Text>
+            <View style={{flexDirection: 'row', marginTop: 5}}>
+              <Icon name="clock-time-eight" color="black" size={25}/>
+                <Text style={{
+                    marginBottom: 1,
+                    fontFamily: 'Lexend-SemiBold',
+                    fontSize: 16,
+                    color: 'black',
+                  }}> {formattedAudioLength}</Text>
+            </View>
+          </View>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
             <Icon name={currentPlayingTG != travelGuideId ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
           </TouchableOpacity>
         </View>
-        <View style={{flexDirection: 'row'}}>
-        <Icon name="clock-time-eight" color="black" size={25}/>
           <Text style={{
-              marginBottom: 1,
-              fontFamily: 'Lexend-SemiBold',
-              fontSize: 16,
-              color: 'black',
-            }}> {formattedAudioLength}</Text>
+                marginTop:5,
+                marginBottom: 10,
+                fontFamily: 'Lexend-Regular',
+                fontSize: 16,
+                color: 'black',
+              }}>{description}</Text>
         </View>
-        <Text style={{
-              marginTop:5,
-              marginBottom: 10,
-              fontFamily: 'Lexend-Regular',
-              fontSize: 16,
-              color: 'black',
-            }}>{description}</Text>
-      </View>
     )
 }

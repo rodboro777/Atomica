@@ -13,11 +13,14 @@ import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
 import ip from './ip';
+import { withNavigation } from '@react-navigation/compat';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const UserWithNavigation = withNavigation(User);
 
 function MyTabs() {
   const [userId, setUserId] = useState(null);
@@ -96,7 +99,7 @@ const UStackNav = (passedProps) => {
     <Stack.Navigator initialRouteName='User'>
       <Stack.Screen name='User' options={{ headerShown: false }}>
         {(props) => {
-          return <User {...props} {...passedProps}/>
+          return <UserWithNavigation {...props} {...passedProps}/>
         }}
       </Stack.Screen>
       <Stack.Screen name='Edit User' component={EditUser} options={{

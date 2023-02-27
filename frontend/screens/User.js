@@ -1,24 +1,51 @@
 import { View, SafeAreaView, StyleSheet, FlatList, Image, TouchableOpacity, Text } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {
-    Avatar,
-    Title,
-    Caption,
-    TouchableRipple,
-  } from 'react-native-paper';
 import { Button } from "@react-native-material/core";
   
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
 import ip from '../ip.json';
 import TravelGuide from '../components/TravelGuide';
+import Itinerary from '../components/Itinerary';
+import UserInfoSection from '../components/UserInfoSection';
+import ContentFilter from '../components/ContentFilter';
 import SoundPlayer from 'react-native-sound-player';
+import {useIsFocused} from '@react-navigation/native';
+import BottomSheet from 'reanimated-bottom-sheet';
+import Animated from 'react-native-reanimated';
 
-export default function User({ownerId}) {
-  const navigation = useNavigation();
+export default function User({ownerId, navigation, route}) {
+  console.log("INFO " + ownerId);
+  console.log(route);
+  const isFocused = useIsFocused();
   function handlePress() {
     navigation.navigate('Edit User');
   }
+
+  bs = React.createRef();
+  fall = new Animated.Value(1);
+
+  renderInner = () => (
+      <View style={styles.panel}>
+        <View style={{alignItems: 'center'}}>
+          <Text style={styles.panelTitle}>Create Content</Text>
+        </View>
+        <TouchableOpacity style={styles.panelButton} onPress={() => {
+          navigation.navigate('Create TravelGuide')
+        }}>
+          <Text style={styles.panelButtonTitle}>Create Travel Guide</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.panelButton}  onPress={() => {
+          navigation.navigate('Create Itinerary', {item: {}, isEdit: false})
+        }}>
+          <Text style={styles.panelButtonTitle}>Create Itinerary</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.panelButton}
+          onPress={() => this.bs.current.snapTo(1)}>
+          <Text style={styles.panelButtonTitle}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+  );
 
   const [ownerInfo, setOwnerInfo] = useState({
     id: ownerId,
@@ -119,7 +146,7 @@ export default function User({ownerId}) {
       }
     })
 
-  }, [])
+  }, [isFocused])
 
   useEffect(() => {
     let candidateList = [...PRIMARY_SECTIONS];
@@ -127,20 +154,18 @@ export default function User({ownerId}) {
       travelGuides.forEach(travelGuide => {
         candidateList.push({
           id: travelGuide._id,
-          component: <TravelGuide 
-            imageUrl={travelGuide.imageUrl}
-            name={travelGuide.name}
-            description={travelGuide.description}
-            audioUrl={travelGuide.audioUrl}
-            audioLength={travelGuide.audioLength}
-            currentPlayingTG={currentPlayingTG}
-            setCurrentPlayingTG={setCurrentPlayingTG}
-            travelGuideId={travelGuide._id}
-          />
+          type: 'travelGuide',
+          travelGuide: travelGuide
         });
       });
     } else if (currentPage == PAGE_TYPE.ITINERARIES) {
-
+      itineraries.forEach(itinerary => {
+        candidateList.push({
+          id: itinerary._id,
+          type: 'itinerary',
+          itinerary: itinerary
+        })
+      });
     } else {
       
     }
@@ -148,183 +173,79 @@ export default function User({ownerId}) {
   }, [ownerInfo, followInfo, travelGuides, itineraries, currentPage]);
 
   useEffect(() => {
-    console.log("audio playing: " + currentPlayingTG);
-  }, [currentPlayingTG]);
+    SoundPlayer.addEventListener('FinishedPlaying', () => {
+      setCurrentPlayingTG(null);
+    });
+  }, []);
+
+  function renderItem({item}) {
+    if (item.type == 'userInfoSection') {
+      return (
+        <UserInfoSection 
+          ownerInfo={ownerInfo}
+          followInfo={followInfo}
+        />
+      )
+    } else if (item.type == 'profileButton') {
+      return (
+        <View style={{width: '100%', backgroundColor: 'white', paddingHorizontal: 30, paddingBottom: 30}}>
+          <Button title={userId === ownerId ? "Edit Profile" : "Follow"} variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
+            fontFamily: 'Lexend-Regular'
+          }}/>
+        </View>
+      )
+    } else if (item.type == 'contentFilter') {
+      return (
+        <ContentFilter 
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      )
+    } else if (item.type == 'travelGuide') {
+      return (
+        <TravelGuide 
+            imageUrl={item.travelGuide.imageUrl}
+            name={item.travelGuide.name}
+            description={item.travelGuide.description}
+            audioUrl={item.travelGuide.audioUrl}
+            audioLength={item.travelGuide.audioLength}
+            currentPlayingTG={currentPlayingTG}
+            setCurrentPlayingTG={setCurrentPlayingTG}
+            travelGuideId={item.travelGuide._id}
+        />
+      )
+    } else if (item.type == 'itinerary') {
+      return (
+        <Itinerary 
+          itineraryId={item.itinerary._id}
+          imageUrl={item.itinerary.imageUrl}
+          name={item.itinerary.name}
+          description={item.itinerary.description}
+          rating={item.itinerary.rating}
+          navigation={navigation}
+        />
+      )
+    }
+  }
 
   const PRIMARY_SECTIONS = [
     {
       id: 'userInfoSection',
-      component: <View style={styles.userInfoSection}>
-          <View style={{flex: 2, width: '20%'}}>
-            <Avatar.Image
-              source={require('../assets/avatar.png')}
-              size={85}
-            />
-          </View>
-          <View style={{marginLeft: 20, flex: 7.5}}>
-            <Text style={ {
-              color: 'black',
-              fontSize: 20,
-              fontFamily: 'Lexend-Bold',
-              marginTop: ownerInfo.country ? 0 : 10,
-              marginBottom: ownerInfo.country? 0 : 5
-            }}>{ownerInfo.fullName}</Text>
-            {ownerInfo.country && <Caption style={styles.caption}>{ownerInfo.country}</Caption>}
-            <View style={{flexDirection: 'row'}}>
-              <View style={{flexDirection: 'row', flex: 1}}>
-                <Text style={{
-                  marginTop: 10,
-                  fontSize: 18,
-                  lineHeight: 14,
-                  fontWeight: '500',
-                  color: 'black',
-                  fontFamily: 'Lexend-Bold',
-                  paddingTop: 8,
-                }}>{followInfo.numOfFollowers}</Text>
-                <Text style={{
-                  marginTop: 10,
-                  fontSize: 18,
-                  lineHeight: 14,
-                  fontWeight: '500',
-                  color: 'black',
-                  fontFamily: 'Lexend-Regular',
-                  paddingTop: 8,
-                }}> </Text>
-                <Text style={{
-                  marginTop: 10,
-                  fontSize: 18,
-                  lineHeight: 14,
-                  fontWeight: '500',
-                  color: 'black',
-                  fontFamily: 'Lexend-Regular',
-                  paddingTop: 8,
-                }}>Followers</Text>
-              </View>
-              <View style={{flexDirection: 'row', flex: 1}}>
-                <Text style={{
-                    marginTop: 10,
-                    fontSize: 18,
-                    lineHeight: 14,
-                    fontWeight: '500',
-                    color: 'black',
-                    fontFamily: 'Lexend-Bold',
-                    paddingTop: 8,
-                  }}>{followInfo.numOfFollowing}</Text>
-                  <Text style={{
-                    marginTop: 10,
-                    fontSize: 18,
-                    lineHeight: 14,
-                    fontWeight: '500',
-                    color: 'black',
-                    fontFamily: 'Lexend-Regular',
-                    paddingTop: 8,
-                  }}> </Text>
-                  <Text style={{
-                    marginTop: 10,
-                    fontSize: 18,
-                    lineHeight: 14,
-                    fontWeight: '500',
-                    color: 'black',
-                    fontFamily: 'Lexend-Regular',
-                    paddingTop: 8,
-                  }}>Following</Text>
-              </View>
-            </View>
-        </View>
-      </View>
+      type: 'userInfoSection'
     },
     {
       id: 'profileButton',
-      component: <View style={{width: '100%', backgroundColor: 'white', paddingHorizontal: 30, paddingBottom: 30}}>
-        <Button title={userId === ownerId ? "Edit Profile" : "Follow"} variant='contained' color="black" tintColor='white' onPress={() => handlePress()} titleStyle={{
-          fontFamily: 'Lexend-Regular'
-        }}/>
-      </View>
+      type: 'profileButton'
     },
     {
       id: 'contentFilter',
-      component: 
-      <View>
-        <View style={{
-          width: '100%', 
-          backgroundColor: 'white', 
-          flexDirection: 'row', 
-          borderColor: 'white', 
-          paddingHorizontal: 10,
-          paddingBottom: 10}}>
-          <View style={{flex: 1}}></View>
-          <View style={{
-                flex: 4, 
-                borderStyle: 'solid', 
-                borderStyle: 'solid',
-                borderColor: 'white',
-                borderBottomColor: 'black',
-                borderWidth: 5}}>
-            <Text style={{
-                marginTop:5 ,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                marginBottom: 13,
-                fontFamily: 'Lexend-SemiBold',
-                fontSize: 18,
-                color: 'black',
-              }}>Guides</Text>
-          </View>
-          <View style={{flex: 1}}></View>
-          <View style={{
-            flex: 4, 
-            borderStyle: 'solid', 
-            borderStyle: 'solid',
-            borderColor: 'white',
-            borderBottomColor: 'white',
-            borderWidth: 5
-            }}>
-            <Text style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                marginTop:5 ,
-                marginBottom: 13,
-                fontFamily: 'Lexend-SemiBold',
-                fontSize: 18,
-                color: '#878686',
-              }}>Itineraries</Text>
-          </View>
-          <View style={{flex: 1}}></View>
-        </View>
-          <TouchableOpacity
-            activeOpacity={0.75}
-          ><View style={{
-          backgroundColor: 'black',
-          height: 80,
-          flexDirection: 'row',
-          paddingHorizontal: 15,
-          paddingTop: 15,
-          marginBottom: 15,
-        }}>
-          <View style={{
-            flex: 1
-          }}>
-            <Icon name="plus-circle" color="white" size={50}/>
-          </View>
-          <View style={{
-            flex: 5
-          }}>
-            <Text style={{
-                  marginTop: 10,
-                  marginRight: 'auto',
-                  fontFamily: 'Lexend-SemiBold',
-                  fontSize: 18,
-                  color: 'white',
-                }}>Create Travel Guide</Text>
-          </View>
-        </View></TouchableOpacity>
-      </View>
+      type: 'contentFilter'
     }
   ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.userInfoHeader}>
+      {contentList.length >= 3 && <><View style={styles.userInfoHeader}>
           <View style={{flex: 10}}>
             <Text style={{
               marginTop:5 ,
@@ -334,17 +255,36 @@ export default function User({ownerId}) {
               color: 'black',
             }}>{ownerInfo.username}</Text>
           </View>
+          <TouchableOpacity
+            onPress={() => this.bs.current.snapTo(0)}
+          >
+            <Icon name="plus-box-outline" color="black" size={30} style={{
+              marginTop: 'auto',
+              marginBottom: 'auto'
+            }}/>
+          </TouchableOpacity>
       </View>
       <FlatList
         data={contentList}
-        renderItem={({item}) => item.component}
+        renderItem={renderItem}
         keyExtractor={item => item.id}
         bounces={false}
         alwaysBounceVertical={false}
         overScrollMode='never'
         showsVerticalScrollIndicator={false}
-        // stickyHeaderIndices={[2]}
-      />
+        stickyHeaderIndices={[2]}
+      /></>}
+      <BottomSheet
+            ref={this.bs}
+            snapPoints={[260, 0]}
+            renderContent={this.renderInner}
+            initialSnap={1}
+            callbackNode={this.fall}
+            enabledGestureInteraction={true}
+          />
+          <Animated.View style={{margin: 0,
+        opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+    }}></Animated.View>
     </SafeAreaView>
   )
 }
@@ -425,5 +365,46 @@ const styles = StyleSheet.create({
     icon: {
       height: 40,
       width: 40,
-    }
+    },
+    panel: {
+      padding: 20,
+      backgroundColor : "#f0f2f5"
+    },
+    panelHeader: {
+      alignItems: 'center',
+    },
+    panelHandle: {
+      width: 40,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#00000040',
+      marginBottom: 10,
+    },
+    panelTitle: {
+      fontSize: 27,
+      height: 35,
+      fontFamily: 'Lexend-Bold',
+      color: 'black'
+    },
+    panelSubtitle: {
+      fontSize: 14,
+      color: 'black',
+      height: 30,
+      marginBottom: 10,
+      fontFamily: 'Lexend-Regular'
+    },
+    panelButton: {
+      padding: 13,
+      borderRadius: 10,
+      backgroundColor: 'black',
+      alignItems: 'center',
+      marginVertical: 7,
+      fontFamily: 'Lexend-Regular'
+    },
+    panelButtonTitle: {
+      fontSize: 17,
+      fontFamily: 'Lexend-Regular',
+      color: 'white',
+    },
   });
+  

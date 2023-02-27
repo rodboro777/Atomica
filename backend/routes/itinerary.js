@@ -143,4 +143,20 @@ router.delete("/", async (req, res) => {
   }
 });
 
+router.get('/totalTime', async (req, res) => {
+  try {
+    const itineraryId = req.query.id;
+    const totalTime = await ItineraryManager.getTotalTime(itineraryId)
+    res.send({
+      statusCode: 200,
+      totalTime: totalTime
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500
+    });
+  }
+});
+
 module.exports = router;
