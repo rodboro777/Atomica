@@ -41,7 +41,7 @@ export default function CreateTravelGuide({navigation, route}) {
     longitudeDelta: 0.0421,
   });
 
-  const createTravelGuide = () => {
+  const createTravelGuide = async() => {
     console.log(location);
     const formData = new FormData();
     formData.append('placeId', location.placeId);
@@ -60,7 +60,7 @@ export default function CreateTravelGuide({navigation, route}) {
       formData.append('imageUrl', defaultPhotoUrl);
     }
 
-    fetch(`http://${ip.ip}:8000/travelGuide`, {
+    await fetch(`http://${ip.ip}:8000/travelGuide`, {
       credentials: 'include',
       method: 'POST',
       headers: {

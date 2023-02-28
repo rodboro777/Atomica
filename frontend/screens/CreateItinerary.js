@@ -14,6 +14,8 @@ import Done from '../assets/done.png';
 import axios from 'axios';
 import ip from '../ip';
 import upArrow from '../assets/uparrow.png';
+import DocumentPicker from 'react-native-document-picker';
+import camera from '../assets/camera.png';
 import trash from '../assets/trash.png';
 
 export default function CreateItinerary({navigation, route}) {
@@ -22,6 +24,8 @@ export default function CreateItinerary({navigation, route}) {
     title: isEdit ? item.name : '',
     travelGuides: isEdit ? item.travelGuides && item.travelGuides : [],
     description: isEdit ? item.description : '',
+    uploadedImage: null,
+    imageUrl: isEdit ? item.imageUrl : '',
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [availableTravelGuides, setAvailableTravelGuides] = useState([]);
@@ -65,24 +69,31 @@ export default function CreateItinerary({navigation, route}) {
 
   const createItinerary = async () => {
     const tgId = itinerary.travelGuides.map(tg => tg._id);
-    let data = {
-      name: itinerary.title,
-      description: itinerary.description,
-      travelGuideId: tgId,
-      rating: item.rating,
-      ratingCount: item.ratingCount,
-    };
+    const formdata = new FormData();
+    formdata.append('imageFile', itinerary.uploadedImage);
+    formdata.append('name', itinerary.title);
+    formdata.append('description', itinerary.description);
+    formdata.append('travelGuideId', JSON.stringify(tgId));
+    formdata.append('rating', item.rating);
+    formdata.append('ratingCount', item.ratingCount);
     if (isEdit) {
-      data = {
-        ...data,
-        itineraryId: item._id,
-      };
+      formdata.append('id', item._id);
+      if (itinerary.uploadedImage == null) {
+        formdata.append('imageUrl', itinerary.imageUrl);
+      }
     }
-    await axios
-      .post(`http://${ip.ip}:8000/itinerary`, data)
-      .then(res => {
+    await fetch(`http://${ip.ip}:8000/itinerary`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      method: 'POST',
+      body: formdata,
+    })
+      .then(res => res.json())
+      .then(resBody => {
         console.log('success');
-        navigation.navigate("User", {origin: "CreateItinerary"});
+        navigation.navigate('User', {origin: 'CreateItinerary'});
       })
       .catch(err => {
         console.log(err);
@@ -105,14 +116,12 @@ export default function CreateItinerary({navigation, route}) {
     }
   }, []);
   async function handleDelete(id) {
-    console.log('HI');
     fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
       credentials: 'include',
       method: 'DELETE',
     })
       .then(res => res.json())
       .then(resBody => {
-        console.log('HI');
         navigation.navigate('User');
       })
       .catch(err => {
@@ -319,11 +328,82 @@ export default function CreateItinerary({navigation, route}) {
       />
       <View
         style={{
+          flexDirection: 'row',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            backgroundColor: 'white',
+            height: 60,
+            width: '35%',
+            borderRadius: 20,
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            padding: 10,
+          }}
+          activeOpacity={0.5}
+          onPress={async () => {
+            try {
+              const result = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+              });
+              console.log(result[0]);
+              setItinerary({
+                ...itinerary,
+                uploadedImage: result[0],
+              });
+            } catch (error) {
+              console.log(error);
+            }
+          }}>
+          <Image
+            source={camera}
+            style={{
+              tintColor: 'black',
+              width: 25,
+              height: 25,
+            }}
+          />
+          <Text
+            style={{
+              color: 'black',
+              fontFamily: 'Lexend-Light',
+            }}>
+            Upload Image
+          </Text>
+        </TouchableOpacity>
+        {isEdit
+          ? itinerary.imageUrl !== ''
+          : itinerary.uploadedImage && (
+              <Image
+                source={{
+                  uri:
+                    itinerary.imageUrl !== ''
+                      ? itinerary.imageUrl
+                      : itinerary.uploadedImage.uri,
+                }}
+                style={{
+                  width: 180,
+                  height: 100,
+                  borderRadius: 20,
+                  resizeMode: 'cover',
+                }}
+              />
+            )}
+      </View>
+      <View
+        style={{
           justifyContent: 'center',
           alignContent: 'center',
           alignItems: 'center',
           marginTop: 30,
           padding: 10,
+          flexDirection: 'row',
+          justifyContent: 'space-around',
         }}>
         <TouchableOpacity
           style={styles.buttonDONEStyle}
@@ -342,7 +422,6 @@ export default function CreateItinerary({navigation, route}) {
           <TouchableOpacity
             style={{
               ...styles.buttonDONEStyle,
-              marginTop: 10,
               backgroundColor: 'black',
             }}
             activeOpacity={0.5}
@@ -414,15 +493,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   buttonItiStyle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#485a96',
-    borderWidth: 0.5,
-    borderColor: '#fff',
-    height: 40,
-    borderRadius: 5,
-    margin: 5,
-    marginTop: 10,
+    borderWidth: 1,
+    width: '35%',
+    height: 60,
   },
   buttonImageIconStyle: {
     height: 30,
