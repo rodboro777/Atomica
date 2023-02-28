@@ -38,7 +38,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-
 router.post("/byIds", async (req, res) => {
   const ids = req.body;
   if (!ids) {
@@ -70,9 +69,8 @@ router.get("/byLocation", async (req, res) => {
   }
 
   try {
-    const results = await TravelGuideManager.getTravelGuidesAndItinerariesByPlaceId(
-      placeId
-    );
+    const results =
+      await TravelGuideManager.getTravelGuidesAndItinerariesByPlaceId(placeId);
     res.send({
       results: results,
     });
@@ -88,14 +86,24 @@ router.get("/byCreator", async (req, res) => {
   const creatorId = req.query.creatorId;
 
   try {
-    const travelGuides = await TravelGuideManager.getTravelGuidesByUser(creatorId);
+    const travelGuides = await TravelGuideManager.getTravelGuidesByUser(
+      creatorId
+    );
 
     let pendingTravelGuides = [];
     let rejectedTravelGuides = [];
 
     if (req.session.user._id == creatorId) {
-      pendingTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(creatorId, TravelGuideRequestModel.STATUS.PENDING);
-      rejectedTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(creatorId, TravelGuideRequestModel.STATUS.REJECTED);
+      pendingTravelGuides =
+        await TravelGuideManager.getTravelGuideRequestsByUser(
+          creatorId,
+          TravelGuideRequestModel.STATUS.PENDING
+        );
+      rejectedTravelGuides =
+        await TravelGuideManager.getTravelGuideRequestsByUser(
+          creatorId,
+          TravelGuideRequestModel.STATUS.REJECTED
+        );
     }
 
     res.send({
@@ -126,8 +134,16 @@ router.get("/byUser", async (req, res) => {
 
   try {
     const travelGuides = await TravelGuideManager.getTravelGuidesByUser(userId);
-    const pendingTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(userId, TravelGuideRequestModel.STATUS.PENDING);
-    const rejectedTravelGuides = await TravelGuideManager.getTravelGuideRequestsByUser(userId, TravelGuideRequestModel.STATUS.REJECTED);
+    const pendingTravelGuides =
+      await TravelGuideManager.getTravelGuideRequestsByUser(
+        userId,
+        TravelGuideRequestModel.STATUS.PENDING
+      );
+    const rejectedTravelGuides =
+      await TravelGuideManager.getTravelGuideRequestsByUser(
+        userId,
+        TravelGuideRequestModel.STATUS.REJECTED
+      );
     res.send({
       travelGuides: travelGuides,
       pendingTravelGuides: pendingTravelGuides,
@@ -148,11 +164,12 @@ router.get("/applications", async (req, res) => {
   if (!req.query.status) {
     res.send({
       travelGuidesRequests: [],
-    })
+    });
   }
 
-  const travelGuidesRequests =
-    await TravelGuideManager.getTravelGuideRequests(req.query.status);
+  const travelGuidesRequests = await TravelGuideManager.getTravelGuideRequests(
+    req.query.status
+  );
   res.send({
     travelGuidesRequests: travelGuidesRequests,
   });
@@ -167,9 +184,15 @@ router.post("/applicationAction", async (req, res) => {
   const reviewerComment = req.body.reviewerComment;
   try {
     if (approve) {
-      await TravelGuideManager.approveTravelGuideRequest(requestId, reviewerComment);
+      await TravelGuideManager.approveTravelGuideRequest(
+        requestId,
+        reviewerComment
+      );
     } else {
-      await TravelGuideManager.rejectTravelGuideRequest(requestId, reviewerComment);
+      await TravelGuideManager.rejectTravelGuideRequest(
+        requestId,
+        reviewerComment
+      );
     }
     res.send({
       statusCode: 200,
@@ -187,20 +210,20 @@ router.post(
   upload.fields([{ name: "audio" }, { name: "image" }]),
   async (req, res) => {
     try {
-      const mm = await import('music-metadata');
+      const mm = await import("music-metadata");
       console.log(req.body);
       const audio = req.files.audio[0];
       const metadata = await mm.parseBuffer(audio.buffer, audio.mimetype);
       const duration = metadata.format.duration;
       // upload the audio
-      const id = crypto.randomBytes(64).toString('hex');
+      const id = crypto.randomBytes(64).toString("hex");
       const audioUrl = await GCSManager.uploadAudio(
         req.files.audio[0],
         `tg-audio-${id}`
       );
 
       // upload the image
-      let imageUrl = '';
+      let imageUrl = "";
       if (req.body.imageUrl) {
         imageUrl = req.body.imageUrl;
       } else {
