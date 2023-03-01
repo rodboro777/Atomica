@@ -6,6 +6,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import Map from './screens/Map';
+import NewMap from './screens/NewMap';
 import Library from './screens/Library';
 import PlacesAutoComplete from './components/PlacesAutoComplete';
 import CreateItinerary from './screens/CreateItinerary';
@@ -45,7 +46,7 @@ function MyTabs() {
     }, tabBarLabelStyle: {
       fontWeight: "bold"
     }}}>
-      <Tab.Screen name="Home" component={Map} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
+      <Tab.Screen name="Home" component={NewMap} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
         return (
          <Image 
           source={require("./assets/home.png")}
