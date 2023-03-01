@@ -10,6 +10,7 @@ class Itinerary {
       const isPublic = build.isPublic;
       const rating = build.rating;
       const ratingCount = build.ratingCount;
+      const imageUrl = build.imageUrl;
 
       Object.defineProperties(this, {
         name: {
@@ -36,10 +37,14 @@ class Itinerary {
           value: rating,
           writable: false,
         },
-        ratingCount:{
+        ratingCount: {
           value: ratingCount,
           writable: false,
-        }
+        },
+        imageUrl: {
+          value: imageUrl,
+          writable: false,
+        },
       });
     }
   }
@@ -79,6 +84,10 @@ class Itinerary {
       }
       setRatingCount(ratingCount) {
         this.ratingCount = ratingCount;
+        return this;
+      }
+      setImageUrl(imageUrl) {
+        this.imageUrl = imageUrl;
         return this;
       }
       build() {

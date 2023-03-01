@@ -77,6 +77,7 @@ class ItineraryManager {
       public: itinerary.isPublic,
       rating: itinerary.rating,
       ratingCount: itinerary.ratingCount,
+      imageUrl: itinerary.imageUrl,
     };
   }
 

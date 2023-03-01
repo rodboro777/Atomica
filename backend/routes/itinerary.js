@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const ItineraryManager = require("../db_managers/ItineraryManager");
 const Itinerary = require("../entities/Itinerary");
+const multer = require("multer");
+const GCSManager = require("../GCS_manager");
+const upload = multer();
+const crypto = require("crypto");
 
 router.use((err, req, res, next) => {
   if (req.session.user) {
@@ -94,15 +98,24 @@ router.get("/byUser", async (req, res) => {
 });
 
 // This route serves the function of creating and updating an itinerary.
-router.post("/", async (req, res) => {
+router.post("/", upload.fields([{ name: "imageFile" }]), async (req, res) => {
+  const id = crypto.randomBytes(64).toString("hex");
+  let imageUrl = "";
+  if (req.body.imageUrl) {
+    imageUrl = req.body.imageUrl;
+  } else {
+    (imageUrl = await GCSManager.uploadAudio(req.files.imageFile[0], id)),
+      `iti-image-${id}`;
+  }
   let itinerary = new Itinerary.Builder()
     .setName(req.body.name)
     .setDescription(req.body.description)
     .setCreatorId(req.body.creatorId ? req.body.creatorId : req.session.user._id)
-    .setTravelGuideId(req.body.travelGuideId)
+    .setTravelGuideId(JSON.parse(req.body.travelGuideId))
     .setPublic(req.body.public)
     .setRating(req.body.itineraryId ? req.body.rating : 0)
     .setRatingCount(req.body.itineraryId ? req.body.ratingCount : 0)
+    .setImageUrl(imageUrl)
     .build();
 
   try {
@@ -144,18 +157,18 @@ router.delete("/", async (req, res) => {
   }
 });
 
-router.get('/totalTime', async (req, res) => {
+router.get("/totalTime", async (req, res) => {
   try {
     const itineraryId = req.query.id;
-    const totalTime = await ItineraryManager.getTotalTime(itineraryId)
+    const totalTime = await ItineraryManager.getTotalTime(itineraryId);
     res.send({
       statusCode: 200,
-      totalTime: totalTime
+      totalTime: totalTime,
     });
   } catch (err) {
     console.log(err);
     res.send({
-      statusCode: 500
+      statusCode: 500,
     });
   }
 });
