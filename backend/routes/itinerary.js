@@ -57,6 +57,7 @@ router.get("/byCreator", async (req, res) => {
 
   try {
     const itineraries = await ItineraryManager.getItinerariesByUser(creatorId);
+    console.log(itineraries);
     res.send({
       statusCode: 200,
       itineraries: itineraries,
@@ -97,7 +98,7 @@ router.post("/", async (req, res) => {
   let itinerary = new Itinerary.Builder()
     .setName(req.body.name)
     .setDescription(req.body.description)
-    .setCreatorId(req.session.user._id)
+    .setCreatorId(req.body.creatorId ? req.body.creatorId : req.session.user._id)
     .setTravelGuideId(req.body.travelGuideId)
     .setPublic(req.body.public)
     .setRating(req.body.itineraryId ? req.body.rating : 0)
