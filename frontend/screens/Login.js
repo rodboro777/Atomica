@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Text, Image, ScrollView} from 'react-native';
+import {View, StyleSheet, Text, Image, ScrollView, Alert} from 'react-native';
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import Geolocation from '@react-native-community/geolocation';
 import {useNavigation} from '@react-navigation/native';
 import ip from '../ip';
 
@@ -12,6 +13,15 @@ import Submit from '../components/Submit';
 import Account from '../components/Account';
 
 const Login = props => {
+  const [authorizedGeolocation, setAuthorizedGeolocation] = useState(false);
+  Geolocation.requestAuthorization(
+    () => {
+      setAuthorizedGeolocation(true);
+    },
+    (err) => {
+      Alert.alert('Failed to get geolocation permission. Guidify needs geolocation permission to run.');
+    }
+  );
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -80,7 +90,7 @@ const Login = props => {
 
   return (
     <ScrollView style={{backgroundColor: 'white'}}>
-      <View style={styles.container}>
+      {authorizedGeolocation && <View style={styles.container}>
         <Image
           source={require('../assets/guidify_logo.png')}
           resizeMode={'contain'}
@@ -124,7 +134,7 @@ const Login = props => {
             Sign Up
           </Text>
         </View>
-      </View>
+      </View>}
     </ScrollView>
   );
 };

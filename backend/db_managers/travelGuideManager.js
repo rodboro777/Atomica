@@ -189,6 +189,29 @@ class TravelGuideManager {
       throw err;
     }
   }
+
+  static async getTravelGuidesAndItinerariesByPlaceIds(placeIds) {
+    try {
+      const docs = await TravelGuideModel.aggregate([
+        {
+          $match: {
+            placeId: {$in: placeIds},
+          },
+        },
+        {
+          $lookup: {
+            from: "itineraries",
+            localField: "_id",
+            foreignField: "travelGuideId",
+            as: "itineraries",
+          },
+        },
+      ]);
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = TravelGuideManager;
