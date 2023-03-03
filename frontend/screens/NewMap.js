@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {StyleSheet, FlatList, SafeAreaView, View, Text, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MapView, {Marker} from 'react-native-maps';
@@ -9,6 +9,9 @@ import {Dimensions} from 'react-native';
 import ip from '../ip';
 import ContentsWithinAreaContent from '../components/home/bottomSheetContent/ContentsWithinArea';
 import ContentsWithinAreaHeader from '../components/home/bottomSheetHeader/ContentsWithinArea';
+import Searchbar from '../components/home/Searchbar';
+import ContentsForLocationHeader from '../components/home/bottomSheetHeader/ContentsForLocation';
+import ContentsForLocationContent from '../components/home/bottomSheetContent/ContentsForLocation';
 
 export default function NewMap({navigation}) {
     const [region, setRegion] = useState(null);
@@ -52,6 +55,16 @@ export default function NewMap({navigation}) {
           windowWidth={windowWidth}
           windowHeight={windowHeight}
         />
+      } else if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION) {
+        return <ContentsForLocationContent 
+          currentPage={currentPage}
+          locationsWithinFrame={locationsWithinFrame}
+          navigation={navigation}
+          handleUpOverScrollModal={handleUpOverScrollModal}
+          locationPlaceId={selectedLocation.placeId}
+          windowWidth={windowWidth}
+          windowHeight={windowHeight}
+        />
       }
     };
 
@@ -60,6 +73,12 @@ export default function NewMap({navigation}) {
         return <ContentsWithinAreaHeader 
           currentPage={currentPage}
           locationsWithinFrame={locationsWithinFrame}
+        />
+      } else if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION) {
+        return <ContentsForLocationHeader 
+          locationName={selectedLocation.name}
+          locationImageUrl={selectedLocation.imageUrl}
+          sheetRef={sheetRef}
         />
       }
     }
@@ -70,8 +89,8 @@ export default function NewMap({navigation}) {
           style={{
             backgroundColor: 'white',
             paddingBottom: 10,
-            height: windowHeight - 190,
-            zIndex: 1
+            height: currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 180 : 450,
+            zIndex: 1,
           }}
         >
           {getContentBasedOnBottomSheetType()}
@@ -95,7 +114,7 @@ export default function NewMap({navigation}) {
 
     // Modal is being overscrolled upwards, hence, close the modal.
     const handleUpOverScrollModal = () => {
-      sheetRef.current.snapTo(1);
+      handleExitContentsForLocation();
     };
 
     useEffect(() => {
@@ -136,6 +155,16 @@ export default function NewMap({navigation}) {
         );
         const locations = await response.json();
         return locations;
+    };
+
+    const getImageUrlFromPhotoReference = (photoRef) => {
+      return `https://maps.googleapis.com/maps/api/place/photo?photoreference=${photoRef}&sensor=false&maxheight=500&maxwidth=500&key=${mapKey}`
+    };
+
+    const handleExitContentsForLocation = () => {
+      sheetRef.current.snapTo(2);
+      setCurrentBottomSheetType(BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA);
+      setSelectedLocation(null);
     };
 
     useEffect(() => {
@@ -181,30 +210,30 @@ export default function NewMap({navigation}) {
     return (
         <SafeAreaView style={styles.container}>
             {region && <><View style={styles.topView}>
-                <TouchableOpacity 
-                    style={styles.searchBarContainer}
-                    activeOpacity={0.8}
-                >
-                    <Icon
-                        name="magnify"
-                        color="grey"
-                        size={30}
-                        style={{
-                            marginTop: 'auto',
-                            marginBottom: 'auto',
-                        }}
-                    />
-                    <Text style={{
-                            marginTop: 'auto',
-                            marginBottom: 'auto',
-                            marginLeft: 10,
-                            fontSize: 17,
-                            fontFamily: 'Lexend-Regular',
-                            color: 'grey'
-                        }}>
-                        Search for locations...
-                    </Text>
-                </TouchableOpacity>
+            <View style={{
+              width: '85%',
+              flex: 1,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              marginTop: 20,
+              padding: 0,
+              position: 'relative'
+            }}>
+              <View style={{
+                position: 'absolute',
+                width: '100%',
+                height: 500,
+              }}>
+                <Searchbar 
+                  getImageUrlFromPhotoReference={getImageUrlFromPhotoReference}
+                  setRegion={setRegion}
+                  mapKey={mapKey}
+                  region={region}
+                  setSelectedLocation={setSelectedLocation}
+                  setCurrentBottomSheetType={setCurrentBottomSheetType}
+                />
+              </View>
+            </View>
                 <View style={styles.tabsContainer}>
                     <View></View>
                     <TouchableOpacity 
@@ -263,40 +292,86 @@ export default function NewMap({navigation}) {
                 onRegionChangeComplete={handleRegionChange}
                 style={styles.map}
             >
-                {Object.keys(locationsWithinFrame).map(place_id => {
-                  const location = locationsWithinFrame[place_id];
-                  if ((currentPage == PAGE_TYPE.GUIDES && location.travelGuides && location.travelGuides.length > 0) || (currentPage == PAGE_TYPE.ITINERARIES && location.itineraries && location.itineraries.length > 0)) {
-                    return (<Marker
-                      onPress={() => setSelectedLocation(place_id)}
-                      key={place_id}
-                      coordinate={{
-                        latitude: location.latitude,
-                        longitude: location.longitude
-                      }}
-                      // title={location.name}
-                    >
-                      <Image
-                        source={selectedLocation == place_id ? require('../assets/map-marker-white.png') : require('../assets/map-marker-black.png')}
-                        style={{width: 45, height: 59}}
-                        resizeMode="center"
-                        resizeMethod="scale"
-                      />
-                    </Marker>)
-                  }
-                })}
+                {
+                  currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? 
+                  Object.keys(locationsWithinFrame).map(place_id => {
+                    const location = locationsWithinFrame[place_id];
+                    if ((currentPage == PAGE_TYPE.GUIDES && location.travelGuides && location.travelGuides.length > 0) || (currentPage == PAGE_TYPE.ITINERARIES && location.itineraries && location.itineraries.length > 0)) {
+                      return (<Marker
+                        onPress={async () => {
+                          // Get image info.
+                          const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?placeid=${place_id}&key=${mapKey}`);
+                          const placeInfo = await response.json();
+                          let imageUrl = 'https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png';
+                          if (placeInfo.result && placeInfo.result.photos && placeInfo.result.photos.length > 0) {
+                            imageUrl = getImageUrlFromPhotoReference(placeInfo.result.photos[0].photo_reference)
+                          }
+
+                          setSelectedLocation({
+                            placeId: place_id,
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            imageUrl: imageUrl,
+                            name: location.name
+                          });
+                          setCurrentBottomSheetType(BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION);
+                        }}
+                        key={place_id}
+                        coordinate={{
+                          latitude: location.latitude,
+                          longitude: location.longitude
+                        }}
+                        // title={location.name}
+                      >
+                        <Image
+                          source={require('../assets/map-marker-black.png')}
+                          style={{width: 45, height: 59}}
+                          resizeMode="center"
+                          resizeMethod="scale"
+                        />
+                      </Marker>)
+                    }
+                  }) : selectedLocation && <Marker 
+                    onPress={(() => {
+                      handleExitContentsForLocation();
+                    })}
+                    key={selectedLocation.placeId}
+                    coordinate={{
+                      latitude: selectedLocation.latitude,
+                      longitude: selectedLocation.longitude
+                    }}
+                  >
+                    <Image
+                          source={require('../assets/map-marker-white.png')}
+                          style={{width: 45, height: 59}}
+                          resizeMode="center"
+                          resizeMethod="scale"
+                    />
+                  </Marker>
+                }
             </MapView>
             
             <BottomSheet
                 style={{zIndex: 1}}
                 ref={sheetRef}
-                snapPoints={[windowHeight - 140, 80]}
-                initialSnap={1}
+                snapPoints={[
+                  currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 140 : windowHeight - 180, 
+                  300, 
+                  80
+                ]}
+                initialSnap={2}
                 renderContent={renderBottomSheetContent}
                 backdropComponent={renderBottomSheetBackdrop}
                 renderHeader={renderBottomSheetHeader}
                 overdragResistanceFactor={false}
                 enabledInnerScrolling={true}
                 enabledContentGestureInteraction={false}
+                onCloseEnd={() => {
+                  // BottomSheet is being closed. If the current bottomsheet type
+                  // is BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION, we need to toggle
+                  // it.
+                  handleExitContentsForLocation();
+                }}
             /></>}
         </SafeAreaView>
     )
@@ -312,7 +387,7 @@ const styles = StyleSheet.create({
         height: 130,
         width: '100%',
         flexDirection: 'column',
-        zIndex: 10000000
+        zIndex: 1000
     },
     searchBarContainer: {
         backgroundColor: 'white',

@@ -33,7 +33,6 @@ export default function User({ownerId, navigation, origin, route}) {
   function handlePress() {
     navigation.navigate('Edit User', {ownerInfo: ownerInfo});
   }
-
   bs = React.createRef();
   fall = new Animated.Value(1);
 
@@ -325,7 +324,7 @@ export default function User({ownerId, navigation, origin, route}) {
       {contentList.length >= 3 && (
         <>
           <View style={styles.userInfoHeader}>
-            {ownerId != userId && <TouchableOpacity 
+            {origin && <TouchableOpacity 
             style={{
               flex: 1.5
             }}
@@ -356,7 +355,7 @@ export default function User({ownerId, navigation, origin, route}) {
                 {ownerInfo.username}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+            {origin == null &&<TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
               <Icon
                 name="plus-box-outline"
                 color="black"
@@ -366,7 +365,7 @@ export default function User({ownerId, navigation, origin, route}) {
                   marginBottom: 'auto',
                 }}
               />
-            </TouchableOpacity>
+            </TouchableOpacity>}
           </View>
           <FlatList
             data={contentList}

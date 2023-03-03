@@ -28,7 +28,6 @@ export default function ContentsWithinAreaContent({
     }
 
     useEffect(() => {        
-        // based on the current page, count the number of contents.
         let memo = new Set();
         let uniqueContents = [];
         Object.keys(locationsWithinFrame).forEach(placeId => {
