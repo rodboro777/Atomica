@@ -46,7 +46,7 @@ function MyTabs() {
     }, tabBarLabelStyle: {
       fontWeight: "bold"
     }}}>
-      <Tab.Screen name="Home" component={NewMap} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
         return (
          <Image 
           source={require("./assets/home.png")}
@@ -65,9 +65,6 @@ function MyTabs() {
       <Tab.Screen name="UserProfile" options={{ 
         headerShown: false, 
         tabBarLabel: "",
-        params: {
-          userId: 'hahaha'
-        },
         tabBarIcon: (tabInfo) => {
          return (
                <Image
@@ -86,6 +83,15 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
+
+const HomeScreen = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Map" component={NewMap} options={{headerShown: false}}/>
+      <Stack.Screen name="UserProfile" component={User} options={{headerShown: false}} />
+    </Stack.Navigator>
+  );
+};
 
 const UStackNav = (passedProps) => {
   return(
@@ -145,7 +151,7 @@ const SearchStack = () => {
 //   );
 // };
 
-const App = () => {
+const App = (props) => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
@@ -162,6 +168,11 @@ const App = () => {
         <Stack.Screen
           name="MyTabs"
           component={MyTabs}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen 
+          name="User"
+          component={User}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

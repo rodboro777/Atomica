@@ -22,7 +22,13 @@ import {useIsFocused} from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 
-export default function User({ownerId, navigation, origin}) {
+export default function User({ownerId, navigation, origin, route}) {
+  if (route.params && route.params.origin) {
+    origin = route.params.origin;
+  }
+  if (route.params && route.params.ownerId) {
+    ownerId = route.params.ownerId;
+  }
   const isFocused = useIsFocused();
   function handlePress() {
     navigation.navigate('Edit User', {ownerInfo: ownerInfo});
@@ -262,6 +268,8 @@ export default function User({ownerId, navigation, origin}) {
           setCurrentPlayingTG={setCurrentPlayingTG}
           travelGuideId={item.travelGuide._id}
           locationName={item.travelGuide.locationName}
+          creatorId={item.travelGuide.creatorId}
+          isUserProfilePage={true}
         />
       );
     } else if (item.type == 'itinerary') {
@@ -273,6 +281,8 @@ export default function User({ownerId, navigation, origin}) {
           description={item.itinerary.description}
           rating={item.itinerary.rating}
           navigation={navigation}
+          creatorId={item.itinerary.creatorId}
+          isUserProfilePage={true}
         />
       );
     } else if (item.type == 'application') {
@@ -289,6 +299,7 @@ export default function User({ownerId, navigation, origin}) {
           status={item.application.status}
           reviewerComment={item.application.reviewerComment}
           locationName={item.application.locationName}
+          creatorId={item.application.creatorId}
         />
       );
     }
@@ -314,6 +325,25 @@ export default function User({ownerId, navigation, origin}) {
       {contentList.length >= 3 && (
         <>
           <View style={styles.userInfoHeader}>
+            {ownerId != userId && <TouchableOpacity 
+            style={{
+              flex: 1.5
+            }}
+            onPress={() => {
+              if (origin == "Home") {
+                navigation.navigate("Map");
+              }
+            }}>
+              <Icon 
+                name="keyboard-backspace"
+                color="black"
+                size={30}
+                style={{
+                  marginTop: 'auto',
+                  marginBottom: 'auto'
+                }}
+              />
+            </TouchableOpacity>}
             <View style={{flex: 10}}>
               <Text
                 style={{

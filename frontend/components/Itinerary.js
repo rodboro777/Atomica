@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { View, Image, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
+import {Avatar, Title, Caption, TouchableRipple} from 'react-native-paper';
 
 export default function Itinerary({
     itineraryId,
@@ -9,9 +10,12 @@ export default function Itinerary({
     name,
     description,
     rating,
-    navigation
+    navigation,
+    isUserProfilePage,
+    creatorId
 }) {
     const [totalTime, setTotalTime] = useState(null);
+    const [creatorInfo, setCreatorInfo] = useState(null);
     const ratingMap = {
       0: 'No rating',
       1: '⭐',
@@ -20,6 +24,24 @@ export default function Itinerary({
       4: '⭐⭐⭐⭐',
       5: '⭐⭐⭐⭐⭐',
     };
+
+    useEffect(() => {
+      if (!isUserProfilePage) {
+        fetch(`http://${ip.ip}:8000/user/info?id=${creatorId}`, {
+        credentials: 'include',
+        method: 'GET',
+      })
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setCreatorInfo({
+              username: resBody.info.username,
+              imageUrl: resBody.info.imageUrl,
+            });
+          }
+        });
+      }
+    }, []);
 
     useEffect(() => {
       // Load total time for itinerary (by its travelguides.)
@@ -48,6 +70,27 @@ export default function Itinerary({
         paddingHorizontal: 15,
         paddingBottom: 15
       }}>
+        {(!isUserProfilePage && creatorInfo) && <View style={{
+          flexDirection: 'row'
+        }}>
+          <TouchableOpacity>
+            <Avatar.Image source={{uri: creatorInfo.imageUrl}} size={40} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text
+              style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+                marginLeft: 10,
+                fontFamily: 'Lexend-SemiBold',
+                color: 'black',
+                fontSize: 17
+              }}
+            >
+              {creatorInfo && creatorInfo.username}
+            </Text>
+          </TouchableOpacity>
+        </View>}
         <Image 
           source={{uri: imageUrl}}
           style={{
@@ -55,7 +98,8 @@ export default function Itinerary({
             width: '100%',
             height: 200,
             resizeMode: 'cover',
-            borderRadius: 10
+            borderRadius: 10,
+            marginTop: isUserProfilePage ? 0 : 10
           }}
         />
         <View style={{flexDirection: 'row'}}>
@@ -78,9 +122,9 @@ export default function Itinerary({
                 style={{
                   color: 'black',
                   fontSize: 16,
-                  fontFamily: 'Lexend-SemiBold'
+                  fontFamily: 'Lexend-SemiBold',
                 }}
-              >{rating ? ratingMap[rating] : 'no rating yet'}</Text>
+              >{rating ? ratingMap[Math.floor(rating)] : 'no rating yet'}</Text>
             </View>}
           </View>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}>

@@ -11,6 +11,7 @@ class UserManager {
     static async getInfoById(id) {
         const doc = await UserModel.findById(id);
         return {
+            _id: doc._id,
             username: doc.username,
             firstName: doc.firstName,
             lastName: doc.lastName,

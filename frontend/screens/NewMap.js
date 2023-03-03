@@ -7,15 +7,12 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import Geolocation from '@react-native-community/geolocation';
 import {Dimensions} from 'react-native';
 import ip from '../ip';
-import TravelGuide from '../components/TravelGuide';
-import Itinerary from '../components/Itinerary';
+import ContentsWithinAreaContent from '../components/home/bottomSheetContent/ContentsWithinArea';
+import ContentsWithinAreaHeader from '../components/home/bottomSheetHeader/ContentsWithinArea';
 
 export default function NewMap({navigation}) {
     const [region, setRegion] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
-    const [homeModalTitle, setHomeModalTitle] = useState('');
-    const [isModalTitleSpinning, setModalTitleSpinning] = useState(false);
-    const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
 
     const [locationsWithinFrame, setLocationsWithinFrame] = useState([]);
     const mapKey = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
@@ -24,99 +21,79 @@ export default function NewMap({navigation}) {
         setRegion(val);
     }
 
+    const BOTTOM_SHEET_TYPE = {
+        CONTENTS_WITHIN_AREA: 'contentsWithinArea',
+        CONTENTS_FOR_LOCATION: 'contentsForLocation'
+    };
+    const [currentBottomSheetType, setCurrentBottomSheetType] = useState(BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA);
+
     const PAGE_TYPE = {
         GUIDES: 'guides',
         ITINERARIES: 'itineraries'
     };
     const [currentPage, setCurrentPage] = useState(PAGE_TYPE.GUIDES);
+
     const sheetRef = React.useRef(null);
     const mapRef = React.useRef(null);
     const windowHeight = Dimensions.get('window').height;
 
-    const renderBackdrop = () => (
+    const renderBottomSheetBackdrop = () => (
         <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
-      );
+    );
 
-    const getCombinedTravelGuides = () => {
-      
-    };
-
-    const renderItem = (item) => {
-      if (currentPage == PAGE_TYPE.GUIDES) {
-        return(
-          <TravelGuide 
-            imageUrl={item.imageUrl}
-            name={item.name}
-            description={item.description}
-            audioUrl={item.travelGuide.audioUrl}
-            audioLength={item.travelGuide.audioLength}
-            currentPlayingTG={currentPlayingTG}
-            setCurrentPlayingTG={setCurrentPlayingTG}
-            travelGuideId={item._id}
-            locationName={item.locationName}
-          />
-        )
-      } else {
-        return (
-          <Itinerary 
-            itineraryId={item._id}
-            imageUrl={item.imageUrl}
-            name={item.name}
-            description={item.description}
-            rating={item.rating}
-            navigation={navigation}
-          />
-        )
+    const getContentBasedOnBottomSheetType = () => {
+      if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA) {
+        return <ContentsWithinAreaContent 
+          currentPage={currentPage}
+          locationsWithinFrame={locationsWithinFrame}
+          navigation={navigation}
+          handleUpOverScrollModal={handleUpOverScrollModal}
+        />
       }
     };
 
-    const renderContent = () => (
+    const getHeaderBasedOnBottomSheetType = () => {
+      if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA) {
+        return <ContentsWithinAreaHeader 
+          currentPage={currentPage}
+          locationsWithinFrame={locationsWithinFrame}
+        />
+      }
+    }
+
+    // For BottomSheet.
+    const renderBottomSheetContent = () => (
         <View
           style={{
             backgroundColor: 'white',
-            paddingTop: 10,
             paddingBottom: 10,
-            height: windowHeight - 150,
+            height: windowHeight - 190,
             zIndex: 1
           }}
         >
-          <View style={styles.stripIcon} />
-          {isModalTitleSpinning ? 
-          <ActivityIndicator 
-            size="large" color="black"
-            style={{
-              marginTop: 15
-            }}
-          /> : 
-          <Text style={{
-            fontFamily: 'Lexend-SemiBold',
-            fontSize: 16,
-            color: 'black',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginTop: 15,
-            textAlign: 'center'
-          }}>{homeModalTitle}</Text>}
-          <View style={{
-            flex: 1,
-            width: '100%',
-            marginTop: 20
-          }}>
-            <FlatList 
-              bounces={false}
-              overScrollMode="never"
-              showsVerticalScrollIndicator={false}
-              data={
-                currentPage == PAGE_TYPE.GUIDES ? 
-                locationsWithinFrame[selectedLocation].travelGuides :
-                locationsWithinFrame[selectedLocation].itineraries
-              }
-              keyExtractor={item => item._id}
-              renderItem={renderItem}
-            />
-          </View>
+          {getContentBasedOnBottomSheetType()}
         </View>
     );
+
+    const renderBottomSheetHeader = () => (
+      <View
+          style={{
+            backgroundColor: 'white',
+            paddingTop: 10,
+            zIndex: 1,
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+          }}
+        >
+          <View style={styles.stripIcon} />
+          {getHeaderBasedOnBottomSheetType()}
+        </View>
+    );
+
+    // Modal is being overscrolled upwards, hence, close the modal.
+    const handleUpOverScrollModal = () => {
+      sheetRef.current.snapTo(1);
+    };
 
     useEffect(() => {
       // get user position and set region to focus on user's position.
@@ -197,40 +174,6 @@ export default function NewMap({navigation}) {
             })
         }
     }, [region]);
-
-    useEffect(() => {
-      setModalTitleSpinning(true);
-      
-      // based on the current page, count the number of contents.
-      let memo = new Set();
-      let total = 0;
-      Object.keys(locationsWithinFrame).forEach(placeId => {
-        let contents = [];
-        if (currentPage == PAGE_TYPE.GUIDES) {
-          contents = locationsWithinFrame[placeId].travelGuides;
-        } else {
-          contents = locationsWithinFrame[placeId].itineraries;
-        }
-
-        if (contents) {
-          for (let i = 0; i < contents.length; i++) {
-            let content = contents[i];
-            if (!(content._id in memo)) {
-              memo.add(content._id);
-              total += 1;
-            }
-          }
-        }
-      });
-
-      if (currentPage == PAGE_TYPE.GUIDES) {
-        setHomeModalTitle(`${total} travel guides in this area`)
-      } else {
-        setHomeModalTitle(`${total} itineraries in this area`)
-      }
-
-      setModalTitleSpinning(false);
-    }, [locationsWithinFrame, currentPage]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -343,12 +286,14 @@ export default function NewMap({navigation}) {
             <BottomSheet
                 style={{zIndex: 1}}
                 ref={sheetRef}
-                snapPoints={[windowHeight - 150, 80]}
-                borderRadius={30}
+                snapPoints={[windowHeight - 140, 80]}
                 initialSnap={1}
-                renderContent={renderContent}
-                backdropComponent={renderBackdrop}
+                renderContent={renderBottomSheetContent}
+                backdropComponent={renderBottomSheetBackdrop}
+                renderHeader={renderBottomSheetHeader}
                 overdragResistanceFactor={false}
+                enabledInnerScrolling={true}
+                enabledContentGestureInteraction={false}
             /></>}
         </SafeAreaView>
     )

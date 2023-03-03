@@ -1,0 +1,112 @@
+import React, {useEffect, useState} from 'react';
+import {FlatList} from 'react-native';
+import TravelGuide from '../../TravelGuide';
+import Itinerary from '../../Itinerary';
+import SoundPlayer from 'react-native-sound-player';
+
+export default function ContentsWithinAreaContent({
+    currentPage,
+    navigation,
+    locationsWithinFrame,
+    handleUpOverScrollModal
+}) {
+    const PAGE_TYPE = {
+        GUIDES: 'guides',
+        ITINERARIES: 'itineraries'
+    };
+
+    const [flatListContents, setFlatListContents] = useState([]);
+
+    const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+
+    const handleCloseModalByOverScrolling = () => {
+        setCurrentPlayingTG(null);
+        handleUpOverScrollModal();
+    }
+
+    useEffect(() => {        
+        // based on the current page, count the number of contents.
+        let memo = new Set();
+        let uniqueContents = [];
+        Object.keys(locationsWithinFrame).forEach(placeId => {
+          let contents = [];
+          if (currentPage == PAGE_TYPE.GUIDES) {
+            contents = locationsWithinFrame[placeId].travelGuides;
+          } else {
+            contents = locationsWithinFrame[placeId].itineraries;
+          }
+  
+          if (contents) {
+            for (let i = 0; i < contents.length; i++) {
+              let content = contents[i];
+              if (!(content._id in memo)) {
+                memo.add(content._id);
+                uniqueContents.push(content);
+              }
+            }
+          }
+        });
+
+        setFlatListContents(uniqueContents);
+  
+    }, [locationsWithinFrame, currentPage]);
+
+    useEffect(() => {
+        SoundPlayer.addEventListener('FinishedPlaying', () => {
+          setCurrentPlayingTG(null);
+        });
+    }, []);
+
+    // For FlatList.
+    const renderItem = (item) => {
+        item = item.item;
+        if (currentPage == PAGE_TYPE.GUIDES) {
+          return(
+            <TravelGuide 
+              imageUrl={item.imageUrl}
+              name={item.name}
+              description={item.description}
+              audioUrl={item.audioUrl}
+              audioLength={item.audioLength}
+              currentPlayingTG={currentPlayingTG}
+              setCurrentPlayingTG={setCurrentPlayingTG}
+              travelGuideId={item._id}
+              locationName={item.locationName}
+              creatorId={item.creatorId}
+              navigation={navigation}
+            />
+          )
+        } else {
+          return (
+            <Itinerary 
+              itineraryId={item._id}
+              imageUrl={item.imageUrl}
+              name={item.name}
+              description={item.description}
+              rating={item.rating}
+              navigation={navigation}
+              creatorId={item.creatorId}
+            />
+          )
+        }
+    };
+
+    return (
+        <FlatList 
+            onScroll={(event) => {
+                let currentOffset = event.nativeEvent.contentOffset.y;
+                if (currentOffset == 0) {
+                    handleCloseModalByOverScrolling();
+                }
+            }}
+              style={{
+                marginTop: 20,
+              }}
+              bounces={false}
+              showsVerticalScrollIndicator={false}
+              data={flatListContents}
+              keyExtractor={item => item._id}
+              renderItem={renderItem}
+        />
+    )
+}

@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { View, Image, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SoundPlayer from 'react-native-sound-player';
+import {Avatar, Title, Caption, TouchableRipple} from 'react-native-paper';
+import ip from '../ip.json';
 
 export default function TravelGuide({
     travelGuideId,
@@ -12,12 +14,16 @@ export default function TravelGuide({
     audioLength,
     currentPlayingTG,
     setCurrentPlayingTG,
-    locationName
+    locationName,
+    creatorId,
+    isUserProfilePage=false,
+    navigation
 }) {
     let secs = Math.floor(audioLength % 60);
     let mins = Math.floor(audioLength / 60);
     let formattedAudioLength = `${mins}:${secs}`;
     const [isPaused, setPaused] = useState(false);
+    const [creatorInfo, setCreatorInfo] = useState(null);
 
     function handleAudioButtonPress() {
       if (!currentPlayingTG || currentPlayingTG != travelGuideId) {
@@ -34,6 +40,25 @@ export default function TravelGuide({
       }
     }
 
+    useEffect(() => {
+      if (!isUserProfilePage) {
+        fetch(`http://${ip.ip}:8000/user/info?id=${creatorId}`, {
+        credentials: 'include',
+        method: 'GET',
+      })
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setCreatorInfo({
+              username: resBody.info.username,
+              imageUrl: resBody.info.imageUrl,
+              _id: resBody.info._id,
+            });
+          }
+        });
+      }
+    }, []);
+
     return (
         <View style={{
         backgroundColor: 'white',
@@ -45,6 +70,35 @@ export default function TravelGuide({
         paddingHorizontal: 15,
         paddingBottom: 15
       }}>
+        {(!isUserProfilePage && creatorInfo) && <View style={{
+          flexDirection: 'row'
+        }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorInfo._id});
+            }}
+          >
+            <Avatar.Image source={{uri: creatorInfo.imageUrl}} size={40} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorInfo._id});
+            }}
+          >
+            <Text
+              style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+                marginLeft: 10,
+                fontFamily: 'Lexend-SemiBold',
+                color: 'black',
+                fontSize: 17
+              }}
+            >
+              {creatorInfo && creatorInfo.username}
+            </Text>
+          </TouchableOpacity>
+        </View>}
         <Image 
           source={{uri: imageUrl}}
           style={{
@@ -52,7 +106,8 @@ export default function TravelGuide({
             width: '100%',
             height: 200,
             resizeMode: 'cover',
-            borderRadius: 10
+            borderRadius: 10,
+            marginTop: isUserProfilePage ? 0 : 10
           }}
         />
         <View style={{flexDirection: 'row'}}>
