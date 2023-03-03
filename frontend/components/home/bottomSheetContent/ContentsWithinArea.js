@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, TouchableOpacity, Text, View} from 'react-native';
 import TravelGuide from '../../TravelGuide';
 import Itinerary from '../../Itinerary';
 import SoundPlayer from 'react-native-sound-player';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function ContentsWithinAreaContent({
     currentPage,
     navigation,
     locationsWithinFrame,
-    handleUpOverScrollModal
+    handleUpOverScrollModal,
+    windowWidth,
+    windowHeight
 }) {
     const PAGE_TYPE = {
         GUIDES: 'guides',
@@ -92,21 +95,64 @@ export default function ContentsWithinAreaContent({
     };
 
     return (
-        <FlatList 
-            onScroll={(event) => {
-                let currentOffset = event.nativeEvent.contentOffset.y;
-                if (currentOffset == 0) {
-                    handleCloseModalByOverScrolling();
-                }
-            }}
-              style={{
-                marginTop: 20,
-              }}
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-              data={flatListContents}
-              keyExtractor={item => item._id}
-              renderItem={renderItem}
-        />
+        <>
+            <FlatList 
+                onScroll={(event) => {
+                    let currentOffset = event.nativeEvent.contentOffset.y;
+                    if (currentOffset == 0) {
+                        handleCloseModalByOverScrolling();
+                    }
+                }}
+                style={{
+                    marginTop: 20,
+                }}
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+                data={flatListContents}
+                keyExtractor={item => item._id}
+                renderItem={renderItem}
+            />
+            <TouchableOpacity
+                onPress={handleCloseModalByOverScrolling}
+                activeOpacity={0.7}
+                style={{
+                    position: 'absolute',
+                    left: (windowWidth / 2) - 55,
+                    top: (windowHeight / 2) + 140,
+                    width: 110,
+                    height: 60,
+                    backgroundColor: 'black',
+                    borderRadius: 50,
+                }}
+            >
+                <View style={{
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                    flexDirection: 'row'
+                }}>
+                    <Icon 
+                        name="map"
+                        style={{
+                            color: 'white',
+                            marginTop: 'auto',
+                            marginBottom: 'auto'
+                        }}
+                        size={30}
+                    />
+                    <Text style={{
+                        color: 'white',
+                        fontFamily: 'Lexend-SemiBold',
+                        fontSize: 17,
+                        marginTop: 'auto',
+                        marginBottom: 'auto',
+                        marginLeft: 5
+                    }}>
+                        Map
+                    </Text>
+                </View>
+            </TouchableOpacity>
+        </>
     )
 }

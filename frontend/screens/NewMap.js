@@ -36,6 +36,7 @@ export default function NewMap({navigation}) {
     const sheetRef = React.useRef(null);
     const mapRef = React.useRef(null);
     const windowHeight = Dimensions.get('window').height;
+    const windowWidth = Dimensions.get('window').width;
 
     const renderBottomSheetBackdrop = () => (
         <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
@@ -48,6 +49,8 @@ export default function NewMap({navigation}) {
           locationsWithinFrame={locationsWithinFrame}
           navigation={navigation}
           handleUpOverScrollModal={handleUpOverScrollModal}
+          windowWidth={windowWidth}
+          windowHeight={windowHeight}
         />
       }
     };
