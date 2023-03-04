@@ -29,7 +29,7 @@ export default function ContentsWithinAreaContent({
         handleUpOverScrollModal();
     }
 
-    useEffect(() => {        
+    useEffect(() => {
         let memo = new Set();
         let uniqueContents = [];
         Object.keys(locationsWithinFrame).forEach(placeId => {
@@ -45,7 +45,10 @@ export default function ContentsWithinAreaContent({
               let content = contents[i];
               if (!(content._id in memo)) {
                 memo.add(content._id);
-                uniqueContents.push(content);
+                uniqueContents.push({
+                  ...content,
+                  type: currentPage
+                });
               }
             }
           }
@@ -59,7 +62,6 @@ export default function ContentsWithinAreaContent({
         }
 
         setFlatListContents(uniqueContents);
-  
     }, [locationsWithinFrame, currentPage]);
 
     useEffect(() => {
@@ -79,6 +81,10 @@ export default function ContentsWithinAreaContent({
               }}
             />
           )
+        }
+
+        if (item.type && item.type != currentPage) {
+          return;
         }
 
         if (currentPage == PAGE_TYPE.GUIDES) {

@@ -35,12 +35,24 @@ export default function ContentsForLocationContent({
     useEffect(() => {
         if (locationPlaceId in locationsWithinFrame) {
             if (currentPage == PAGE_TYPE.GUIDES && locationsWithinFrame[locationPlaceId].travelGuides) {
-                setFlatListContents(locationsWithinFrame[locationPlaceId].travelGuides);
+                setFlatListContents(locationsWithinFrame[locationPlaceId].travelGuides.map(travelGuide => {
+                    return {
+                        ...travelGuide,
+                        type: PAGE_TYPE.GUIDES
+                    }
+                }));
             } else if (currentPage == PAGE_TYPE.ITINERARIES && locationsWithinFrame[locationPlaceId].itineraries) {
-                setFlatListContents(locationsWithinFrame[locationPlaceId].itineraries);
+                setFlatListContents(locationsWithinFrame[locationPlaceId].itineraries.map(itinerary => {
+                    return {
+                        ...itinerary,
+                        type: PAGE_TYPE.ITINERARIES
+                    }
+                }));
             }
+        } else {
+            setFlatListContents([]);
         }
-    }, [locationsWithinFrame, currentPage]);
+    }, [locationsWithinFrame, currentPage, locationPlaceId]);
 
     useEffect(() => {
         SoundPlayer.addEventListener('FinishedPlaying', () => {
@@ -51,6 +63,11 @@ export default function ContentsForLocationContent({
     // For FlatList.
     const renderItem = (item) => {
         item = item.item;
+
+        if (item.type && item.type != currentPage) {
+            return;
+        }
+
         if (currentPage == PAGE_TYPE.GUIDES) {
           return(
             <TravelGuide 
