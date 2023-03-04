@@ -6,9 +6,11 @@ import {
   Image,
   TouchableOpacity,
   Text,
+  Alert
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {Button} from '@react-native-material/core';
+import axios from "axios";
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
@@ -30,9 +32,6 @@ export default function User({ownerId, navigation, origin, route}) {
     ownerId = route.params.ownerId;
   }
   const isFocused = useIsFocused();
-  function handlePress() {
-    navigation.navigate('Edit User', {ownerInfo: ownerInfo});
-  }
   bs = React.createRef();
   fall = new Animated.Value(1);
 
@@ -87,6 +86,9 @@ export default function User({ownerId, navigation, origin, route}) {
   const [itineraries, setItineraries] = useState([]);
   const [applications, setApplications] = useState([]);
 
+  // Only use this when ownerId != userId
+  const [isFollowing, setFollowing] = useState(false);
+
   const PAGE_TYPE = {
     GUIDES: 'guides',
     ITINERARIES: 'itineraries',
@@ -95,6 +97,25 @@ export default function User({ownerId, navigation, origin, route}) {
   const [currentPage, setCurrentPage] = useState(PAGE_TYPE.GUIDES);
   const [contentList, setContentList] = useState([]);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+
+  useEffect(() => {
+    // Get Follow info of the owner.
+    fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.statusCode == 200) {
+          setFollowInfo({
+            numOfFollowers: resBody.numOfFollowers,
+            numOfFollowing: resBody.numOfFollowing,
+          });
+        } else {
+          navigation.navigate('MyTabs');
+        }
+      });
+  }, [isFollowing]);
 
   useEffect(() => {
     // Authenticate user.
@@ -130,23 +151,6 @@ export default function User({ownerId, navigation, origin, route}) {
         }
       });
 
-    // Get Follow info of the owner.
-    fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
-      credentials: 'include',
-      method: 'GET',
-    })
-      .then(res => res.json())
-      .then(resBody => {
-        if (resBody.statusCode == 200) {
-          setFollowInfo({
-            numOfFollowers: resBody.numOfFollowers,
-            numOfFollowing: resBody.numOfFollowing,
-          });
-        } else {
-          navigation.navigate('MyTabs');
-        }
-      });
-
     // Get the travel guides created by the owner.
     fetch(`http://${ip.ip}:8000/travelGuide/byCreator?creatorId=${ownerId}`, {
       credentials: 'include',
@@ -175,6 +179,21 @@ export default function User({ownerId, navigation, origin, route}) {
         }
       });
   }, [isFocused]);
+
+  useEffect(() => {
+    if (userId && userId != ownerId) {
+      fetch(`http://${ip.ip}:8000/follow/isFollowing?followerId=${userId}&followedId=${ownerId}`, {
+          credentials: 'include',
+          method: 'GET',
+      })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.statusCode == 200) {
+          setFollowing(resBody.isFollowing);
+        }
+      })
+    }
+  }, [userId]);
 
   useEffect(() => {
     let candidateList = [...PRIMARY_SECTIONS];
@@ -236,7 +255,7 @@ export default function User({ownerId, navigation, origin, route}) {
             paddingBottom: 30,
           }}>
           <Button
-            title={userId === ownerId ? 'Edit Profile' : 'Follow'}
+            title={userId === ownerId ? 'Edit Profile' : isFollowing ? 'Unfollow' : 'Follow'}
             variant="contained"
             color="black"
             tintColor="white"
@@ -318,6 +337,38 @@ export default function User({ownerId, navigation, origin, route}) {
       type: 'contentFilter',
     },
   ];
+
+  async function handlePress() {
+    if (ownerId == userId) {
+      navigation.navigate('Edit User', {ownerInfo: ownerInfo});
+    } else {
+      let reqBody = {
+        followerId: userId,
+        followedId: ownerId
+      };
+      if (isFollowing) {
+        axios.post(`http://${ip.ip}:8000/follow/unfollow`, reqBody)
+        .then(res => res.data)
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setFollowing(false);
+          } else {
+            Alert.alert('Failed to do unfollow operation');
+          }
+        })
+      } else {
+        axios.post(`http://${ip.ip}:8000/follow/follow`, reqBody)
+        .then(res => res.data)
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setFollowing(true);
+          } else {
+            Alert.alert('Failed to do follow operation');
+          }
+        })
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>

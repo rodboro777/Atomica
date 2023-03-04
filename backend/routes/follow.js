@@ -13,7 +13,7 @@ router.use((err, req, res, next) => {
 
 router.get("/count", async (req, res) => {
     try {
-        const userId = req.body.userId;
+        const userId = req.query.userId;
         const numOfFollowers = await FollowManager.countFollowerOf(userId);
         const numOfFollowing = await FollowManager.countFollowingOf(userId);
         res.send({
@@ -25,6 +25,23 @@ router.get("/count", async (req, res) => {
         console.log(err);
         res.send({
             statusCode: 500
+        });
+    }
+});
+
+router.get("/isFollowing", async (req, res) => {
+    try {
+        const followerId = req.query.followerId;
+        const followedId = req.query.followedId;
+        const isFollowing = await FollowManager.isFollowing(followerId, followedId);
+        res.send({
+            statusCode: 200,
+            isFollowing: isFollowing
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            statusCode: 500,
         });
     }
 });

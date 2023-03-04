@@ -19,6 +19,7 @@ class FollowManager {
     }
 
     static async countFollowerOf(userId) {
+        console.log(userId);
         const count = await FollowModel.countDocuments({
             followedId: new ObjectID(userId),
         })
@@ -30,6 +31,14 @@ class FollowManager {
             followerId: new ObjectID(userId),
         });
         return count;
+    }
+
+    static async isFollowing(followerId, followedId) {
+        const doc = await FollowModel.findOne({
+            followerId: new ObjectID(followerId),
+            followedId: new ObjectID(followedId)
+        });
+        return doc ? true : false;
     }
 }
 

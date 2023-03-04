@@ -61,7 +61,6 @@ router.get("/byCreator", async (req, res) => {
 
   try {
     const itineraries = await ItineraryManager.getItinerariesByUser(creatorId);
-    console.log(itineraries);
     res.send({
       statusCode: 200,
       itineraries: itineraries,
