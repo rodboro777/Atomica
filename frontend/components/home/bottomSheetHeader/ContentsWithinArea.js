@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, ActivityIndicator, Text} from 'react-native';
+import {View, ActivityIndicator, Text, TouchableOpacity} from 'react-native';
 
 export default function ContentsWithinAreaHeader({
     currentPage,
-    locationsWithinFrame
+    locationsWithinFrame,
+    windowHeight,
+    windowWidth,
+    handleExitContentsForLocation
 }) {
     const [isLoading, setLoading] = useState(true);
     const PAGE_TYPE = {
@@ -65,6 +68,47 @@ export default function ContentsWithinAreaHeader({
               marginTop: 15,
               textAlign: 'center'
             }}>{title}</Text>}
+          {/* <TouchableOpacity
+                onPress={handleExitContentsForLocation}
+                activeOpacity={0.7}
+                style={{
+                    position: 'absolute',
+                    left: (windowWidth / 2) - 55,
+                    top: (windowHeight / 2) + 100,
+                    width: 110,
+                    height: 60,
+                    backgroundColor: 'black',
+                    borderRadius: 50,
+                }}
+            >
+                <View style={{
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                    flexDirection: 'row'
+                }}>
+                    <Icon 
+                        name="map"
+                        style={{
+                            color: 'white',
+                            marginTop: 'auto',
+                            marginBottom: 'auto'
+                        }}
+                        size={30}
+                    />
+                    <Text style={{
+                        color: 'white',
+                        fontFamily: 'Lexend-SemiBold',
+                        fontSize: 17,
+                        marginTop: 'auto',
+                        marginBottom: 'auto',
+                        marginLeft: 5
+                    }}>
+                        Map
+                    </Text>
+                </View>
+            </TouchableOpacity> */}
         </>
     )
 }

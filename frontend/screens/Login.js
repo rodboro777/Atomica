@@ -143,10 +143,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1
   },
   image: {
     width: 300,
-    marginVertical: 40,
+    marginVertical: 10,
   },
   textTitle: {
     fontFamily: 'Lexend-ExtraLight',

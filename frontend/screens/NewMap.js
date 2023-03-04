@@ -73,12 +73,18 @@ export default function NewMap({navigation}) {
         return <ContentsWithinAreaHeader 
           currentPage={currentPage}
           locationsWithinFrame={locationsWithinFrame}
+          windowWidth={windowWidth}
+          windowHeight={windowHeight}
+          handleExitContentsForLocation={handleExitContentsForLocation}
         />
       } else if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION) {
         return <ContentsForLocationHeader 
           locationName={selectedLocation.name}
           locationImageUrl={selectedLocation.imageUrl}
           sheetRef={sheetRef}
+          locationsWithinFrame={locationsWithinFrame}
+          locationPlaceId={selectedLocation.placeId}
+          currentPage={currentPage}
         />
       }
     }
@@ -89,7 +95,7 @@ export default function NewMap({navigation}) {
           style={{
             backgroundColor: 'white',
             paddingBottom: 10,
-            height: currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 180 : 450,
+            height: currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 180 : windowHeight - 210,
             zIndex: 1,
           }}
         >
@@ -355,7 +361,7 @@ export default function NewMap({navigation}) {
                 style={{zIndex: 1}}
                 ref={sheetRef}
                 snapPoints={[
-                  currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 140 : windowHeight - 180, 
+                  currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA ? windowHeight - 140 : windowHeight - 190, 
                   300, 
                   80
                 ]}

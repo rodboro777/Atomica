@@ -18,6 +18,8 @@ export default function ContentsWithinAreaContent({
         ITINERARIES: 'itineraries'
     };
 
+    const FILLER = 'filler';
+
     const [flatListContents, setFlatListContents] = useState([]);
 
     const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
@@ -49,6 +51,13 @@ export default function ContentsWithinAreaContent({
           }
         });
 
+        if (uniqueContents.length > 1) {
+          uniqueContents.push({
+            _id: FILLER,
+            type: FILLER
+          });
+        }
+
         setFlatListContents(uniqueContents);
   
     }, [locationsWithinFrame, currentPage]);
@@ -62,6 +71,16 @@ export default function ContentsWithinAreaContent({
     // For FlatList.
     const renderItem = (item) => {
         item = item.item;
+        if (item.type && item.type == FILLER) {
+          return (
+            <View 
+              style={{
+                height: 100
+              }}
+            />
+          )
+        }
+
         if (currentPage == PAGE_TYPE.GUIDES) {
           return(
             <TravelGuide 
@@ -117,7 +136,7 @@ export default function ContentsWithinAreaContent({
                 style={{
                     position: 'absolute',
                     left: (windowWidth / 2) - 55,
-                    top: (windowHeight / 2) + 140,
+                    bottom: 30,
                     width: 110,
                     height: 60,
                     backgroundColor: 'black',
