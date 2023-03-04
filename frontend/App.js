@@ -46,14 +46,26 @@ function MyTabs() {
     }, tabBarLabelStyle: {
       fontWeight: "bold"
     }}}>
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false, tabBarLabel: "", tabBarIcon: (tabInfo) => {
-        return (
-         <Image 
-          source={require("./assets/home.png")}
-          style={styles.mapicon}
-         />
-        )
-      }}}/>
+      <Tab.Screen name="Home" 
+        options={{ 
+          headerShown: false, 
+          tabBarLabel: "", 
+          tabBarIcon: (tabInfo) => {
+          return (
+            <Image 
+              source={require("./assets/home.png")}
+              style={styles.mapicon}
+            />
+          )
+        }}}
+      >
+        {(props) => {
+          return <HomeScreen 
+            {...props}
+            userId={userId}
+          />
+        }}
+      </Tab.Screen>
       <Tab.Screen name="Search" component={SearchStack} options={{headerShown: false ,tabBarLabel: "", tabBarIcon: (tabInfo) => {
         return (
          <Image 
@@ -84,10 +96,17 @@ function MyTabs() {
   );
 }
 
-const HomeScreen = () => {
+const HomeScreen = (passedProps) => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Map" component={NewMap} options={{headerShown: false}}/>
+      <Stack.Screen name="Map" options={{headerShown: false}}>
+        {(props) => {
+          return <NewMap 
+            {...props}
+            {...passedProps}
+          />
+        }}
+      </Stack.Screen>
       <Stack.Screen name="UserProfile" component={User} options={{headerShown: false}} />
     </Stack.Navigator>
   );

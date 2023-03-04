@@ -4,6 +4,7 @@ import {FlatList, TouchableOpacity, Text, View, StyleSheet} from 'react-native';
 import TravelGuide from '../../TravelGuide';
 import Itinerary from '../../Itinerary';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ip from '../../../ip';
 
 export default function ContentsForLocationContent({
     locationsWithinFrame,
@@ -12,7 +13,8 @@ export default function ContentsForLocationContent({
     navigation,
     handleUpOverScrollModal,
     windowWidth,
-    windowHeight
+    windowHeight,
+    userId
 }) {
     const PAGE_TYPE = {
         GUIDES: 'guides',
@@ -33,25 +35,68 @@ export default function ContentsForLocationContent({
     // as the region changes. We just need to wait until the locationsWithinFrame
     // state is updated by the NewMap component.
     useEffect(() => {
+        let flatListContentsCandidate = [];
         if (locationPlaceId in locationsWithinFrame) {
             if (currentPage == PAGE_TYPE.GUIDES && locationsWithinFrame[locationPlaceId].travelGuides) {
-                setFlatListContents(locationsWithinFrame[locationPlaceId].travelGuides.map(travelGuide => {
+                flatListContentsCandidate = locationsWithinFrame[locationPlaceId].travelGuides.map(travelGuide => {
                     return {
                         ...travelGuide,
                         type: PAGE_TYPE.GUIDES
                     }
-                }));
+                });
             } else if (currentPage == PAGE_TYPE.ITINERARIES && locationsWithinFrame[locationPlaceId].itineraries) {
-                setFlatListContents(locationsWithinFrame[locationPlaceId].itineraries.map(itinerary => {
+                flatListContentsCandidate = locationsWithinFrame[locationPlaceId].itineraries.map(itinerary => {
                     return {
                         ...itinerary,
                         type: PAGE_TYPE.ITINERARIES
                     }
-                }));
+                });
             }
-        } else {
-            setFlatListContents([]);
         }
+
+        fetch(`http://${ip.ip}:8000/follow/followedUsers`, {
+          credentials: 'include',
+          method: 'GET'
+        })
+        .then(res => res.json())
+        .then(resBody => {
+          let followedUsers = new Set();
+          if (resBody.statusCode == 200) {
+            resBody.followedUsers.forEach(info => {
+              followedUsers.add(info.followedId);
+            });
+          } 
+          
+          // This is the infamous Guidify's ranking algorithm :)
+          // Ranking factor (ordered from most prioritized to least): self-made, followed user, rating, others.
+          flatListContentsCandidate.sort((a, b) => {
+            // Self-made.
+            if (a.creatorId == userId && b.creatorId != userId) {
+              return -1;
+            }
+            if (b.creatorId == userId && a.creatorId != userId) {
+              return 1;
+            }
+
+            // followed users.
+            if (followedUsers.has(a.creatorId) && !(followedUsers.has(b.creatorId))) {
+              return -1;
+            }
+            if (followedUsers.has(b.creatorId) && !(followedUsers.has(a.creatorId))) {
+              return 1;
+            }
+
+            // sort by rating.
+            if (currentPage == PAGE_TYPE.ITINERARIES) {
+              return b.rating - a.rating;
+            }
+
+            return 0;
+          });
+  
+          setFlatListContents(flatListContentsCandidate);
+        })
+
     }, [locationsWithinFrame, currentPage, locationPlaceId]);
 
     useEffect(() => {

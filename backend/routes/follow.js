@@ -78,4 +78,19 @@ router.post("/unfollow", async (req, res) => {
     }
 })
 
+router.get("/followedUsers", async (req, res) => {
+    try {
+        const docs = await FollowManager.getFollowedUsers(req.session.user._id);
+        res.send({
+            followedUsers: docs,
+            statusCode: 200
+        });
+    } catch (err) {
+        console.log(err);
+        res.send({
+            statusCode: 500
+        });
+    }
+});
+
 module.exports = router;

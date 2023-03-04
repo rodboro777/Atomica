@@ -4,6 +4,7 @@ import TravelGuide from '../../TravelGuide';
 import Itinerary from '../../Itinerary';
 import SoundPlayer from 'react-native-sound-player';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ip from '../../../ip';
 
 export default function ContentsWithinAreaContent({
     currentPage,
@@ -11,7 +12,8 @@ export default function ContentsWithinAreaContent({
     locationsWithinFrame,
     handleUpOverScrollModal,
     windowWidth,
-    windowHeight
+    windowHeight,
+    userId,
 }) {
     const PAGE_TYPE = {
         GUIDES: 'guides',
@@ -54,14 +56,55 @@ export default function ContentsWithinAreaContent({
           }
         });
 
-        if (uniqueContents.length > 1) {
-          uniqueContents.push({
-            _id: FILLER,
-            type: FILLER
-          });
-        }
+        fetch(`http://${ip.ip}:8000/follow/followedUsers`, {
+          credentials: 'include',
+          method: 'GET'
+        })
+        .then(res => res.json())
+        .then(resBody => {
+          let followedUsers = new Set();
+          if (resBody.statusCode == 200) {
+            resBody.followedUsers.forEach(info => {
+              followedUsers.add(info.followedId);
+            });
+          } 
+          
+          // This is the infamous Guidify's ranking algorithm :)
+          // Ranking factor (ordered from most prioritized to least): self-made, followed user, rating, others.
+          uniqueContents.sort((a, b) => {
+            // Self-made.
+            if (a.creatorId == userId && b.creatorId != userId) {
+              return -1;
+            }
+            if (b.creatorId == userId && a.creatorId != userId) {
+              return 1;
+            }
 
-        setFlatListContents(uniqueContents);
+            // followed users.
+            if (followedUsers.has(a.creatorId) && !(followedUsers.has(b.creatorId))) {
+              return -1;
+            }
+            if (followedUsers.has(b.creatorId) && !(followedUsers.has(a.creatorId))) {
+              return 1;
+            }
+
+            // sort by rating.
+            if (currentPage == PAGE_TYPE.ITINERARIES) {
+              return b.rating - a.rating;
+            }
+
+            return 0;
+          });
+
+          if (uniqueContents.length > 1) {
+            uniqueContents.push({
+              _id: FILLER,
+              type: FILLER
+            });
+          }
+  
+          setFlatListContents(uniqueContents);
+        })
     }, [locationsWithinFrame, currentPage]);
 
     useEffect(() => {
