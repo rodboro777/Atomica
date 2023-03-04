@@ -73,10 +73,18 @@ export default function Itinerary({
         {(!isUserProfilePage && creatorInfo) && <View style={{
           flexDirection: 'row'
         }}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorId});
+            }}
+          >
             <Avatar.Image source={{uri: creatorInfo.imageUrl}} size={40} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorId});
+            }}
+          >
             <Text
               style={{
                 marginTop: 'auto',

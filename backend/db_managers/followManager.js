@@ -40,6 +40,13 @@ class FollowManager {
         });
         return doc ? true : false;
     }
+
+    static async getFollowedUsers(userId) {
+        const docs = await FollowModel.find({
+            followerId: new ObjectID(userId)
+        }, {_id: 0, followedId: 1});
+        return docs;
+    }
 }
 
 module.exports = FollowManager;

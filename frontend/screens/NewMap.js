@@ -13,7 +13,7 @@ import Searchbar from '../components/home/Searchbar';
 import ContentsForLocationHeader from '../components/home/bottomSheetHeader/ContentsForLocation';
 import ContentsForLocationContent from '../components/home/bottomSheetContent/ContentsForLocation';
 
-export default function NewMap({navigation}) {
+export default function NewMap({navigation, userId}) {
     const [region, setRegion] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
 
@@ -54,6 +54,7 @@ export default function NewMap({navigation}) {
           handleUpOverScrollModal={handleUpOverScrollModal}
           windowWidth={windowWidth}
           windowHeight={windowHeight}
+          userId={userId}
         />
       } else if (currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION) {
         return <ContentsForLocationContent 
@@ -64,6 +65,7 @@ export default function NewMap({navigation}) {
           locationPlaceId={selectedLocation.placeId}
           windowWidth={windowWidth}
           windowHeight={windowHeight}
+          userId={userId}
         />
       }
     };
