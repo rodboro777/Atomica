@@ -234,11 +234,11 @@ export default function NewMap({navigation, userId}) {
               }}>
                 <Searchbar 
                   getImageUrlFromPhotoReference={getImageUrlFromPhotoReference}
-                  setRegion={setRegion}
                   mapKey={mapKey}
                   region={region}
                   setSelectedLocation={setSelectedLocation}
                   setCurrentBottomSheetType={setCurrentBottomSheetType}
+                  mapRef={mapRef}
                 />
               </View>
             </View>
@@ -289,7 +289,7 @@ export default function NewMap({navigation, userId}) {
             </View>
             <MapView
                 initialRegion={region}
-                region={region}
+                // region={region}
                 ref={mapRef}
                 customMapStyle={mapStyle}
                 showsUserLocation

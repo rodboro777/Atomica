@@ -4,12 +4,12 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Searchbar({
-    setRegion,
     region,
     mapKey,
     setSelectedLocation,
     setCurrentBottomSheetType,
-    getImageUrlFromPhotoReference
+    getImageUrlFromPhotoReference,
+    mapRef
 }) {
     const placeRef = useRef(null);
 
@@ -55,12 +55,15 @@ export default function Searchbar({
         renderDescription={row => row.description} // custom description render
         onPress={async (data, details = null) => {
           placeRef.current.setAddressText('');
-          setRegion({
+          let regionCandidate = {
             latitude: details.geometry.location.lat,
             longitude: details.geometry.location.lng,
             latitudeDelta: 0.005,
             longitudeDelta: 0.005
-          });
+          }
+
+          mapRef.current.animateToRegion(regionCandidate);
+          // setRegion(regionCandidate);
 
           let imageUrl = 'https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png';
           if (details.photos && details.photos.length > 0) {
