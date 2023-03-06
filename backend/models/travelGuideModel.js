@@ -11,6 +11,10 @@ const travelGuideSchema = new mongoose.Schema({
     placeId: String,
     public: Boolean,
     locationName: String,
+    coordinates:{
+        lat: Number,
+        lng: Number
+    }
 });
 
 

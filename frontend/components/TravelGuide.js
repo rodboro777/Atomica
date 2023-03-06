@@ -6,31 +6,24 @@ import {Avatar, Title, Caption, TouchableRipple} from 'react-native-paper';
 import ip from '../ip.json';
 
 export default function TravelGuide({
-    travelGuideId,
-    imageUrl,
-    name,
-    description,
-    audioUrl,
-    audioLength,
     currentPlayingTG,
     setCurrentPlayingTG,
-    locationName,
-    creatorId,
     isUserProfilePage=false,
-    navigation
+    navigation,
+    travelGuide
 }) {
-    let secs = Math.floor(audioLength % 60);
-    let mins = Math.floor(audioLength / 60);
+    let secs = Math.floor(travelGuide.audioLength % 60);
+    let mins = Math.floor(travelGuide.audioLength / 60);
     let formattedAudioLength = `${mins}:${secs}`;
     const [isPaused, setPaused] = useState(false);
     const [creatorInfo, setCreatorInfo] = useState(null);
 
     function handleAudioButtonPress() {
-      if (!currentPlayingTG || currentPlayingTG != travelGuideId) {
+      if (!currentPlayingTG || currentPlayingTG != travelGuide._id) {
         setPaused(false);
-        setCurrentPlayingTG(travelGuideId);
+        setCurrentPlayingTG(travelGuide._id);
         SoundPlayer.stop();
-        SoundPlayer.playUrl(audioUrl);
+        SoundPlayer.playUrl(travelGuide.audioUrl);
       } else if (isPaused) {
         SoundPlayer.resume();
         setPaused(false);
@@ -42,7 +35,7 @@ export default function TravelGuide({
 
     useEffect(() => {
       if (!isUserProfilePage) {
-        fetch(`http://${ip.ip}:8000/user/info?id=${creatorId}`, {
+        fetch(`http://${ip.ip}:8000/user/info?id=${travelGuide.creatorId}`, {
         credentials: 'include',
         method: 'GET',
       })
@@ -100,7 +93,7 @@ export default function TravelGuide({
           </TouchableOpacity>
         </View>}
         <Image 
-          source={{uri: imageUrl}}
+          source={{uri: travelGuide.imageUrl}}
           style={{
             flex: 1,
             width: '100%',
@@ -116,7 +109,7 @@ export default function TravelGuide({
                 fontFamily: 'Lexend-SemiBold',
                 fontSize: 18,
                 color: 'black',
-              }}>{name}</Text>
+              }}>{travelGuide.name}</Text>
             <View style={{
               flexDirection: 'row',
               marginTop: 5,
@@ -128,7 +121,7 @@ export default function TravelGuide({
                     fontFamily: 'Lexend-SemiBold',
                     fontSize: 16,
                     color: 'black',
-                  }}>{locationName}</Text>
+                  }}>{travelGuide.locationName}</Text>
             </View>
             <View style={{
               flexDirection: 'row', 
@@ -144,7 +137,7 @@ export default function TravelGuide({
             </View>
           </View>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
-            <Icon name={currentPlayingTG != travelGuideId ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
+            <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
           </TouchableOpacity>
         </View>
           <Text style={{
@@ -153,7 +146,7 @@ export default function TravelGuide({
                 fontFamily: 'Lexend-Regular',
                 fontSize: 16,
                 color: 'black',
-              }}>{description}</Text>
+              }}>{travelGuide.description}</Text>
         </View>
     )
 }

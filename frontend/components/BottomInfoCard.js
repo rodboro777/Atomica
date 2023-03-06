@@ -13,21 +13,19 @@ import {WebView} from 'react-native-webview';
 
 export default function BottomInfoCard(props) {
   const {
-    placeInfo,
     tgNumber,
     nextRouteInfo,
     togglePlayAudio,
     tg,
     showDirection,
-    currentlyPlaying,
+    currentlyPlaying = [123, false],
     directionIdx,
     dirDistance, //might use this for UI enhancement so don't remove
     destinationDistance,
-    setModalVisible,
     resetRouteVariables,
     setRunningIti,
     setShowDirection,
-    setShowRating,
+    setCurrentBottomSheetType,
   } = props;
   const styles = StyleSheet.create({
     bottomCardHolder: {
@@ -88,7 +86,7 @@ export default function BottomInfoCard(props) {
       <View style={styles.bottomCardContentHolder}>
         <View style={styles.bottomCardImageHolder}>
           <Image
-            source={{uri: placeInfo[tgNumber].imageUrl}}
+            source={{uri: tg[tgNumber].imageUrl}}
             style={{flex: 1, borderRadius: 10}}
           />
         </View>
@@ -124,7 +122,7 @@ export default function BottomInfoCard(props) {
               fontSize: 18,
               fontFamily: 'Lexend-Regular',
             }}>
-            {placeInfo[tgNumber].name}
+            {tg[tgNumber].locationName}
           </Text>
           <View style={styles.bottomCardPlayerHolder}>
             {showDirection ? (
@@ -152,7 +150,7 @@ export default function BottomInfoCard(props) {
                   }}>
                   <Image
                     source={currentlyPlaying[1] ? pauseIcon : playIcon}
-                    style={{width: 30, height: 30}}
+                    style={{width: 30, height: 30, resizeMode: 'cover'}}
                   />
                 </TouchableOpacity>
                 <Text
@@ -163,7 +161,7 @@ export default function BottomInfoCard(props) {
                     justifyContent: 'center',
                     textAlignVertical: 'center',
                     color: 'white',
-                    marginLeft: 10,
+                    marginLeft: 20,
                     fontFamily: 'Lexend-ExtraLight',
                   }}>
                   {currentlyPlaying[1]
@@ -188,10 +186,9 @@ export default function BottomInfoCard(props) {
                       elevation: 5,
                     }}
                     onPress={() => {
-                      setModalVisible(true);
                       setRunningIti(false);
                       setShowDirection(true);
-                      setShowRating(true);
+                      setCurrentBottomSheetType('contentsForRating');
                       resetRouteVariables();
                     }}>
                     <Text

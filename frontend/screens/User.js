@@ -6,11 +6,11 @@ import {
   Image,
   TouchableOpacity,
   Text,
-  Alert
+  Alert,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {Button} from '@react-native-material/core';
-import axios from "axios";
+import axios from 'axios';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
@@ -182,16 +182,19 @@ export default function User({ownerId, navigation, origin, route}) {
 
   useEffect(() => {
     if (userId && userId != ownerId) {
-      fetch(`http://${ip.ip}:8000/follow/isFollowing?followerId=${userId}&followedId=${ownerId}`, {
+      fetch(
+        `http://${ip.ip}:8000/follow/isFollowing?followerId=${userId}&followedId=${ownerId}`,
+        {
           credentials: 'include',
           method: 'GET',
-      })
-      .then(res => res.json())
-      .then(resBody => {
-        if (resBody.statusCode == 200) {
-          setFollowing(resBody.isFollowing);
-        }
-      })
+        },
+      )
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setFollowing(resBody.isFollowing);
+          }
+        });
     }
   }, [userId]);
 
@@ -255,7 +258,13 @@ export default function User({ownerId, navigation, origin, route}) {
             paddingBottom: 30,
           }}>
           <Button
-            title={userId === ownerId ? 'Edit Profile' : isFollowing ? 'Unfollow' : 'Follow'}
+            title={
+              userId === ownerId
+                ? 'Edit Profile'
+                : isFollowing
+                ? 'Unfollow'
+                : 'Follow'
+            }
             variant="contained"
             color="black"
             tintColor="white"
@@ -277,30 +286,19 @@ export default function User({ownerId, navigation, origin, route}) {
     } else if (item.type == 'travelGuide') {
       return (
         <TravelGuide
-          imageUrl={item.travelGuide.imageUrl}
-          name={item.travelGuide.name}
-          description={item.travelGuide.description}
-          audioUrl={item.travelGuide.audioUrl}
-          audioLength={item.travelGuide.audioLength}
+          travelGuide={item.travelGuide}
           currentPlayingTG={currentPlayingTG}
           setCurrentPlayingTG={setCurrentPlayingTG}
-          travelGuideId={item.travelGuide._id}
-          locationName={item.travelGuide.locationName}
-          creatorId={item.travelGuide.creatorId}
           isUserProfilePage={true}
         />
       );
     } else if (item.type == 'itinerary') {
       return (
         <Itinerary
-          itineraryId={item.itinerary._id}
-          imageUrl={item.itinerary.imageUrl}
-          name={item.itinerary.name}
-          description={item.itinerary.description}
-          rating={item.itinerary.rating}
+          item={item.itinerary}
           navigation={navigation}
-          creatorId={item.itinerary.creatorId}
           isUserProfilePage={true}
+          isDetail={false}
         />
       );
     } else if (item.type == 'application') {
@@ -344,28 +342,30 @@ export default function User({ownerId, navigation, origin, route}) {
     } else {
       let reqBody = {
         followerId: userId,
-        followedId: ownerId
+        followedId: ownerId,
       };
       if (isFollowing) {
-        axios.post(`http://${ip.ip}:8000/follow/unfollow`, reqBody)
-        .then(res => res.data)
-        .then(resBody => {
-          if (resBody.statusCode == 200) {
-            setFollowing(false);
-          } else {
-            Alert.alert('Failed to do unfollow operation');
-          }
-        })
+        axios
+          .post(`http://${ip.ip}:8000/follow/unfollow`, reqBody)
+          .then(res => res.data)
+          .then(resBody => {
+            if (resBody.statusCode == 200) {
+              setFollowing(false);
+            } else {
+              Alert.alert('Failed to do unfollow operation');
+            }
+          });
       } else {
-        axios.post(`http://${ip.ip}:8000/follow/follow`, reqBody)
-        .then(res => res.data)
-        .then(resBody => {
-          if (resBody.statusCode == 200) {
-            setFollowing(true);
-          } else {
-            Alert.alert('Failed to do follow operation');
-          }
-        })
+        axios
+          .post(`http://${ip.ip}:8000/follow/follow`, reqBody)
+          .then(res => res.data)
+          .then(resBody => {
+            if (resBody.statusCode == 200) {
+              setFollowing(true);
+            } else {
+              Alert.alert('Failed to do follow operation');
+            }
+          });
       }
     }
   }
@@ -375,25 +375,27 @@ export default function User({ownerId, navigation, origin, route}) {
       {contentList.length >= 3 && (
         <>
           <View style={styles.userInfoHeader}>
-            {origin && <TouchableOpacity 
-            style={{
-              flex: 1.5
-            }}
-            onPress={() => {
-              if (origin == "Home") {
-                navigation.navigate("Map");
-              }
-            }}>
-              <Icon 
-                name="keyboard-backspace"
-                color="black"
-                size={30}
+            {origin && (
+              <TouchableOpacity
                 style={{
-                  marginTop: 'auto',
-                  marginBottom: 'auto'
+                  flex: 1.5,
                 }}
-              />
-            </TouchableOpacity>}
+                onPress={() => {
+                  if (origin == 'Home') {
+                    navigation.navigate('Map');
+                  }
+                }}>
+                <Icon
+                  name="keyboard-backspace"
+                  color="black"
+                  size={30}
+                  style={{
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                  }}
+                />
+              </TouchableOpacity>
+            )}
             <View style={{flex: 10}}>
               <Text
                 style={{
@@ -406,17 +408,19 @@ export default function User({ownerId, navigation, origin, route}) {
                 {ownerInfo.username}
               </Text>
             </View>
-            {origin == null &&<TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
-              <Icon
-                name="plus-box-outline"
-                color="black"
-                size={30}
-                style={{
-                  marginTop: 'auto',
-                  marginBottom: 'auto',
-                }}
-              />
-            </TouchableOpacity>}
+            {origin == null && (
+              <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+                <Icon
+                  name="plus-box-outline"
+                  color="black"
+                  size={30}
+                  style={{
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                  }}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <FlatList
             data={contentList}

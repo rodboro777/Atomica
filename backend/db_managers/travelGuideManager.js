@@ -57,13 +57,16 @@ class TravelGuideManager {
   }
 
   static async getTravelGuideRequestsByUser(userId, status) {
-    const docs = await TravelGuideRequestModel.find({status: status, creatorId: new ObjectID(userId)});
+    const docs = await TravelGuideRequestModel.find({
+      status: status,
+      creatorId: new ObjectID(userId),
+    });
     return docs;
   }
 
   static async getTravelGuideRequests(status) {
     try {
-      const docs = await TravelGuideRequestModel.find({status: status});
+      const docs = await TravelGuideRequestModel.find({ status: status });
       return docs;
     } catch (err) {
       throw err;
@@ -119,19 +122,17 @@ class TravelGuideManager {
       audioLength: request.audioLength,
       placeId: request.placeId,
       locationName: request.locationName,
-      public: true
+      coordinates: request.coordinates,
     };
   }
 
   static async createTravelGuideRequest(request) {
     try {
-      await TravelGuideRequestModel.create(
-        {
-          ...this.constructTravelGuide(request),
-          status: TravelGuideRequestModel.STATUS.PENDING,
-          reviewerComment: '',
-        }
-      );
+      await TravelGuideRequestModel.create({
+        ...this.constructTravelGuide(request),
+        status: TravelGuideRequestModel.STATUS.PENDING,
+        reviewerComment: "",
+      });
     } catch (err) {
       throw err;
     }
@@ -195,7 +196,7 @@ class TravelGuideManager {
       const docs = await TravelGuideModel.aggregate([
         {
           $match: {
-            placeId: {$in: placeIds},
+            placeId: { $in: placeIds },
           },
         },
         {

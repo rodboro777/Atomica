@@ -16,7 +16,6 @@ export default function TopInfoCard(props) {
     tgNumber,
     setTgNumber,
     setRunningIti,
-    setModalVisible,
     setShowDirection,
     resetRouteVariables,
     destinationCoord,
@@ -30,7 +29,7 @@ export default function TopInfoCard(props) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      marginTop: 10,
+      marginTop:10,
     },
     topCardContentHolder: {
       position: 'relative',
@@ -126,7 +125,6 @@ export default function TopInfoCard(props) {
           <TouchableOpacity
             onPress={() => {
               setRunningIti(false);
-              setModalVisible(true);
               setShowDirection(true);
               resetRouteVariables();
             }}>
