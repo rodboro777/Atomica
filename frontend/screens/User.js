@@ -23,14 +23,9 @@ import SoundPlayer from 'react-native-sound-player';
 import {useIsFocused} from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function User({ownerId, navigation, origin, route}) {
-  if (route.params && route.params.origin) {
-    origin = route.params.origin;
-  }
-  if (route.params && route.params.ownerId) {
-    ownerId = route.params.ownerId;
-  }
   const isFocused = useIsFocused();
   bs = React.createRef();
   fall = new Animated.Value(1);
@@ -63,10 +58,12 @@ export default function User({ownerId, navigation, origin, route}) {
   );
 
   useEffect(() => {
+    console.log('FINISH CREATING TRAVEL GUIDEEE');
+    console.log(route);
     this.bs.current.snapTo(1);
-    if (origin == 'CreateTravelGuide') {
+    if (route && route.params && route.params.origin == 'CreateTravelGuide') {
       setCurrentPage(PAGE_TYPE.APPLICATIONS);
-    } else if (origin == 'CreateItinerary') {
+    } else if (route && route.params && route.params.origin == 'CreateItinerary') {
       setCurrentPage(PAGE_TYPE.ITINERARIES);
     }
   }, [isFocused]);
@@ -98,7 +95,7 @@ export default function User({ownerId, navigation, origin, route}) {
   const [contentList, setContentList] = useState([]);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
 
-  useEffect(() => {
+  const fetchFollowInfo = () => {
     // Get Follow info of the owner.
     fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
       credentials: 'include',
@@ -115,9 +112,9 @@ export default function User({ownerId, navigation, origin, route}) {
           navigation.navigate('MyTabs');
         }
       });
-  }, [isFollowing]);
+  }
 
-  useEffect(() => {
+  const preparePageData = () => {
     // Authenticate user.
     fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
       credentials: 'include',
@@ -178,7 +175,22 @@ export default function User({ownerId, navigation, origin, route}) {
           setItineraries(resBody.itineraries);
         }
       });
+  }
+
+  useEffect(() => {
+    fetchFollowInfo();
+  }, [isFollowing]);
+
+  useEffect(() => {
+    preparePageData();
   }, [isFocused]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      preparePageData();
+      fetchFollowInfo();
+    }, [])
+  );
 
   useEffect(() => {
     if (userId && userId != ownerId) {
@@ -375,15 +387,13 @@ export default function User({ownerId, navigation, origin, route}) {
       {contentList.length >= 3 && (
         <>
           <View style={styles.userInfoHeader}>
-            {origin && (
+            {origin == 'Home' && (
               <TouchableOpacity
                 style={{
                   flex: 1.5,
                 }}
                 onPress={() => {
-                  if (origin == 'Home') {
                     navigation.navigate('Map');
-                  }
                 }}>
                 <Icon
                   name="keyboard-backspace"
@@ -408,7 +418,7 @@ export default function User({ownerId, navigation, origin, route}) {
                 {ownerInfo.username}
               </Text>
             </View>
-            {origin == null && (
+            {origin == 'Tab' && (
               <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
                 <Icon
                   name="plus-box-outline"

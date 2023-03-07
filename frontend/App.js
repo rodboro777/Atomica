@@ -100,7 +100,10 @@ function MyTabs() {
           },
         }}>
         {props => {
-          return <UStackNav {...props} ownerId={userId} />;
+          return <UStackNav {...props} 
+            ownerId={userId}
+            origin="Tab"
+          />;
         }}
       </Tab.Screen>
     </Tab.Navigator>
@@ -115,11 +118,16 @@ const HomeScreen = passedProps => {
           return <NewMap {...props} {...passedProps} />;
         }}
       </Stack.Screen>
-      <Stack.Screen
-        name="UserProfile"
-        component={User}
-        options={{headerShown: false}}
-      />
+      <Stack.Screen name="UserProfileFromHome" options={{headerShown: false}}>
+        {(props) => {
+          return <User 
+            {...props}
+            {...passedProps}
+            origin='Home'
+            ownerId={props.route.params.ownerId}
+          />
+        }}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
@@ -129,11 +137,11 @@ const UStackNav = passedProps => {
     <Stack.Navigator initialRouteName="User">
       <Stack.Screen name="User" options={{headerShown: false}}>
         {props => {
+          console.log(props);
           return (
             <UserWithNavigation
-              {...props}
               {...passedProps}
-              origin={props.route.params ? props.route.params.origin : null}
+              {...props}
             />
           );
         }}

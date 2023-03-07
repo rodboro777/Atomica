@@ -68,14 +68,14 @@ export default function TravelGuide({
         }}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorInfo._id});
+              navigation.navigate('UserProfileFromHome', {ownerId: creatorInfo._id});
             }}
           >
             <Avatar.Image source={{uri: creatorInfo.imageUrl}} size={40} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('UserProfile', {origin: "Home", ownerId: creatorInfo._id});
+              navigation.navigate('UserProfileFromHome', {ownerId: creatorInfo._id});
             }}
           >
             <Text
