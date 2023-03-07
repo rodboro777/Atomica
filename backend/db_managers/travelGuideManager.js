@@ -28,10 +28,13 @@ class TravelGuideManager {
   }
 
   static async getTravelGuidesByIds(ids) {
+    const index = {};
+    ids.forEach((id, i) => (index[id] = i));
     try {
       const docs = await TravelGuideModel.find({
         _id: { $in: ids },
       });
+      docs.sort((a, b) => index[a._id] - index[b._id]);
       return docs;
     } catch (err) {
       throw err;
@@ -57,13 +60,16 @@ class TravelGuideManager {
   }
 
   static async getTravelGuideRequestsByUser(userId, status) {
-    const docs = await TravelGuideRequestModel.find({status: status, creatorId: new ObjectID(userId)});
+    const docs = await TravelGuideRequestModel.find({
+      status: status,
+      creatorId: new ObjectID(userId),
+    });
     return docs;
   }
 
   static async getTravelGuideRequests(status) {
     try {
-      const docs = await TravelGuideRequestModel.find({status: status});
+      const docs = await TravelGuideRequestModel.find({ status: status });
       return docs;
     } catch (err) {
       throw err;
@@ -119,19 +125,17 @@ class TravelGuideManager {
       audioLength: request.audioLength,
       placeId: request.placeId,
       locationName: request.locationName,
-      public: true
+      coordinates: request.coordinates,
     };
   }
 
   static async createTravelGuideRequest(request) {
     try {
-      await TravelGuideRequestModel.create(
-        {
-          ...this.constructTravelGuide(request),
-          status: TravelGuideRequestModel.STATUS.PENDING,
-          reviewerComment: '',
-        }
-      );
+      await TravelGuideRequestModel.create({
+        ...this.constructTravelGuide(request),
+        status: TravelGuideRequestModel.STATUS.PENDING,
+        reviewerComment: "",
+      });
     } catch (err) {
       throw err;
     }
@@ -173,6 +177,29 @@ class TravelGuideManager {
         {
           $match: {
             placeId: `${placeId}`,
+          },
+        },
+        {
+          $lookup: {
+            from: "itineraries",
+            localField: "_id",
+            foreignField: "travelGuideId",
+            as: "itineraries",
+          },
+        },
+      ]);
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getTravelGuidesAndItinerariesByPlaceIds(placeIds) {
+    try {
+      const docs = await TravelGuideModel.aggregate([
+        {
+          $match: {
+            placeId: { $in: placeIds },
           },
         },
         {

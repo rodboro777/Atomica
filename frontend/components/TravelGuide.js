@@ -2,29 +2,28 @@ import React, {useEffect, useState} from 'react';
 import { View, Image, TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SoundPlayer from 'react-native-sound-player';
+import {Avatar, Title, Caption, TouchableRipple} from 'react-native-paper';
+import ip from '../ip.json';
 
 export default function TravelGuide({
-    travelGuideId,
-    imageUrl,
-    name,
-    description,
-    audioUrl,
-    audioLength,
     currentPlayingTG,
     setCurrentPlayingTG,
-    locationName
+    isUserProfilePage=false,
+    navigation,
+    travelGuide
 }) {
-    let secs = Math.floor(audioLength % 60);
-    let mins = Math.floor(audioLength / 60);
+    let secs = Math.floor(travelGuide.audioLength % 60);
+    let mins = Math.floor(travelGuide.audioLength / 60);
     let formattedAudioLength = `${mins}:${secs}`;
     const [isPaused, setPaused] = useState(false);
+    const [creatorInfo, setCreatorInfo] = useState(null);
 
     function handleAudioButtonPress() {
-      if (!currentPlayingTG || currentPlayingTG != travelGuideId) {
+      if (!currentPlayingTG || currentPlayingTG != travelGuide._id) {
         setPaused(false);
-        setCurrentPlayingTG(travelGuideId);
+        setCurrentPlayingTG(travelGuide._id);
         SoundPlayer.stop();
-        SoundPlayer.playUrl(audioUrl);
+        SoundPlayer.playUrl(travelGuide.audioUrl);
       } else if (isPaused) {
         SoundPlayer.resume();
         setPaused(false);
@@ -33,6 +32,25 @@ export default function TravelGuide({
         setPaused(true);
       }
     }
+
+    useEffect(() => {
+      if (!isUserProfilePage) {
+        fetch(`http://${ip.ip}:8000/user/info?id=${travelGuide.creatorId}`, {
+        credentials: 'include',
+        method: 'GET',
+      })
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setCreatorInfo({
+              username: resBody.info.username,
+              imageUrl: resBody.info.imageUrl,
+              _id: resBody.info._id,
+            });
+          }
+        });
+      }
+    }, []);
 
     return (
         <View style={{
@@ -45,14 +63,44 @@ export default function TravelGuide({
         paddingHorizontal: 15,
         paddingBottom: 15
       }}>
+        {(!isUserProfilePage && creatorInfo) && <View style={{
+          flexDirection: 'row'
+        }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfileFromHome', {ownerId: creatorInfo._id});
+            }}
+          >
+            <Avatar.Image source={{uri: creatorInfo.imageUrl}} size={40} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('UserProfileFromHome', {ownerId: creatorInfo._id});
+            }}
+          >
+            <Text
+              style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+                marginLeft: 10,
+                fontFamily: 'Lexend-SemiBold',
+                color: 'black',
+                fontSize: 17
+              }}
+            >
+              {creatorInfo && creatorInfo.username}
+            </Text>
+          </TouchableOpacity>
+        </View>}
         <Image 
-          source={{uri: imageUrl}}
+          source={{uri: travelGuide.imageUrl}}
           style={{
             flex: 1,
             width: '100%',
             height: 200,
-            resizeMode: 'contain',
-            borderRadius: 10
+            resizeMode: 'cover',
+            borderRadius: 10,
+            marginTop: isUserProfilePage ? 0 : 10
           }}
         />
         <View style={{flexDirection: 'row'}}>
@@ -61,7 +109,7 @@ export default function TravelGuide({
                 fontFamily: 'Lexend-SemiBold',
                 fontSize: 18,
                 color: 'black',
-              }}>{name}</Text>
+              }}>{travelGuide.name}</Text>
             <View style={{
               flexDirection: 'row',
               marginTop: 5,
@@ -73,7 +121,7 @@ export default function TravelGuide({
                     fontFamily: 'Lexend-SemiBold',
                     fontSize: 16,
                     color: 'black',
-                  }}>{locationName}</Text>
+                  }}>{travelGuide.locationName}</Text>
             </View>
             <View style={{
               flexDirection: 'row', 
@@ -89,7 +137,7 @@ export default function TravelGuide({
             </View>
           </View>
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
-            <Icon name={currentPlayingTG != travelGuideId ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
+            <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
           </TouchableOpacity>
         </View>
           <Text style={{
@@ -98,7 +146,7 @@ export default function TravelGuide({
                 fontFamily: 'Lexend-Regular',
                 fontSize: 16,
                 color: 'black',
-              }}>{description}</Text>
+              }}>{travelGuide.description}</Text>
         </View>
     )
 }

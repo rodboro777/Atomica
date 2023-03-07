@@ -59,6 +59,57 @@ router.post("/byIds", async (req, res) => {
   }
 });
 
+router.get('/byLocations', async (req, res) => {
+  const placeIds = req.query.placeIds;
+  
+  try {
+    const results = await TravelGuideManager.getTravelGuidesAndItinerariesByPlaceIds(placeIds);
+    let data = {};
+    let tracker = {};
+
+    // results is a collection of travelGuides. however, each travelGuide has an
+    // additional field which is itineraries (list of itineraries).
+    results.forEach(travelGuide => {
+      const itineraries = travelGuide.itineraries;
+      delete travelGuide.itineraries;
+      const placeId = travelGuide.placeId;
+      
+      if (!(placeId in data)) {
+        data[placeId] = {
+          travelGuides: [],
+          itineraries: []
+        };
+        tracker[placeId] = {
+          travelGuides: new Set(),
+          itineraries: new Set()
+        }
+      }
+
+      if (!(travelGuide._id in tracker[placeId].travelGuides)) {
+        data[placeId].travelGuides.push(travelGuide);
+        tracker[placeId].travelGuides.add(travelGuide._id);
+      }
+
+      itineraries.forEach(itinerary => {
+        if (!(itinerary._id in tracker[placeId].itineraries)) {
+          data[placeId].itineraries.push(itinerary);
+          tracker[placeId].itineraries.add(itinerary._id);
+        }
+      });
+    });
+
+    res.send({
+      data: data,
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500
+    });
+  }
+});
+
 router.get("/byLocation", async (req, res) => {
   const placeId = req.query.placeId;
   if (!placeId) {

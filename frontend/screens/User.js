@@ -6,9 +6,11 @@ import {
   Image,
   TouchableOpacity,
   Text,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {Button} from '@react-native-material/core';
+import axios from 'axios';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
@@ -21,13 +23,10 @@ import SoundPlayer from 'react-native-sound-player';
 import {useIsFocused} from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function User({ownerId, navigation, origin}) {
+export default function User({ownerId, navigation, origin, route}) {
   const isFocused = useIsFocused();
-  function handlePress() {
-    navigation.navigate('Edit User', {ownerInfo: ownerInfo});
-  }
-
   bs = React.createRef();
   fall = new Animated.Value(1);
 
@@ -59,10 +58,12 @@ export default function User({ownerId, navigation, origin}) {
   );
 
   useEffect(() => {
+    console.log('FINISH CREATING TRAVEL GUIDEEE');
+    console.log(route);
     this.bs.current.snapTo(1);
-    if (origin == 'CreateTravelGuide') {
+    if (route && route.params && route.params.origin == 'CreateTravelGuide') {
       setCurrentPage(PAGE_TYPE.APPLICATIONS);
-    } else if (origin == 'CreateItinerary') {
+    } else if (route && route.params && route.params.origin == 'CreateItinerary') {
       setCurrentPage(PAGE_TYPE.ITINERARIES);
     }
   }, [isFocused]);
@@ -82,6 +83,9 @@ export default function User({ownerId, navigation, origin}) {
   const [itineraries, setItineraries] = useState([]);
   const [applications, setApplications] = useState([]);
 
+  // Only use this when ownerId != userId
+  const [isFollowing, setFollowing] = useState(false);
+
   const PAGE_TYPE = {
     GUIDES: 'guides',
     ITINERARIES: 'itineraries',
@@ -91,7 +95,26 @@ export default function User({ownerId, navigation, origin}) {
   const [contentList, setContentList] = useState([]);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
 
-  useEffect(() => {
+  const fetchFollowInfo = () => {
+    // Get Follow info of the owner.
+    fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.statusCode == 200) {
+          setFollowInfo({
+            numOfFollowers: resBody.numOfFollowers,
+            numOfFollowing: resBody.numOfFollowing,
+          });
+        } else {
+          navigation.navigate('MyTabs');
+        }
+      });
+  }
+
+  const preparePageData = () => {
     // Authenticate user.
     fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
       credentials: 'include',
@@ -125,23 +148,6 @@ export default function User({ownerId, navigation, origin}) {
         }
       });
 
-    // Get Follow info of the owner.
-    fetch(`http://${ip.ip}:8000/follow/count?userId=${ownerId}`, {
-      credentials: 'include',
-      method: 'GET',
-    })
-      .then(res => res.json())
-      .then(resBody => {
-        if (resBody.statusCode == 200) {
-          setFollowInfo({
-            numOfFollowers: resBody.numOfFollowers,
-            numOfFollowing: resBody.numOfFollowing,
-          });
-        } else {
-          navigation.navigate('MyTabs');
-        }
-      });
-
     // Get the travel guides created by the owner.
     fetch(`http://${ip.ip}:8000/travelGuide/byCreator?creatorId=${ownerId}`, {
       credentials: 'include',
@@ -169,7 +175,40 @@ export default function User({ownerId, navigation, origin}) {
           setItineraries(resBody.itineraries);
         }
       });
+  }
+
+  useEffect(() => {
+    fetchFollowInfo();
+  }, [isFollowing]);
+
+  useEffect(() => {
+    preparePageData();
   }, [isFocused]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      preparePageData();
+      fetchFollowInfo();
+    }, [])
+  );
+
+  useEffect(() => {
+    if (userId && userId != ownerId) {
+      fetch(
+        `http://${ip.ip}:8000/follow/isFollowing?followerId=${userId}&followedId=${ownerId}`,
+        {
+          credentials: 'include',
+          method: 'GET',
+        },
+      )
+        .then(res => res.json())
+        .then(resBody => {
+          if (resBody.statusCode == 200) {
+            setFollowing(resBody.isFollowing);
+          }
+        });
+    }
+  }, [userId]);
 
   useEffect(() => {
     let candidateList = [...PRIMARY_SECTIONS];
@@ -231,7 +270,13 @@ export default function User({ownerId, navigation, origin}) {
             paddingBottom: 30,
           }}>
           <Button
-            title={userId === ownerId ? 'Edit Profile' : 'Follow'}
+            title={
+              userId === ownerId
+                ? 'Edit Profile'
+                : isFollowing
+                ? 'Unfollow'
+                : 'Follow'
+            }
             variant="contained"
             color="black"
             tintColor="white"
@@ -253,26 +298,19 @@ export default function User({ownerId, navigation, origin}) {
     } else if (item.type == 'travelGuide') {
       return (
         <TravelGuide
-          imageUrl={item.travelGuide.imageUrl}
-          name={item.travelGuide.name}
-          description={item.travelGuide.description}
-          audioUrl={item.travelGuide.audioUrl}
-          audioLength={item.travelGuide.audioLength}
+          travelGuide={item.travelGuide}
           currentPlayingTG={currentPlayingTG}
           setCurrentPlayingTG={setCurrentPlayingTG}
-          travelGuideId={item.travelGuide._id}
-          locationName={item.travelGuide.locationName}
+          isUserProfilePage={true}
         />
       );
     } else if (item.type == 'itinerary') {
       return (
         <Itinerary
-          itineraryId={item.itinerary._id}
-          imageUrl={item.itinerary.imageUrl}
-          name={item.itinerary.name}
-          description={item.itinerary.description}
-          rating={item.itinerary.rating}
+          item={item.itinerary}
           navigation={navigation}
+          isUserProfilePage={true}
+          isDetail={false}
         />
       );
     } else if (item.type == 'application') {
@@ -289,6 +327,7 @@ export default function User({ownerId, navigation, origin}) {
           status={item.application.status}
           reviewerComment={item.application.reviewerComment}
           locationName={item.application.locationName}
+          creatorId={item.application.creatorId}
         />
       );
     }
@@ -309,11 +348,64 @@ export default function User({ownerId, navigation, origin}) {
     },
   ];
 
+  async function handlePress() {
+    if (ownerId == userId) {
+      navigation.navigate('Edit User', {ownerInfo: ownerInfo});
+    } else {
+      let reqBody = {
+        followerId: userId,
+        followedId: ownerId,
+      };
+      if (isFollowing) {
+        axios
+          .post(`http://${ip.ip}:8000/follow/unfollow`, reqBody)
+          .then(res => res.data)
+          .then(resBody => {
+            if (resBody.statusCode == 200) {
+              setFollowing(false);
+            } else {
+              Alert.alert('Failed to do unfollow operation');
+            }
+          });
+      } else {
+        axios
+          .post(`http://${ip.ip}:8000/follow/follow`, reqBody)
+          .then(res => res.data)
+          .then(resBody => {
+            if (resBody.statusCode == 200) {
+              setFollowing(true);
+            } else {
+              Alert.alert('Failed to do follow operation');
+            }
+          });
+      }
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {contentList.length >= 3 && (
         <>
           <View style={styles.userInfoHeader}>
+            {origin == 'Home' && (
+              <TouchableOpacity
+                style={{
+                  flex: 1.5,
+                }}
+                onPress={() => {
+                    navigation.navigate('Map');
+                }}>
+                <Icon
+                  name="keyboard-backspace"
+                  color="black"
+                  size={30}
+                  style={{
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                  }}
+                />
+              </TouchableOpacity>
+            )}
             <View style={{flex: 10}}>
               <Text
                 style={{
@@ -326,17 +418,19 @@ export default function User({ownerId, navigation, origin}) {
                 {ownerInfo.username}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
-              <Icon
-                name="plus-box-outline"
-                color="black"
-                size={30}
-                style={{
-                  marginTop: 'auto',
-                  marginBottom: 'auto',
-                }}
-              />
-            </TouchableOpacity>
+            {origin == 'Tab' && (
+              <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+                <Icon
+                  name="plus-box-outline"
+                  color="black"
+                  size={30}
+                  style={{
+                    marginTop: 'auto',
+                    marginBottom: 'auto',
+                  }}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           <FlatList
             data={contentList}

@@ -12,6 +12,7 @@ class TravelGuide {
       const placeId = build.placeId;
       const isPublic = build.isPublic;
       const locationName = build.locationName;
+      const coordinates = build.coordinates;
 
       Object.defineProperties(this, {
         name: {
@@ -48,8 +49,12 @@ class TravelGuide {
         },
         locationName: {
           value: locationName,
-          writable: false
-        }
+          writable: false,
+        },
+        coordinates: {
+          value: coordinates,
+          writable: false,
+        },
       });
     }
   }
@@ -100,6 +105,11 @@ class TravelGuide {
 
       setLocationName(locationName) {
         this.locationName = locationName;
+        return this;
+      }
+
+      setCoordinates(coordinates) {
+        this.coordinates = coordinates;
         return this;
       }
 

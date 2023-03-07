@@ -14,7 +14,8 @@ export default function Application({
     setCurrentPlayingTG,
     status,
     reviewerComment,
-    locationName
+    locationName,
+    creatorId
 }) {
     let secs = Math.floor(audioLength % 60);
     let mins = Math.floor(audioLength / 60);
@@ -53,7 +54,7 @@ export default function Application({
             flex: 1,
             width: '100%',
             height: 200,
-            resizeMode: 'contain',
+            resizeMode: 'cover',
             borderRadius: 10
           }}
         />

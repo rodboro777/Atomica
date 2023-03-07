@@ -109,14 +109,13 @@ router.post("/", upload.fields([{ name: "imageFile" }]), async (req, res) => {
   let itinerary = new Itinerary.Builder()
     .setName(req.body.name)
     .setDescription(req.body.description)
-    .setCreatorId(req.session.user._id)
+    .setCreatorId(req.body.creatorId ? req.body.creatorId : req.session.user._id)
     .setTravelGuideId(JSON.parse(req.body.travelGuideId))
     .setPublic(req.body.public)
     .setRating(req.body.itineraryId ? req.body.rating : 0)
     .setRatingCount(req.body.itineraryId ? req.body.ratingCount : 0)
     .setImageUrl(imageUrl)
     .build();
-
   try {
     if (req.body.itineraryId) {
       const doc = await ItineraryManager.updateItinerary(
