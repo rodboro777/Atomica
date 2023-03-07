@@ -5,7 +5,7 @@ from model import TGFilterModel
 from utils import import_data
 
 app = Flask(__name__)
-cors = CORS(app, origins="*")
+cors = CORS(app)
 
 # Initialize model.
 df = import_data("data.txt")
@@ -18,6 +18,7 @@ def classify():
     data = request.get_json(silent=True)
     text = data.get("text")
     res = model.infer(text)
+    print(res)
     return json.dumps(res)
 
 if __name__ == "__main__":

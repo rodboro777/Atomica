@@ -31,7 +31,7 @@ function App() {
 
   // SPEECH-TO-TEXT STUFFS
   // Load the contents of the JSON credentials file
-  const keyFile = require('./guidify-378710-18ee2573f57f.json');
+  const keyFile = require('./guidify-369315-78db1b10c2fd.json');
   // Create a new GoogleAuth client with the credentials
   const auth = new GoogleAuth({
     credentials: keyFile,
@@ -156,6 +156,7 @@ function App() {
       encoding: encoding,
       sampleRateHertz: sampleRateHertz,
       languageCode: languageCode,
+      enableWordConfidence: true,
     };
   
     const audio = {
@@ -172,26 +173,47 @@ function App() {
     const [operation] = await client.longRunningRecognize(request);
     // Get a Promise representation of the final result of the job
     const [response] = await operation.promise();
+    let totalConfidence = 1;
     const transcription = response.results
-      .map(result => result.alternatives[0].transcript)
+      .map(result => {
+        totalConfidence *= result.alternatives[0].confidence;
+        return result.alternatives[0].transcript;
+      })
       .join(' ');
-    return transcription;
+    return [transcription, totalConfidence];
   }
 
   async function autoClassify(requestId, audioUrl) {
     let tmp = {};
     tmp[requestId] = true;
     setLoading({...loading, ...tmp});
-    const transcription = await transcribeAudio(audioUrl);
+    const [transcription, transcribeConfidenceLevel] = await transcribeAudio(audioUrl);
     
     // Auto classify audio.
-    axios.post("http://127.0.0.1:5000/", {
-      text: transcription,
+    fetch(`http://127.0.0.1:5000`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: transcription,
+      }),
     })
-    .then(res => res.data)
+    // axios.post("http://localhost:5000/", JSON.stringify({
+    //   text: transcription,
+    // }), {
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   }
+    // })
+    .then(res => res.json())
     .then(res => {
       let tmp = {};
       tmp[requestId] = res;
+      tmp[requestId] = {
+        ...tmp[requestId],
+        transcribeConfidenceLevel: transcribeConfidenceLevel
+      }
       setAutoClassifyData({
         ...autoClassifyData,
         ...tmp,
@@ -281,6 +303,8 @@ function App() {
                     /> : 
                     <>
                     {autoClassifyData[request._id] ? <>
+                    <br/>
+                    <p>Google Audio Transcribe Confidence Level: <b>{autoClassifyData[request._id].transcribeConfidenceLevel.toFixed(2)}</b></p>
                     <br/>
                     <p>AI Confidence Level</p>
                     <Bar style={{border:'solid', borderColor: getBarChartBorderColor(request._id), boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px', borderRadius: '3%', padding: '5px', width: '100%'}} options={options} data={{

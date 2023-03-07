@@ -48,10 +48,9 @@ export default function RatingStars(props) {
     },
     submitBtnText: {
       color: 'black',
-      fontWeight: '700',
       fontSize: 20,
       letterSpacing: 2,
-      fontFamily: 'Lexend-ExtraLight',
+      fontFamily: 'Lexend-SemiBold',
     },
   });
 
