@@ -14,7 +14,7 @@ import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
 import ip from './ip';
-import { withNavigation } from '@react-navigation/compat';
+import {withNavigation} from '@react-navigation/compat';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -31,103 +31,121 @@ function MyTabs() {
       credentials: 'include',
       method: 'GET',
     })
-    .then(res => res.json())
-    .then(resBody => {
-      if (resBody.userId) {
-        setUserId(resBody.userId);
-      }
-    })
-  }, [])
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.userId) {
+          setUserId(resBody.userId);
+        }
+      });
+  }, []);
   return (
-    <Tab.Navigator initialRouteName="" screenOptions={{tabBarItemStyle:{
-      backgroundColor:'#000',
-      margin:0,
-      borderRadius:0,
-    }, tabBarLabelStyle: {
-      fontWeight: "bold"
-    }}}>
-      <Tab.Screen name="Home" 
-        options={{ 
-          headerShown: false, 
-          tabBarLabel: "", 
-          tabBarIcon: (tabInfo) => {
-          return (
-            <Image 
-              source={require("./assets/home.png")}
-              style={styles.mapicon}
-            />
-          )
-        }}}
-      >
-        {(props) => {
-          return <HomeScreen 
-            {...props}
-            userId={userId}
-          />
+    <Tab.Navigator
+      initialRouteName=""
+      screenOptions={{
+        tabBarItemStyle: {
+          backgroundColor: '#000',
+          margin: 0,
+          borderRadius: 0,
+        },
+        tabBarLabelStyle: {
+          fontWeight: 'bold',
+        },
+      }}>
+      <Tab.Screen
+        name="Home"
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarIcon: tabInfo => {
+            return (
+              <Image
+                source={require('./assets/home.png')}
+                style={styles.mapicon}
+              />
+            );
+          },
+        }}>
+        {props => {
+          return <HomeScreen {...props} userId={userId} />;
         }}
       </Tab.Screen>
-      <Tab.Screen name="Search" component={SearchStack} options={{headerShown: false ,tabBarLabel: "", tabBarIcon: (tabInfo) => {
-        return (
-         <Image 
-          source={require("./assets/search.png")}
-          style={styles.mapicon}
-         />
-        )
-      }}}/>
-      <Tab.Screen name="UserProfile" options={{ 
-        headerShown: false, 
-        tabBarLabel: "",
-        tabBarIcon: (tabInfo) => {
-         return (
-               <Image
-                source={require("./assets/user.png")}
+      <Tab.Screen
+        name="Search"
+        component={SearchStack}
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarIcon: tabInfo => {
+            return (
+              <Image
+                source={require('./assets/search.png')}
                 style={styles.mapicon}
-               />
-              )
-      } }}>
-        {(props) => {
-          return <UStackNav 
-            {...props}
-            ownerId={userId}
-          />
+              />
+            );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="UserProfile"
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarIcon: tabInfo => {
+            return (
+              <Image
+                source={require('./assets/user.png')}
+                style={styles.mapicon}
+              />
+            );
+          },
+        }}>
+        {props => {
+          return <UStackNav {...props} ownerId={userId} />;
         }}
       </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
-const HomeScreen = (passedProps) => {
+const HomeScreen = passedProps => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Map" options={{headerShown: false}}>
-        {(props) => {
-          return <NewMap 
-            {...props}
-            {...passedProps}
-          />
+        {props => {
+          return <NewMap {...props} {...passedProps} />;
         }}
       </Stack.Screen>
-      <Stack.Screen name="UserProfile" component={User} options={{headerShown: false}} />
+      <Stack.Screen
+        name="UserProfile"
+        component={User}
+        options={{headerShown: false}}
+      />
     </Stack.Navigator>
   );
 };
 
-const UStackNav = (passedProps) => {
-  return(
-    <Stack.Navigator initialRouteName='User'>
-      <Stack.Screen name='User' options={{ headerShown: false }}>
-        {(props) => {
-          return <UserWithNavigation 
-            {...props} 
-            {...passedProps} 
-            origin={props.route.params ? props.route.params.origin : null}
-          />
+const UStackNav = passedProps => {
+  return (
+    <Stack.Navigator initialRouteName="User">
+      <Stack.Screen name="User" options={{headerShown: false}}>
+        {props => {
+          return (
+            <UserWithNavigation
+              {...props}
+              {...passedProps}
+              origin={props.route.params ? props.route.params.origin : null}
+            />
+          );
         }}
       </Stack.Screen>
-      <Stack.Screen name='Edit User' component={EditUser} options={{
-        headerTitleStyle: {fontFamily: 'Lexend-SemiBold'}
-      }}/>
-       <Stack.Screen
+      <Stack.Screen
+        name="Edit User"
+        component={EditUser}
+        options={{
+          headerTitleStyle: {fontFamily: 'Lexend-SemiBold'},
+        }}
+      />
+      <Stack.Screen
         name="Create Itinerary"
         component={CreateItinerary}
         options={{headerShown: false}}
@@ -138,8 +156,8 @@ const UStackNav = (passedProps) => {
         options={{headerShown: false}}
       />
     </Stack.Navigator>
-  )
-}
+  );
+};
 
 const SearchStack = () => {
   return (
@@ -170,7 +188,7 @@ const SearchStack = () => {
 //   );
 // };
 
-const App = (props) => {
+const App = props => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
@@ -189,7 +207,7 @@ const App = (props) => {
           component={MyTabs}
           options={{headerShown: false}}
         />
-        <Stack.Screen 
+        <Stack.Screen
           name="User"
           component={User}
           options={{headerShown: false}}

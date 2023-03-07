@@ -34,7 +34,7 @@ import ContentsForLocationContent from '../components/home/bottomSheetContent/Co
 import ContentsForItineraryContent from '../components/home/bottomSheetContent/ContentsForDetailedIti';
 import ContentsForRatingContent from '../components/home/bottomSheetContent/ContentsForRating';
 
-export default function NewMap({navigation, userId}) {
+export default function NewMap({navigation, userId, route}) {
   const [region, setRegion] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -254,6 +254,20 @@ export default function NewMap({navigation, userId}) {
   const handleUpOverScrollModal = () => {
     handleExitContentsForLocation();
   };
+
+  //get route params
+  useEffect(() => {
+    navigation.addListener('focus', () => {
+      if (route.params) {
+        const {itinerary, type, showIti, showDir} = route.params;
+        setSelectedItinerary(itinerary);
+        setCurrentBottomSheetType(type);
+        setShowDetailIti(showIti);
+        setShowDirection(showDir);
+        sheetRef.current.snapTo(1);
+      }
+    });
+  }, [route.params]);
 
   useEffect(() => {
     // get user position and set region to focus on user's position.

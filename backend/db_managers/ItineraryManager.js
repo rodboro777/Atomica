@@ -53,9 +53,21 @@ class ItineraryManager {
   }
 
   static async updateItinerary(id, itinerary) {
+    const updatedIti = this.constructItinerary(itinerary);
+    console.log(updatedIti.travelGuideId);
     return await ItineraryModel.findByIdAndUpdate(
       id,
-      this.constructItinerary(itinerary),
+      {
+        $set: {
+          name: updatedIti.name,
+          description: updatedIti.description,
+          travelGuideId: updatedIti.travelGuideId,
+          creatorId: updatedIti.creatorId,
+          rating: updatedIti.rating,
+          ratingCount: updatedIti.ratingCount,
+          imageUrl: updatedIti.imageUrl,
+        },
+      },
       { new: true }
     );
   }
@@ -75,7 +87,6 @@ class ItineraryManager {
       creatorId: new ObjectID(itinerary.creatorId),
       travelGuideId: travelGuideIds,
       public: itinerary.isPublic,
-      rating: itinerary.rating,
       ratingCount: itinerary.ratingCount,
       imageUrl: itinerary.imageUrl,
     };
@@ -84,7 +95,9 @@ class ItineraryManager {
   static async getTotalTime(itineraryId) {
     const itinerary = await ItineraryModel.findById(itineraryId);
     let travelGuideIds = itinerary.travelGuideId;
-    let travelGuides = await TravelGuideModel.find({ _id: { $in: travelGuideIds } });
+    let travelGuides = await TravelGuideModel.find({
+      _id: { $in: travelGuideIds },
+    });
     let totalTime = 0;
     for (let i = 0; i < travelGuides.length; i++) {
       totalTime += travelGuides[i].audioLength;

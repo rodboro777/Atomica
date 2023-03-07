@@ -77,7 +77,7 @@ export default function CreateItinerary({navigation, route}) {
     formdata.append('rating', item.rating);
     formdata.append('ratingCount', item.ratingCount);
     if (isEdit) {
-      formdata.append('id', item._id);
+      formdata.append('itineraryId', item._id);
       if (itinerary.uploadedImage == null) {
         formdata.append('imageUrl', itinerary.imageUrl);
       }
@@ -102,6 +102,7 @@ export default function CreateItinerary({navigation, route}) {
 
   useEffect(() => {
     if (isEdit) {
+      console.log(item.travelGuideId);
       axios
         .post(`http://${ip.ip}:8000/travelGuide/byIds`, item.travelGuideId)
         .then(res => {

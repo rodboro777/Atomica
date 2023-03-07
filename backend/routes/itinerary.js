@@ -116,7 +116,6 @@ router.post("/", upload.fields([{ name: "imageFile" }]), async (req, res) => {
     .setRatingCount(req.body.itineraryId ? req.body.ratingCount : 0)
     .setImageUrl(imageUrl)
     .build();
-
   try {
     if (req.body.itineraryId) {
       const doc = await ItineraryManager.updateItinerary(

@@ -157,13 +157,17 @@ export default function Itinerary({
             </View>
           )}
         </View>
+
         {!isDetail && (
           <TouchableOpacity
             style={{flex: 1, marginTop: 3, marginLeft: 'auto'}}
             onPress={() => {
-              if(isUserProfilePage){
-                navigation.navigate('Map', {
-                  itineraryId: item._id,
+              if (isUserProfilePage) {
+                navigation.navigate('Home', {
+                  itinerary: item,
+                  type: 'contentsForItinerary',
+                  showIti: true,
+                  showDir: true,
                 });
                 return;
               }
@@ -176,6 +180,32 @@ export default function Itinerary({
             }}>
             <Icon name="arrow-right-thin" color="black" size={50} />
           </TouchableOpacity>
+        )}
+        {isUserProfilePage && (
+          <View
+            style={{
+              position: 'absolute',
+              right: 10,
+              bottom: -40,
+              width: 40,
+              height: 40,
+              zIndex: 3,
+            }}>
+            <TouchableOpacity
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => {
+                navigation.navigate('Create Itinerary', {
+                  item: item,
+                  isEdit: true,
+                });
+              }}>
+              <Icon name="book-edit" color="black" size={30} />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
       <Text

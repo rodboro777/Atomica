@@ -28,10 +28,13 @@ class TravelGuideManager {
   }
 
   static async getTravelGuidesByIds(ids) {
+    const index = {};
+    ids.forEach((id, i) => (index[id] = i));
     try {
       const docs = await TravelGuideModel.find({
         _id: { $in: ids },
       });
+      docs.sort((a, b) => index[a._id] - index[b._id]);
       return docs;
     } catch (err) {
       throw err;
