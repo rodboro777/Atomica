@@ -10,15 +10,14 @@ import {
 import playIcon from '../assets/play_1.png';
 import pauseIcon from '../assets/pause_1.png';
 import {WebView} from 'react-native-webview';
+import SoundPlayer from 'react-native-sound-player';
 
 export default function BottomInfoCard(props) {
   const {
     tgNumber,
     nextRouteInfo,
-    togglePlayAudio,
     tg,
     showDirection,
-    currentlyPlaying = [123, false],
     directionIdx,
     dirDistance, //might use this for UI enhancement so don't remove
     destinationDistance,
@@ -27,6 +26,24 @@ export default function BottomInfoCard(props) {
     setShowDirection,
     setCurrentBottomSheetType,
   } = props;
+
+  const [isPaused, setPaused] = useState(false);
+  const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+  function handleAudioButtonPress() {
+    if (!currentPlayingTG || currentPlayingTG != tg[tgNumber]._id) {
+      setPaused(false);
+      setCurrentPlayingTG(tg[tgNumber]._id);
+      SoundPlayer.stop();
+      SoundPlayer.playUrl(tg[tgNumber].audioUrl);
+    } else if (isPaused) {
+      SoundPlayer.resume();
+      setPaused(false);
+    } else {
+      SoundPlayer.pause();
+      setPaused(true);
+    }
+  }
+
   const styles = StyleSheet.create({
     bottomCardHolder: {
       position: 'absolute',
@@ -76,6 +93,7 @@ export default function BottomInfoCard(props) {
       justifyContent: 'center',
     },
   });
+
   const handleViewportMeta = () => {
     const viewportMeta =
       "var meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta);";
@@ -146,10 +164,10 @@ export default function BottomInfoCard(props) {
                     justifyContent: 'center',
                   }}
                   onPress={() => {
-                    togglePlayAudio(tg[tgNumber]);
+                    handleAudioButtonPress();
                   }}>
                   <Image
-                    source={currentlyPlaying[1] ? pauseIcon : playIcon}
+                    source={isPaused ? playIcon : pauseIcon}
                     style={{width: 30, height: 30, resizeMode: 'cover'}}
                   />
                 </TouchableOpacity>
@@ -164,9 +182,9 @@ export default function BottomInfoCard(props) {
                     marginLeft: 20,
                     fontFamily: 'Lexend-ExtraLight',
                   }}>
-                  {currentlyPlaying[1]
+                  {!isPaused
                     ? 'Pause Audio'
-                    : currentlyPlaying[0] == tg[tgNumber]._id
+                    : currentPlayingTG == tg[tgNumber]._id
                     ? 'Resume Audio'
                     : 'Play Audio'}
                 </Text>
