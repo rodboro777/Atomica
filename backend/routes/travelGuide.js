@@ -294,6 +294,7 @@ router.post(
         .setImageUrl(imageUrl)
         .setAudioLength(duration)
         .setPlaceId(req.body.placeId)
+        .setCoordinates(JSON.parse(req.body.coordinates))
         .build();
       await TravelGuideManager.createTravelGuideRequest(request);
       res.send({
