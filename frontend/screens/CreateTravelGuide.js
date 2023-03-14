@@ -60,6 +60,11 @@ export default function CreateTravelGuide({navigation, route}) {
       formData.append('imageUrl', defaultPhotoUrl);
     }
 
+    formData.append('coordinates', JSON.stringify({
+      lat: region.latitude,
+      lng: region.longitude
+    }));
+
     await fetch(`http://${ip.ip}:8000/travelGuide`, {
       credentials: 'include',
       method: 'POST',

@@ -194,6 +194,34 @@ class TravelGuideManager {
     }
   }
 
+  static async getTravelGuidesAndItinerariesByCoordinates(coordinates) {
+    try {
+      const docs = await TravelGuideModel.aggregate([
+        {
+          $match: {
+            $and: [
+              { 'coordinates.lat': { $gte: coordinates.minLat } },
+              { 'coordinates.lat': { $lte: coordinates.maxLat } },
+              { 'coordinates.lng': { $gte: coordinates.minLng } },
+              { 'coordinates.lng': { $lte: coordinates.maxLng } },
+            ]
+          },
+        },
+        {
+          $lookup: {
+            from: "itineraries",
+            localField: "_id",
+            foreignField: "travelGuideId",
+            as: "itineraries",
+          },
+        },
+      ]);
+      return docs;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   static async getTravelGuidesAndItinerariesByPlaceIds(placeIds) {
     try {
       const docs = await TravelGuideModel.aggregate([
