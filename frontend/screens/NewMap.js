@@ -793,13 +793,12 @@ export default function NewMap({navigation, userId, route}) {
                           latitude: location.latitude,
                           longitude: location.longitude,
                         }}
-                        // title={location.name}
                       >
                         <Image
                           source={require('../assets/map-marker-black.png')}
-                          style={{width: 45, height: 59}}
-                          resizeMode="center"
-                          resizeMethod="scale"
+                          style={{width: 45, height: 50}}
+                          resizeMode="cover"
+                          resizeMethod="auto"
                         />
                       </Marker>
                     );
@@ -817,9 +816,9 @@ export default function NewMap({navigation, userId, route}) {
                     }}>
                     <Image
                       source={require('../assets/map-marker-white.png')}
-                      style={{width: 45, height: 59}}
-                      resizeMode="center"
-                      resizeMethod="scale"
+                      style={{width: 45, height: 50}}
+                      resizeMode="cover"
+                      resizeMethod="auto"
                     />
                   </Marker>
                 )}
@@ -927,15 +926,15 @@ const mapStyle = [
     elementType: 'labels.text.fill',
     stylers: [{color: 'black'}],
   },
-  {
-    featureType: 'poi',
-    elementType: 'labels.icon',
-    stylers: [
-      {
-        visibility: 'off',
-      },
-    ],
-  },
+  // {
+  //   featureType: 'poi',
+  //   elementType: 'labels.icon',
+  //   stylers: [
+  //     {
+  //       visibility: 'off',
+  //     },
+  //   ],
+  // },
   {
     featureType: 'landscape',
     elementType: 'geometry.fill',
