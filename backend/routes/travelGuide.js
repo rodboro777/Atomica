@@ -59,6 +59,68 @@ router.post("/byIds", async (req, res) => {
   }
 });
 
+router.get('/byCoordinates', async (req, res) => {
+  const coordinates = {
+    minLat: parseFloat(req.query.minLat),
+    maxLat: parseFloat(req.query.maxLat),
+    minLng: parseFloat(req.query.minLng),
+    maxLng: parseFloat(req.query.maxLng)
+  };
+
+  try {
+    const results = await TravelGuideManager.getTravelGuidesAndItinerariesByCoordinates(coordinates);
+    let data = {};
+    let tracker = {};
+
+    // results is a collection of travelGuides. however, each travelGuide has an
+    // additional field which is itineraries (list of itineraries).
+    results.forEach(travelGuide => {
+      const itineraries = travelGuide.itineraries;
+      delete travelGuide.itineraries;
+      const placeId = travelGuide.placeId;
+      
+      if (!(placeId in data)) {
+        data[placeId] = {
+          travelGuides: [],
+          itineraries: []
+        };
+        tracker[placeId] = {
+          travelGuides: new Set(),
+          itineraries: new Set()
+        }
+      }
+
+      if (!(travelGuide._id in tracker[placeId].travelGuides)) {
+        data[placeId].travelGuides.push(travelGuide);
+        tracker[placeId].travelGuides.add(travelGuide._id);
+
+        if (!data[placeId].name) {
+          data[placeId].name = travelGuide.locationName;
+          data[placeId].latitude = travelGuide.coordinates.lat;
+          data[placeId].longitude = travelGuide.coordinates.lng;
+        }
+      }
+
+      itineraries.forEach(itinerary => {
+        if (!(itinerary._id in tracker[placeId].itineraries)) {
+          data[placeId].itineraries.push(itinerary);
+          tracker[placeId].itineraries.add(itinerary._id);
+        }
+      });
+    });
+
+    res.send({
+      data: data,
+      statusCode: 200,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      statusCode: 500
+    });
+  }
+});
+
 router.get('/byLocations', async (req, res) => {
   const placeIds = req.query.placeIds;
   

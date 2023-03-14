@@ -300,7 +300,6 @@ export default function NewMap({navigation, userId, route}) {
       position => {
         const {latitude, longitude} = position.coords;
         if (runningRoute && isOnTrack.current) {
-          console.log(destinationCoord.current);
           let range = getDistance(
             latitude,
             longitude,
@@ -399,17 +398,22 @@ export default function NewMap({navigation, userId, route}) {
       // TODO: this is bad. need to find out how to get correct radius when getMapBoundaries is not
       // activated yet (i.e., returns 0 for everything). the current value is dependant on the initialRegion
       // having latitudeDelta and longitudeDelta both equal to 0.01.
-      radius = 558.812037159875;
+      radius = 0.01;
     } else {
       const latDiff = Math.abs(northEast.latitude - southWest.latitude);
       const lngDiff = Math.abs(northEast.longitude - southWest.longitude);
-      radius = (Math.max(latDiff, lngDiff) * 69 * 1.60934 * 1000) / 2;
+      radius = Math.max(latDiff, lngDiff) / 2;
     }
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${region.latitude},${region.longitude}&type=point_of_interest&radius=${radius}&key=${mapKey}`,
+
+    let response = await fetch(
+      `http://${ip.ip}:8000/travelGuide/byCoordinates?maxLat=${region.latitude + radius}&maxLng=${region.longitude + radius}&minLat=${region.latitude - radius}&minLng=${region.longitude - radius}`,
+      {
+        credentials: 'include',
+        method: 'GET',
+      },
     );
-    const locations = await response.json();
-    return locations;
+    const data = await response.json();
+    return data;
   };
 
   const getImageUrlFromPhotoReference = photoRef => {
@@ -424,43 +428,10 @@ export default function NewMap({navigation, userId, route}) {
 
   useEffect(() => {
     if (region && showDetailIti == false) {
-      getPlacesWithinFrame().then(async data => {
-        const locations = data.results;
-        let locationsWithinFrameCandidate = {};
-        let queryParams = '';
-        locations.forEach((location, index) => {
-          locationsWithinFrameCandidate[location.place_id] = {
-            latitude: location.geometry.location.lat,
-            longitude: location.geometry.location.lng,
-            name: location.name,
-          };
-          queryParams += `placeIds=${location.place_id}`;
-          if (index < locations.length - 1) {
-            queryParams += '&';
-          }
-        });
-
-        let locationsDataRes = await fetch(
-          `http://${ip.ip}:8000/travelGuide/byLocations?${queryParams}`,
-          {
-            credentials: 'include',
-            method: 'GET',
-          },
-        );
-        locationsDataRes = await locationsDataRes.json();
-        if (locationsDataRes.statusCode != 200) {
-          Alert.alert('Failed to retrieve locationsData');
-        }
-
-        const locationsData = locationsDataRes.data;
-        Object.keys(locationsData).forEach(placeId => {
-          locationsWithinFrameCandidate[placeId].travelGuides =
-            locationsData[placeId].travelGuides;
-          locationsWithinFrameCandidate[placeId].itineraries =
-            locationsData[placeId].itineraries;
-        });
+      getPlacesWithinFrame().then(async res => {
+        const locationsData = res.data;
         locationNumber.current = Object.keys(locationsData).length;
-        setLocationsWithinFrame(locationsWithinFrameCandidate);
+        setLocationsWithinFrame(locationsData);
       });
     }
   }, [region, showDetailIti]);
