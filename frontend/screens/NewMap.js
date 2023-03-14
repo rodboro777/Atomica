@@ -720,9 +720,9 @@ export default function NewMap({navigation, userId, route}) {
                 }}>
                 <Image
                   source={require('../assets/map-marker-black.png')}
-                  style={{width: 45, height: 59}}
-                  resizeMode="center"
-                  resizeMethod="scale"
+                  style={{width: 45, height: 50}}
+                  resizeMode="cover"
+                  resizeMethod="auto"
                 />
               </Marker>
             )}
@@ -738,9 +738,9 @@ export default function NewMap({navigation, userId, route}) {
                     }}>
                     <Image
                       source={require('../assets/map-marker-black.png')}
-                      style={{width: 45, height: 59}}
-                      resizeMode="center"
-                      resizeMethod="scale"
+                      style={{width: 45, height: 50}}
+                      resizeMode="cover"
+                      resizeMethod="auto"
                     />
                   </Marker>
                 );
