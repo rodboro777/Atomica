@@ -75,6 +75,12 @@ export default function NewMap({navigation, userId, route}) {
     setRegion(val);
   }
 
+  const SPECIAL_SCREEN_TYPE = {
+    TRAVEL_GUIDE_NAVIGATION: 'travelGuideNavigation'
+  };
+
+  const [currentSpecialScreen, setCurrentSpecialScreen] = useState(null);
+
   const BOTTOM_SHEET_TYPE = {
     CONTENTS_WITHIN_AREA: 'contentsWithinArea',
     CONTENTS_FOR_LOCATION: 'contentsForLocation',
@@ -120,6 +126,7 @@ export default function NewMap({navigation, userId, route}) {
           sheetRef={sheetRef}
           setIsLoading={setIsLoading}
           isLoading={isLoading}
+          activateTravelGuideNav={activateTravelGuideNav}
         />
       );
     } else if (
@@ -144,6 +151,7 @@ export default function NewMap({navigation, userId, route}) {
           sheetRef={sheetRef}
           setIsLoading={setIsLoading}
           isLoading={isLoading}
+          activateTravelGuideNav={activateTravelGuideNav}
         />
       );
     } else if (
@@ -157,6 +165,8 @@ export default function NewMap({navigation, userId, route}) {
           mapRef={mapRef}
           setRunningIds={setRunningIds}
           setItiTg={setItiTg}
+          handleUpOverScrollModal={handleUpOverScrollModal}
+          activateTravelGuideNav={activateTravelGuideNav}
         />
       );
     } else if (
@@ -255,16 +265,44 @@ export default function NewMap({navigation, userId, route}) {
     handleExitContentsForLocation();
   };
 
+  const activateTravelGuideNav = (travelGuide) => {
+    setCurrentSpecialScreen(SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION);
+    setShowDirection(true);
+    setItiTg([travelGuide]);
+    setTgMarkers([{
+      id: travelGuide._id,
+      latitude: travelGuide.coordinates.lat,
+      longitude: travelGuide.coordinates.lng
+    }]);
+    setRunningIds([`place_id:${travelGuide.placeId}`]);
+    setRunningRoute(true);
+  };
+
+  const deactivateTravelGuideNav = () => {
+    setCurrentSpecialScreen(null);
+    setCurrentBottomSheetType(BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA);
+    setShowDetailIti(false);
+    setShowDirection(false);
+  }
+
   //get route params
   useEffect(() => {
     navigation.addListener('focus', () => {
       if (route.params) {
-        const {itinerary, type, showIti, showDir} = route.params;
-        setSelectedItinerary(itinerary);
-        setCurrentBottomSheetType(type);
-        setShowDetailIti(showIti);
-        setShowDirection(showDir);
-        sheetRef.current.snapTo(1);
+        if (route.params.type == BOTTOM_SHEET_TYPE.CONTENTS_FOR_ITINERARY) {
+          const {itinerary, type, showIti, showDir} = route.params;
+          setSelectedItinerary(itinerary);
+          setCurrentBottomSheetType(type);
+          setShowDetailIti(showIti);
+          setShowDirection(showDir);
+          sheetRef.current.snapTo(1);
+          return;
+        }
+
+        if (route.params.type == SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION) {
+          const {travelGuide, type} = route.params;
+          activateTravelGuideNav(travelGuide);
+        }
       }
     });
   }, [route.params]);
@@ -572,6 +610,9 @@ export default function NewMap({navigation, userId, route}) {
               setRunningIti={setRunningRoute}
               setShowDirection={setShowDirection}
               setCurrentBottomSheetType={setCurrentBottomSheetType}
+              currentSpecialScreen={currentSpecialScreen}
+              setCurrentSpecialScreen={setCurrentSpecialScreen}
+              deactivateTravelGuideNav={deactivateTravelGuideNav}
             />
           )}
           {runningRoute && (
@@ -582,7 +623,11 @@ export default function NewMap({navigation, userId, route}) {
               setRunningIti={setRunningRoute}
               setShowDirection={setShowDirection}
               resetRouteVariables={resetRouteVariables}
+              currentSpecialScreen={currentSpecialScreen}
               destinationCoord={destinationCoord}
+              setCurrentSpecialScreen={setCurrentSpecialScreen}
+              setCurrentBottomSheetType={setCurrentBottomSheetType}
+              deactivateTravelGuideNav={deactivateTravelGuideNav}
             />
           )}
           {!showDirection && !runningRoute && (
@@ -689,7 +734,7 @@ export default function NewMap({navigation, userId, route}) {
             provider="google"
             onRegionChangeComplete={handleRegionChange}
             style={styles.map}>
-            {showDetailIti &&
+            {(showDetailIti || currentSpecialScreen == SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION) &&
               runningIds.length > 0 &&
               runningIds.map((id, index) => {
                 return (
@@ -745,7 +790,7 @@ export default function NewMap({navigation, userId, route}) {
                   </Marker>
                 );
               })}
-            {!showDetailIti &&
+            {!showDetailIti && !currentSpecialScreen &&
             currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA
               ? Object.keys(locationsWithinFrame).map(place_id => {
                   const location = locationsWithinFrame[place_id];

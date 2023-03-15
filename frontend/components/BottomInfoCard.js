@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -25,10 +25,14 @@ export default function BottomInfoCard(props) {
     setRunningIti,
     setShowDirection,
     setCurrentBottomSheetType,
+    currentSpecialScreen,
+    setCurrentSpecialScreen,
+    deactivateTravelGuideNav
   } = props;
 
-  const [isPaused, setPaused] = useState(false);
+  const [isPaused, setPaused] = useState(true);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+
   function handleAudioButtonPress() {
     if (!currentPlayingTG || currentPlayingTG != tg[tgNumber]._id) {
       setPaused(false);
@@ -205,8 +209,12 @@ export default function BottomInfoCard(props) {
                     }}
                     onPress={() => {
                       setRunningIti(false);
-                      setShowDirection(true);
-                      setCurrentBottomSheetType('contentsForRating');
+                      if (currentSpecialScreen == "travelGuideNavigation") {
+                        deactivateTravelGuideNav();
+                      } else {
+                        setShowDirection(true);
+                        setCurrentBottomSheetType('contentsForRating');
+                      }
                       resetRouteVariables();
                     }}>
                     <Text

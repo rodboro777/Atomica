@@ -34,7 +34,7 @@ export default function ContentsWithinAreaHeader({
       if (contents) {
         for (let i = 0; i < contents.length; i++) {
           let content = contents[i];
-          if (!(content._id in memo)) {
+          if (!(memo.has(content._id))) {
             memo.add(content._id);
             total += 1;
           }

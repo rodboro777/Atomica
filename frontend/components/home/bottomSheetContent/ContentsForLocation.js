@@ -23,7 +23,8 @@ export default function ContentsForLocationContent({
   sheetRef,
   setIsLoading,
   isLoading,
-  currentBottomSheetType
+  currentBottomSheetType,
+  activateTravelGuideNav
 }) {
   const PAGE_TYPE = {
     GUIDES: 'guides',
@@ -144,6 +145,8 @@ export default function ContentsForLocationContent({
           setCurrentPlayingTG={setCurrentPlayingTG}
           navigation={navigation}
           travelGuide={item}
+          closeCurrentModal={handleUpOverScrollModal}
+          activateTravelGuideNav={activateTravelGuideNav}
         />
       );
     } else {
