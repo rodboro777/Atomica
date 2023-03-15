@@ -24,6 +24,7 @@ export default function ContentsWithinAreaContent({
   sheetRef,
   setIsLoading,
   isLoading,
+  activateTravelGuideNav
 }) {
   const PAGE_TYPE = {
     GUIDES: 'guides',
@@ -55,7 +56,7 @@ export default function ContentsWithinAreaContent({
       if (contents) {
         for (let i = 0; i < contents.length; i++) {
           let content = contents[i];
-          if (!(content._id in memo)) {
+          if (!(memo.has(content._id))) {
             memo.add(content._id);
             uniqueContents.push({
               ...content,
@@ -150,6 +151,8 @@ export default function ContentsWithinAreaContent({
           setCurrentPlayingTG={setCurrentPlayingTG}
           navigation={navigation}
           travelGuide={item}
+          closeCurrentModal={handleUpOverScrollModal}
+          activateTravelGuideNav={activateTravelGuideNav}
         />
       );
     } else {

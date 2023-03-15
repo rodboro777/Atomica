@@ -19,6 +19,9 @@ export default function TopInfoCard(props) {
     setShowDirection,
     resetRouteVariables,
     destinationCoord,
+    currentSpecialScreen,
+    setCurrentBottomSheetType,
+    deactivateTravelGuideNav
   } = props;
 
   const styles = StyleSheet.create({
@@ -93,7 +96,7 @@ export default function TopInfoCard(props) {
               letterSpacing: 3,
               fontFamily: 'Lexend-Light',
             }}>
-            {tg.length > 0 && `${tgNumber + 1}/${tg.length}`}
+            {tg.length > 1 && `${tgNumber + 1}/${tg.length}`}
           </Text>
         </View>
         <View style={styles.topCardControllerView}>
@@ -125,7 +128,10 @@ export default function TopInfoCard(props) {
           <TouchableOpacity
             onPress={() => {
               setRunningIti(false);
-              setShowDirection(true);
+              setShowDirection(currentSpecialScreen == "travelGuideNavigation" ? false : true);
+              if (currentSpecialScreen == "travelGuideNavigation") {
+                deactivateTravelGuideNav();
+              }
               resetRouteVariables();
             }}>
             <Image source={cancelIcon} style={{width: 25, height: 25}} />

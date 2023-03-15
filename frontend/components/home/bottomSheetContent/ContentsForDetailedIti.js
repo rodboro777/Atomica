@@ -14,6 +14,8 @@ export default function ContentsForDetailedIti(props) {
     mapRef,
     setRunningIds,
     setItiTg,
+    handleUpOverScrollModal,
+    activateTravelGuideNav
   } = props;
 
   const [travelGuides, setTravelGuides] = useState(null);
@@ -74,6 +76,9 @@ export default function ContentsForDetailedIti(props) {
         setCurrentPlayingTG={setCurrentPlayingTG}
         navigation={navigation}
         travelGuide={item}
+        closeCurrentModal={handleUpOverScrollModal}
+        activateTravelGuideNav={activateTravelGuideNav}
+        enableTravelGuideNav={false}
       />
     );
   };

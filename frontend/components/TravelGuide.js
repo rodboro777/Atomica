@@ -10,7 +10,10 @@ export default function TravelGuide({
     setCurrentPlayingTG,
     isUserProfilePage=false,
     navigation,
-    travelGuide
+    travelGuide,
+    closeCurrentModal,
+    activateTravelGuideNav,
+    enableTravelGuideNav=true
 }) {
     let secs = Math.floor(travelGuide.audioLength % 60);
     let mins = Math.floor(travelGuide.audioLength / 60);
@@ -31,6 +34,19 @@ export default function TravelGuide({
         SoundPlayer.pause();
         setPaused(true);
       }
+    }
+
+    function handleNavigateTravelGuide() {
+      if (closeCurrentModal) closeCurrentModal();
+      if (!activateTravelGuideNav) {
+        navigation.navigate('Home', {
+          travelGuide: travelGuide,
+          type: "travelGuideNavigation",
+        });
+        return;
+      }
+
+      activateTravelGuideNav(travelGuide);
     }
 
     useEffect(() => {
@@ -104,7 +120,7 @@ export default function TravelGuide({
           }}
         />
         <View style={{flexDirection: 'row'}}>
-          <View style={{flex: 6, marginTop: 5, marginBottom: 5}}>
+          <View style={{flex: 8, marginTop: 5, marginBottom: 5}}>
             <Text style={{
                 fontFamily: 'Lexend-SemiBold',
                 fontSize: 18,
@@ -136,9 +152,13 @@ export default function TravelGuide({
                   }}> {formattedAudioLength}</Text>
             </View>
           </View>
+          {enableTravelGuideNav && <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleNavigateTravelGuide}>
+              <Icon name="map-marker-circle" color="black" size={35}/>
+          </TouchableOpacity>}
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
-            <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={50}/>
+              <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={35}/>
           </TouchableOpacity>
+
         </View>
           <Text style={{
                 marginTop:5,

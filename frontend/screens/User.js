@@ -302,6 +302,7 @@ export default function User({ownerId, navigation, origin, route}) {
           currentPlayingTG={currentPlayingTG}
           setCurrentPlayingTG={setCurrentPlayingTG}
           isUserProfilePage={true}
+          navigation={navigation}
         />
       );
     } else if (item.type == 'itinerary') {
