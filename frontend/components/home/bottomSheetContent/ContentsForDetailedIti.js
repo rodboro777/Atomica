@@ -78,6 +78,7 @@ export default function ContentsForDetailedIti(props) {
         travelGuide={item}
         closeCurrentModal={handleUpOverScrollModal}
         activateTravelGuideNav={activateTravelGuideNav}
+        enableTravelGuideNav={false}
       />
     );
   };

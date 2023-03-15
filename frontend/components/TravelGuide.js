@@ -12,7 +12,8 @@ export default function TravelGuide({
     navigation,
     travelGuide,
     closeCurrentModal,
-    activateTravelGuideNav
+    activateTravelGuideNav,
+    enableTravelGuideNav=true
 }) {
     let secs = Math.floor(travelGuide.audioLength % 60);
     let mins = Math.floor(travelGuide.audioLength / 60);
@@ -151,9 +152,9 @@ export default function TravelGuide({
                   }}> {formattedAudioLength}</Text>
             </View>
           </View>
-          <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleNavigateTravelGuide}>
+          {enableTravelGuideNav && <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleNavigateTravelGuide}>
               <Icon name="map-marker-circle" color="black" size={35}/>
-          </TouchableOpacity>
+          </TouchableOpacity>}
           <TouchableOpacity style={{flex: 1, marginTop: 3, marginLeft: 'auto'}} onPress={handleAudioButtonPress}>
               <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={35}/>
           </TouchableOpacity>
