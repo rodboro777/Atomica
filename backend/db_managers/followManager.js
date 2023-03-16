@@ -1,6 +1,6 @@
 "use strict"
 
-const FollowModel = require("../models/FollowModel");
+const FollowModel = require("../models/followModel");
 var ObjectID = require("mongodb").ObjectID;
 
 class FollowManager {
