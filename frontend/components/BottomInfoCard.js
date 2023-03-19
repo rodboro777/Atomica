@@ -6,11 +6,13 @@ import {
   View,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import playIcon from '../assets/play_1.png';
 import pauseIcon from '../assets/pause_1.png';
 import {WebView} from 'react-native-webview';
 import SoundPlayer from 'react-native-sound-player';
+import SeekBar from '../components/SeekBar';
 
 export default function BottomInfoCard(props) {
   const {
@@ -27,18 +29,19 @@ export default function BottomInfoCard(props) {
     setCurrentBottomSheetType,
     currentSpecialScreen,
     setCurrentSpecialScreen,
-    deactivateTravelGuideNav
+    deactivateTravelGuideNav,
+    setAudioTime,
   } = props;
 
   const [isPaused, setPaused] = useState(true);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  function handleAudioButtonPress() {
+  async function handleAudioButtonPress() {
     if (!currentPlayingTG || currentPlayingTG != tg[tgNumber]._id) {
       setPaused(false);
       setCurrentPlayingTG(tg[tgNumber]._id);
-      SoundPlayer.stop();
-      SoundPlayer.playUrl(tg[tgNumber].audioUrl);
+      SoundPlayer.play();
     } else if (isPaused) {
       SoundPlayer.resume();
       setPaused(false);
@@ -47,6 +50,34 @@ export default function BottomInfoCard(props) {
       setPaused(true);
     }
   }
+
+  useEffect(() => {
+    if (!showDirection) {
+      SoundPlayer.stop();
+      SoundPlayer.loadUrl(tg[tgNumber].audioUrl);
+    }
+  }, [showDirection]);
+
+  useEffect(() => {
+    SoundPlayer.addEventListener('FinishedLoadingURL', ({success, url}) => {
+      setIsLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isPaused) {
+      async function getInfo() {
+        const res = await SoundPlayer.getInfo();
+        setAudioTime(res.currentTime);
+      }
+      const intervalId = setInterval(() => {
+        getInfo();
+      }, 1000);
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [isPaused]);
 
   const styles = StyleSheet.create({
     bottomCardHolder: {
@@ -170,10 +201,12 @@ export default function BottomInfoCard(props) {
                   onPress={() => {
                     handleAudioButtonPress();
                   }}>
-                  <Image
+                  {isLoading?
+                  <ActivityIndicator size="small" color="white" />
+                  :<Image
                     source={isPaused ? playIcon : pauseIcon}
                     style={{width: 30, height: 30, resizeMode: 'cover'}}
-                  />
+                  />}
                 </TouchableOpacity>
                 <Text
                   style={{
@@ -209,7 +242,7 @@ export default function BottomInfoCard(props) {
                     }}
                     onPress={() => {
                       setRunningIti(false);
-                      if (currentSpecialScreen == "travelGuideNavigation") {
+                      if (currentSpecialScreen == 'travelGuideNavigation') {
                         deactivateTravelGuideNav();
                       } else {
                         setShowDirection(true);

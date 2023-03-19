@@ -13,13 +13,15 @@ export default function TravelGuide({
     travelGuide,
     closeCurrentModal,
     activateTravelGuideNav,
-    enableTravelGuideNav=true
+    enableTravelGuideNav=true,
+    currentTime
 }) {
     let secs = Math.floor(travelGuide.audioLength % 60);
     let mins = Math.floor(travelGuide.audioLength / 60);
     let formattedAudioLength = `${mins}:${secs}`;
     const [isPaused, setPaused] = useState(false);
     const [creatorInfo, setCreatorInfo] = useState(null);
+    const [currentPosition, setCurrentPosition] = useState(0);
 
     function handleAudioButtonPress() {
       if (!currentPlayingTG || currentPlayingTG != travelGuide._id) {

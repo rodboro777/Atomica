@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+index 67e18c0..cdfcd23 100644
+--- a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
++++ b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+@@ -247,7 +247,7 @@ class TouchableOpacity extends React.Component<Props, State> {
+         hasTVPreferredFocus={this.props.hasTVPreferredFocus}
+         hitSlop={this.props.hitSlop}
+         focusable={
+-          this.props.focusable !== false && this.props.onPress !== undefined
++          this.props.focusable !== false && this.props.onPress
+         }
+         ref={this.props.hostRef}
+         {...eventHandlersWithoutBlurAndFocus}>
+diff --git a/node_modules/react-native/scripts/.packager.bat b/node_modules/react-native/scripts/.packager.bat
+new file mode 100644
+index 0000000..e89260e
+--- /dev/null
++++ b/node_modules/react-native/scripts/.packager.bat
+@@ -0,0 +1 @@
++set RCT_METRO_PORT=8081
+\ No newline at end of file
