@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {View, StyleSheet, Text, Image, ScrollView} from 'react-native';
+import React, { useState } from "react";
+import { View, StyleSheet, Text, Image, ScrollView } from 'react-native';
 
 import Inputs from "../components/Inputs";
 import Submit from "../components/Submit";
@@ -12,53 +12,52 @@ const SignUp = props => {
     const [fullName, setFullName] = useState("");
     const [country, setCountry] = useState("");
 
-   const registerLocal = async () => {
+    const registerLocal = async () => {
 
-
-        fetch(`http://${ip.ip}:8000/auth/register`, {
-                    credentials: 'include',
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                      username: username,
-                      password: passwd,
-                      fullName: fullName,
-                      country: country,
-                    })
+        fetch(`http://10.0.2.2:8000/auth/register`, {
+            credentials: 'include',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: passwd,
+                fullName: fullName,
+                country: country,
+            })
 
         })
-        .then(res => res.json())
-        .then(resBody => {
-            if (resBody.statusCode == 200) {
-                props.navigation.navigate('MyTabs');
-            } else {
-                // TODO: need a UI to handle failed registration.
-                console.log("Registration failed");
-            }
-        })
-        .catch(err => console.log(err));
-   };
+            .then(res => res.json())
+            .then(resBody => {
+                if (resBody.statusCode == 200) {
+                    props.navigation.navigate('MyTabs');
+                } else {
+                    // TODO: need a UI to handle failed registration.
+                    console.log("Registration failed");
+                }
+            })
+            .catch(err => console.log(err));
+    };
     return (
-            <View style={styles.container}>
-                <View style={styles.subContainer}>
+        <View style={styles.container}>
+            <View style={styles.subContainer}>
                 <Text style={styles.textTile}>Let's Get Started</Text>
-                <Text style={{...styles.textBody, marginTop: 50}}>Create an account to access all features</Text>
-                <Inputs name="Full name" icon="user" onChangeText={(fullName) => setFullName(fullName)}/>
-                <Inputs name="Username" icon="user" onChangeText={(username) => setUsername(username)}/>
-                <Inputs name="Country" icon="map-pin" onChangeText={(country) => setCountry(country)}/>
-                <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)}/>
-                <Inputs name="Confirm Password" icon="lock" pass={true} onChangeText={(passwdRepeat) => setPasswdRepeat(passwdRepeat)}/>
-                <Submit color="black" title="Create" handleSubmit={registerLocal}/>
-                <View style={{flexDirection: 'row'}}>
+                <Text style={{ ...styles.textBody, marginTop: 50 }}>Create an account to access all features</Text>
+                <Inputs name="Full name" icon="user" onChangeText={(fullName) => setFullName(fullName)} />
+                <Inputs name="Username" icon="user" onChangeText={(username) => setUsername(username)} />
+                <Inputs name="Country" icon="map-pin" onChangeText={(country) => setCountry(country)} />
+                <Inputs name="Password" icon="lock" pass={true} onChangeText={(passwd) => setPasswd(passwd)} />
+                <Inputs name="Confirm Password" icon="lock" pass={true} onChangeText={(passwdRepeat) => setPasswdRepeat(passwdRepeat)} />
+                <Submit color="black" title="Create" handleSubmit={registerLocal} />
+                <View style={{ flexDirection: 'row' }}>
                     <Text style={styles.textBody}>Already have an account?</Text>
-                    <Text style={[styles.textBody, {color: 'black', fontFamily: 'Lexend-SemiBold'}]}
-                    onPress={() => props.navigation.navigate('Home')}> Login here</Text>
+                    <Text style={[styles.textBody, { color: 'black', fontFamily: 'Lexend-SemiBold' }]}
+                        onPress={() => props.navigation.navigate('Home')}> Login here</Text>
                 </View>
-                </View>
-            </View>  
-        
+            </View>
+        </View>
+
     )
 };
 

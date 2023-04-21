@@ -1,13 +1,12 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Text, Image, ScrollView, Alert} from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, Image, ScrollView, Alert } from 'react-native';
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import Geolocation from '@react-native-community/geolocation';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ip from '../ip';
-
 import Inputs from '../components/Inputs';
 import Submit from '../components/Submit';
 import Account from '../components/Account';
@@ -25,7 +24,7 @@ const Login = props => {
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId:
-        '126517507975-hkmu5h3t306dnfjq4p6ppu1ogd8v2ilg.apps.googleusercontent.com',
+        '477719873582-gonl6flm7625haa8nrm3uf1219vcgiaq.apps.googleusercontent.com',
       offlineAccess: true,
     });
   }, []);
@@ -35,6 +34,7 @@ const Login = props => {
   const [passwd, setPasswd] = useState('');
 
   const localSignIn = () => {
+    console.log(ip.ip)
     fetch(`http://${ip.ip}:8000/auth/login`, {
       credentials: 'include',
       method: 'POST',
@@ -48,9 +48,12 @@ const Login = props => {
     })
       .then(res => res.json())
       .then(resBody => {
+        console.log(resBody.statusCode);
         if (resBody.statusCode == 200) {
+          console.log("uhh tabs")
           props.navigation.navigate('MyTabs');
         } else if (resBody.statusCode == 403) {
+          console.log("wrong something")
           // TODO user entered the wrong credentials. add a UI for this.
         }
       })
@@ -89,10 +92,10 @@ const Login = props => {
   };
 
   return (
-    <ScrollView style={{backgroundColor: 'white'}}>
+    <ScrollView style={{ backgroundColor: 'white' }}>
       {authorizedGeolocation && <View style={styles.container}>
         <Image
-          source={require('../assets/guidify_logo.png')}
+          source={require('../assets/atomicalogo.png')}
           resizeMode={'contain'}
           style={styles.image}
         />
@@ -110,14 +113,14 @@ const Login = props => {
           pass={true}
           onChangeText={passwd => setPasswd(passwd)}
         />
-        <View style={{width: '90%'}}>
-          <Text style={[styles.textBody, {alignSelf: 'flex-end'}]}>
+        <View style={{ width: '90%' }}>
+          <Text style={[styles.textBody, { alignSelf: 'flex-end' }]}>
             Forgot Password?
           </Text>
         </View>
         <Submit title="Login" color="black" handleSubmit={localSignIn} />
-        <Text style={{...styles.textBody, marginTop: 20}}>Or login using</Text>
-        <View style={{flexDirection: 'row'}}>
+        <Text style={{ ...styles.textBody, marginTop: 20 }}>Or login using</Text>
+        <View style={{ flexDirection: 'row' }}>
           <Account
             color="black"
             icon="google"
@@ -125,10 +128,10 @@ const Login = props => {
             signInWithGoogle={signInWithGoogle}
           />
         </View>
-        <View style={{flexDirection: 'row', marginVertical: 5}}>
+        <View style={{ flexDirection: 'row', marginVertical: 5 }}>
           <Text style={styles.textBody}>Don't have an account?</Text>
           <Text
-            style={[styles.textBody, {color: 'black'}]}
+            style={[styles.textBody, { color: 'black' }]}
             onPress={() => props.navigation.navigate('SignUp')}>
             {' '}
             Sign Up

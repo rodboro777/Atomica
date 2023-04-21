@@ -43,7 +43,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // setup mongodb atlas connection.
-mongoose.connect(`mongodb+srv://${process.env.ATLAS_USER}:${process.env.ATLAS_PASSWORD}@cluster0.rnzvs8z.mongodb.net/guidifyDB`, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(`mongodb+srv://atomicheart:nSnKHuVcciD1zlQ8@cluster0.1ihsy2x.mongodb.net/atomica`, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // defaulting to port 5000 if not set in local .env file.
 const port = process.env.PORT || 5000;
