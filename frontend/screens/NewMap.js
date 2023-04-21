@@ -71,7 +71,7 @@ export default function NewMap({navigation, userId, route}) {
 
   const [locationsWithinFrame, setLocationsWithinFrame] = useState([]);
   const locationNumber = useRef([]);
-  const mapKey = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
+  const mapKey = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
 
   function handleRegionChange(val) {
     setRegion(val);

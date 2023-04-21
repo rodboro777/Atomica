@@ -137,6 +137,12 @@ const Login = props => {
             title="Google"
             signInWithGoogle={signInWithGoogle}
           />
+           <Account
+            color="#f5a998"
+            icon="user"
+            title="Guest Login"
+            signInWithGoogle={() => props.navigation.navigate('MyTabs')}
+          />
         </View>
         <View style={{ flexDirection: 'row', marginVertical: 15 }}>
           <Text style={[styles.textBody, {}]}>Don't have an account?</Text>

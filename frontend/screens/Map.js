@@ -95,7 +95,7 @@ const Map = () => {
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
-  const key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
+  const key = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
   const url =
     'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
     photo +

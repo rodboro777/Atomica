@@ -207,7 +207,7 @@ const App = props => {
       <Stack.Navigator initialRouteName="Onboarding">
       <Stack.Screen
           name="Onboarding"
-          component={Test}
+          component={Oindex}
           options={{headerShown: false}}
         />
         <Stack.Screen

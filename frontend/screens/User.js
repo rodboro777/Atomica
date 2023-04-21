@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   Alert,
+  Modal
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {Button} from '@react-native-material/core';
@@ -70,7 +71,7 @@ export default function User({ownerId, navigation, origin, route}) {
 
   const [ownerInfo, setOwnerInfo] = useState({
     id: ownerId,
-    fullName: '',
+    fullName: 'Guest',
     country: '',
   });
   const [userId, setUserId] = useState(null);
@@ -94,6 +95,9 @@ export default function User({ownerId, navigation, origin, route}) {
   const [currentPage, setCurrentPage] = useState(PAGE_TYPE.GUIDES);
   const [contentList, setContentList] = useState([]);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+
 
   const fetchFollowInfo = () => {
     // Get Follow info of the owner.
@@ -109,7 +113,10 @@ export default function User({ownerId, navigation, origin, route}) {
             numOfFollowing: resBody.numOfFollowing,
           });
         } else {
-          navigation.navigate('MyTabs');
+          //navigation.navigate('MyTabs');
+          setIsLoggedIn(false);
+          setShowModal(true);
+
         }
       });
   }
@@ -123,7 +130,9 @@ export default function User({ownerId, navigation, origin, route}) {
       .then(res => res.json())
       .then(resBody => {
         if (!resBody.isLoggedIn) {
-          navigation.navigate('Home');
+          //navigation.navigate('Home');
+          setIsLoggedIn(false);
+          setShowModal(true);
         }
         setUserId(resBody.userId);
       });
@@ -144,7 +153,9 @@ export default function User({ownerId, navigation, origin, route}) {
             imageUrl: resBody.info.imageUrl,
           });
         } else {
-          navigation.navigate('MyTabs');
+          //navigation.navigate('MyTabs');
+          setIsLoggedIn(false);
+          setShowModal(true);
         }
       });
 
@@ -419,11 +430,11 @@ export default function User({ownerId, navigation, origin, route}) {
                 {ownerInfo.username}
               </Text>
             </View>
-            {origin == 'Tab' && (
+            {isLoggedIn ? (
               <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
                 <Icon
                   name="plus-box-outline"
-                  color="black"
+                  color="green"
                   size={30}
                   style={{
                     marginTop: 'auto',
@@ -431,8 +442,30 @@ export default function User({ownerId, navigation, origin, route}) {
                   }}
                 />
               </TouchableOpacity>
-            )}
-          </View>
+            ): null}
+            <Icon 
+              name='logout-variant'
+              color="red"
+              size={30}
+              style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+              }}
+              //onPress={}
+            />
+              <Modal visible={showModal} animationType="fade" transparent={true}>
+              <View style={styles.modal}>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setShowModal(false)}
+                >
+                  <Icon name="close-circle" size={25} color="red" />
+                </TouchableOpacity>
+              <Text style={styles.modalText}>Please login to access all the features</Text>
+            </View>
+            </Modal>
+            </View>
+            
           <FlatList
             data={contentList}
             renderItem={renderItem}
@@ -578,5 +611,47 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'Lexend-Regular',
     color: 'white',
+  },
+  modalContainer: {
+    backgroundColor: '#f28f79',
+    height: '10%',
+    width: '80%',
+    alignSelf: 'center',
+    borderRadius: 5,
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 10
+  },
+  modal: {
+    //flex: 1,
+    backgroundColor: '#f28f79',
+    //justifyContent: 'center',
+    //alignItems: 'center',
+    marginTop: '10%',
+    marginLeft: '10%',
+    marginRight: '10%',
+    marginBottom: '10%',
+    height: '10%',
+    width: '80%',
+    alignSelf: 'flex-end',
+    borderRadius: 5,
+    flexDirection: 'row',
+    paddingLeft: 30
+  },
+  modalText: {
+    fontSize: 20,
+    //textAlign: 'center',
+    margin: 10,
+    color: '#000',
+    fontFamily: 'Lexend-Regular',
+
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    justifyContent: 'flex-start',
+    padding: 10,
   },
 });

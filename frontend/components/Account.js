@@ -17,7 +17,7 @@ const Account = props => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        width: 135,
+        width: 155,
         height: 45,
         borderRadius: 5,
         marginHorizontal: 10,
