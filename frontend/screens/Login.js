@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Text, Image, SafeAreaView, Alert, Dimensions } from 'react-native';
 import {
   GoogleSignin,
   statusCodes,
@@ -10,6 +10,8 @@ import ip from '../ip';
 import Inputs from '../components/Inputs';
 import Submit from '../components/Submit';
 import Account from '../components/Account';
+const { width } = Dimensions.get('window');
+const imageWidth = width * 0.8;
 
 const Login = props => {
   const [authorizedGeolocation, setAuthorizedGeolocation] = useState(false);
@@ -92,53 +94,62 @@ const Login = props => {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: 'white' }}>
-      {authorizedGeolocation && <View style={styles.container}>
-        <Image
-          source={require('../assets/atomicalogo.png')}
-          resizeMode={'contain'}
-          style={styles.image}
-        />
-        <Inputs
-          name="Username"
-          icon="user"
-          style={{
-            fontFamily: 'Lexend-Regular'
-          }}
-          onChangeText={username => setUsername(username)}
-        />
-        <Inputs
-          name="Password"
-          icon="lock"
-          pass={true}
-          onChangeText={passwd => setPasswd(passwd)}
-        />
-        <View style={{ width: '90%' }}>
-          <Text style={[styles.textBody, { alignSelf: 'flex-end' }]}>
-            Forgot Password?
-          </Text>
+    <SafeAreaView>
+    <View style={{
+        paddingTop: 50 
+    }}>
+        <View style={{alignItems: 'center'}}>
+            <Text style={{ fontSize: 35, color: 'blue', fontFamily: 'Lexend-Bold', marginVertical: 3}}>
+                Login here
+            </Text>
+            <Text style={{fontFamily: 'Lexend-Bold', fontSize: 20, maxWidth: '60%', textAlign: 'center', color: '#000', marginTop: 15}}>
+                Welcome back you've been missed!
+            </Text>
         </View>
-        <Submit title="Login" color="black" handleSubmit={localSignIn} />
-        <Text style={{ ...styles.textBody, marginTop: 20 }}>Or login using</Text>
-        <View style={{ flexDirection: 'row' }}>
+
+        <View style={{marginVertical: 30, justifyContent: 'center', alignItems: 'center'}}>
+            <Inputs
+                name="Username"
+                icon="user"
+                style={{
+                    fontFamily: 'Lexend-Regular',
+                    color: 'lightblue',
+                }}
+                onChangeText={username => setUsername(username)}
+            />
+            <Inputs
+                name="Password"
+                icon="lock"
+                pass={true}
+                onChangeText={passwd => setPasswd(passwd)}
+            />
+        <View style={{ width: '90%', marginTop: 10, marginBottom: 20 }}>
+            <Text style={[styles.textBody, { alignSelf: 'flex-end', color: 'blue' }]}>
+                Forgot Password?
+            </Text>
+        </View>
+            <Submit title="Login" color="black" handleSubmit={localSignIn} />  
+            <Text style={{ ...styles.textBody, marginTop: 30, }}>Or login using</Text>
+        <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <Account
-            color="black"
+            color="#a3ffa3"
             icon="google"
             title="Google"
             signInWithGoogle={signInWithGoogle}
           />
         </View>
-        <View style={{ flexDirection: 'row', marginVertical: 5 }}>
-          <Text style={styles.textBody}>Don't have an account?</Text>
+        <View style={{ flexDirection: 'row', marginVertical: 15 }}>
+          <Text style={[styles.textBody, {}]}>Don't have an account?</Text>
           <Text
             style={[styles.textBody, { color: 'black' }]}
             onPress={() => props.navigation.navigate('SignUp')}>
             {' '}
             Sign Up
           </Text>
+        </View>  
         </View>
-      </View>}
-    </ScrollView>
+      </View>
+      </SafeAreaView>
   );
 };
 
@@ -149,7 +160,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   image: {
-    width: 300,
+    width: imageWidth,
+    height: imageWidth * 0.75, // adjust the aspect ratio as needed
     marginVertical: 10,
   },
   textTitle: {

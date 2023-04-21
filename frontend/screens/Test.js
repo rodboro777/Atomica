@@ -14,7 +14,7 @@ import Account from '../components/Account';
 const { width } = Dimensions.get('window');
 const imageWidth = width * 0.8;
 
-const SignUp = props => {
+const Test = props => {
   const [authorizedGeolocation, setAuthorizedGeolocation] = useState(false);
   Geolocation.requestAuthorization(
     () => {
@@ -128,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUp;
+export default Test;

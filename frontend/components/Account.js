@@ -24,14 +24,14 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     accIcon: {
-        color: 'white',
+        color: 'darkgreen',
         fontSize: 20,
         fontWeight: 'bold',
         marginVertical: 13,
         marginHorizontal: 15,
     },
     textTitle: {
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
         fontSize: 18,
         marginVertical: 10,

@@ -13,8 +13,10 @@ import CreateItinerary from './screens/CreateItinerary';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
+import Oindex from './screens/onBoarding/Oindex';
 import ip from './ip';
 import {withNavigation} from '@react-navigation/compat';
+import Test from './screens/Test';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -25,6 +27,8 @@ const UserWithNavigation = withNavigation(User);
 
 function MyTabs() {
   const [userId, setUserId] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
 
   useEffect(() => {
     fetch(`http://${ip.ip}:8000/auth/isLoggedIn`, {
@@ -35,6 +39,7 @@ function MyTabs() {
       .then(resBody => {
         if (resBody.userId) {
           setUserId(resBody.userId);
+          setIsLoggedIn(true);
         }
       });
   }, []);
@@ -199,7 +204,12 @@ const SearchStack = () => {
 const App = props => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="Onboarding">
+      <Stack.Screen
+          name="Onboarding"
+          component={Test}
+          options={{headerShown: false}}
+        />
         <Stack.Screen
           name="Home"
           component={Login}
@@ -220,6 +230,7 @@ const App = props => {
           component={User}
           options={{headerShown: false}}
         />
+       
       </Stack.Navigator>
     </NavigationContainer>
   );
