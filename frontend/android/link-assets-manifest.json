@@ -2,6 +2,18 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/Cereal_bold.ttf",
+      "sha1": "84321cb7721ebbe9b92d56eb1307cb163a9a66cf"
+    },
+    {
+      "path": "assets/fonts/Cereal_Medium.ttf",
+      "sha1": "0c8c67fda23f8bb8a30c56eaa6cc09125eed7421"
+    },
+    {
+      "path": "assets/fonts/Cereal_thicc.ttf",
+      "sha1": "85cb8210b2b0b6c593789e0176dc663362ab47f5"
+    },
+    {
       "path": "assets/fonts/Lexend-Bold.ttf",
       "sha1": "cad13e61913a2736c2ec86d330e8d96367d18dc4"
     },

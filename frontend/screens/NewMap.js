@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   FlatList,
@@ -11,12 +11,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import Animated from 'react-native-reanimated';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Geolocation from '@react-native-community/geolocation';
 import MapViewDirections from 'react-native-maps-directions';
-import {Dimensions} from 'react-native';
+import { Dimensions } from 'react-native';
 import ip from '../ip';
 import Searchbar from '../components/home/Searchbar';
 import BottomInfoCard from '../components/BottomInfoCard';
@@ -35,7 +35,7 @@ import ContentsForLocationContent from '../components/home/bottomSheetContent/Co
 import ContentsForItineraryContent from '../components/home/bottomSheetContent/ContentsForDetailedIti';
 import ContentsForRatingContent from '../components/home/bottomSheetContent/ContentsForRating';
 
-export default function NewMap({navigation, userId, route}) {
+export default function NewMap({ navigation, userId, route }) {
   const [region, setRegion] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -105,7 +105,7 @@ export default function NewMap({navigation, userId, route}) {
   const windowWidth = Dimensions.get('window').width;
 
   const renderBottomSheetBackdrop = () => (
-    <Animated.View style={{flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)'}} />
+    <Animated.View style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
   );
 
   const getContentBasedOnBottomSheetType = () => {
@@ -240,8 +240,8 @@ export default function NewMap({navigation, userId, route}) {
           currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION
             ? windowHeight - 210
             : currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA
-            ? windowHeight - 180
-            : 'auto',
+              ? windowHeight - 180
+              : 'auto',
         paddingBottom: 10,
       }}>
       {getContentBasedOnBottomSheetType()}
@@ -294,7 +294,7 @@ export default function NewMap({navigation, userId, route}) {
     navigation.addListener('focus', () => {
       if (route.params) {
         if (route.params.type == BOTTOM_SHEET_TYPE.CONTENTS_FOR_ITINERARY) {
-          const {itinerary, type, showIti, showDir} = route.params;
+          const { itinerary, type, showIti, showDir } = route.params;
           setSelectedItinerary(itinerary);
           setCurrentBottomSheetType(type);
           setShowDetailIti(showIti);
@@ -304,7 +304,7 @@ export default function NewMap({navigation, userId, route}) {
         }
 
         if (route.params.type == SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION) {
-          const {travelGuide, type} = route.params;
+          const { travelGuide, type } = route.params;
           activateTravelGuideNav(travelGuide);
         }
       }
@@ -340,7 +340,7 @@ export default function NewMap({navigation, userId, route}) {
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         if (runningRoute && isOnTrack.current) {
           let range = getDistance(
             latitude,
@@ -388,12 +388,12 @@ export default function NewMap({navigation, userId, route}) {
           setDirDistance(desD);
           console.log(
             'lat: ' +
-              latitude +
-              ' long: ' +
-              longitude +
-              ' distance: ' +
-              desD +
-              'm',
+            latitude +
+            ' long: ' +
+            longitude +
+            ' distance: ' +
+            desD +
+            'm',
           );
           if (
             testD <= 20 &&
@@ -420,14 +420,14 @@ export default function NewMap({navigation, userId, route}) {
         };
       },
       error => console.log(error),
-      {enableHighAccuracy: true, distanceFilter: 10},
+      { enableHighAccuracy: true, distanceFilter: 10 },
     );
 
     return () => Geolocation.clearWatch(watchId);
   }, [runningRoute, nextRouteInfo]);
 
   const getPlacesWithinFrame = async () => {
-    const {northEast, southWest} = await mapRef.current.getMapBoundaries();
+    const { northEast, southWest } = await mapRef.current.getMapBoundaries();
 
     // calculate radius.
     let radius = 0;
@@ -448,10 +448,8 @@ export default function NewMap({navigation, userId, route}) {
     }
 
     let response = await fetch(
-      `http://${ip.ip}:8000/travelGuide/byCoordinates?maxLat=${
-        region.latitude + radius
-      }&maxLng=${region.longitude + radius}&minLat=${
-        region.latitude - radius
+      `http://${ip.ip}:8000/travelGuide/byCoordinates?maxLat=${region.latitude + radius
+      }&maxLng=${region.longitude + radius}&minLat=${region.latitude - radius
       }&minLng=${region.longitude - radius}`,
       {
         credentials: 'include',
@@ -482,9 +480,10 @@ export default function NewMap({navigation, userId, route}) {
     }
   }, [region, showDetailIti]);
 
+  //Set the height of the bottom sheet
   useEffect(() => {
     if (sheetRef.current && locationNumber.current == 0) {
-      sheetRef.current.snapTo(2);
+      sheetRef.current.snapTo(3);
     }
   }, [locationNumber.current]);
 
@@ -495,9 +494,9 @@ export default function NewMap({navigation, userId, route}) {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c; // distance in km
     return d * 1000; // distance in m
@@ -557,7 +556,7 @@ export default function NewMap({navigation, userId, route}) {
       });
     });
     mapRef.current.fitToCoordinates(coordinates, {
-      edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
       animated: true,
     });
   }
@@ -754,7 +753,7 @@ export default function NewMap({navigation, userId, route}) {
             style={styles.map}>
             {(showDetailIti ||
               currentSpecialScreen ==
-                SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION) &&
+              SPECIAL_SCREEN_TYPE.TRAVEL_GUIDE_NAVIGATION) &&
               runningIds.length > 0 &&
               runningIds.map((id, index) => {
                 return (
@@ -767,8 +766,8 @@ export default function NewMap({navigation, userId, route}) {
                       runningRoute
                         ? userLocation
                         : index == 0
-                        ? userLocation
-                        : runningIds[index - 1]
+                          ? userLocation
+                          : runningIds[index - 1]
                     }
                     destination={runningRoute ? runningIds[tgNumber] : id}
                     mode="WALKING"
@@ -785,7 +784,7 @@ export default function NewMap({navigation, userId, route}) {
                 }}>
                 <Image
                   source={require('../assets/map-marker-black.png')}
-                  style={{width: 45, height: 50}}
+                  style={{ width: 45, height: 50 }}
                   resizeMode="cover"
                   resizeMethod="auto"
                 />
@@ -803,7 +802,7 @@ export default function NewMap({navigation, userId, route}) {
                     }}>
                     <Image
                       source={require('../assets/map-marker-black.png')}
-                      style={{width: 45, height: 50}}
+                      style={{ width: 45, height: 50 }}
                       resizeMode="cover"
                       resizeMethod="auto"
                     />
@@ -811,95 +810,95 @@ export default function NewMap({navigation, userId, route}) {
                 );
               })}
             {!showDetailIti &&
-            !currentSpecialScreen &&
-            currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA
+              !currentSpecialScreen &&
+              currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA
               ? Object.keys(locationsWithinFrame).map(place_id => {
-                  const location = locationsWithinFrame[place_id];
-                  if (
-                    (currentPage == PAGE_TYPE.GUIDES &&
-                      location.travelGuides &&
-                      location.travelGuides.length > 0) ||
-                    (currentPage == PAGE_TYPE.ITINERARIES &&
-                      location.itineraries &&
-                      location.itineraries.length > 0)
-                  ) {
-                    return (
-                      <Marker
-                        onPress={async () => {
-                          // Get image info.
-                          const response = await fetch(
-                            `https://maps.googleapis.com/maps/api/place/details/json?placeid=${place_id}&key=${mapKey}`,
+                const location = locationsWithinFrame[place_id];
+                if (
+                  (currentPage == PAGE_TYPE.GUIDES &&
+                    location.travelGuides &&
+                    location.travelGuides.length > 0) ||
+                  (currentPage == PAGE_TYPE.ITINERARIES &&
+                    location.itineraries &&
+                    location.itineraries.length > 0)
+                ) {
+                  return (
+                    <Marker
+                      onPress={async () => {
+                        // Get image info.
+                        const response = await fetch(
+                          `https://maps.googleapis.com/maps/api/place/details/json?placeid=${place_id}&key=${mapKey}`,
+                        );
+                        const placeInfo = await response.json();
+                        let imageUrl =
+                          'https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png';
+                        if (
+                          placeInfo.result &&
+                          placeInfo.result.photos &&
+                          placeInfo.result.photos.length > 0
+                        ) {
+                          imageUrl = getImageUrlFromPhotoReference(
+                            placeInfo.result.photos[0].photo_reference,
                           );
-                          const placeInfo = await response.json();
-                          let imageUrl =
-                            'https://www.contentviewspro.com/wp-content/uploads/2017/07/default_image.png';
-                          if (
-                            placeInfo.result &&
-                            placeInfo.result.photos &&
-                            placeInfo.result.photos.length > 0
-                          ) {
-                            imageUrl = getImageUrlFromPhotoReference(
-                              placeInfo.result.photos[0].photo_reference,
-                            );
-                          }
+                        }
 
-                          setSelectedLocation({
-                            placeId: place_id,
-                            latitude: location.latitude,
-                            longitude: location.longitude,
-                            imageUrl: imageUrl,
-                            name: location.name,
-                          });
-                          setCurrentBottomSheetType(
-                            BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION,
-                          );
-                        }}
-                        key={place_id}
-                        coordinate={{
+                        setSelectedLocation({
+                          placeId: place_id,
                           latitude: location.latitude,
                           longitude: location.longitude,
-                        }}>
-                        <Image
-                          source={require('../assets/map-marker-black.png')}
-                          style={{width: 45, height: 50}}
-                          resizeMode="cover"
-                          resizeMethod="auto"
-                        />
-                      </Marker>
-                    );
-                  }
-                })
+                          imageUrl: imageUrl,
+                          name: location.name,
+                        });
+                        setCurrentBottomSheetType(
+                          BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION,
+                        );
+                      }}
+                      key={place_id}
+                      coordinate={{
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                      }}>
+                      <Image
+                        source={require('../assets/map-marker-black.png')}
+                        style={{ width: 45, height: 50 }}
+                        resizeMode="cover"
+                        resizeMethod="auto"
+                      />
+                    </Marker>
+                  );
+                }
+              })
               : selectedLocation && (
-                  <Marker
-                    onPress={() => {
-                      handleExitContentsForLocation();
-                    }}
-                    key={selectedLocation.placeId}
-                    coordinate={{
-                      latitude: selectedLocation.latitude,
-                      longitude: selectedLocation.longitude,
-                    }}>
-                    <Image
-                      source={require('../assets/map-marker-white.png')}
-                      style={{width: 45, height: 50}}
-                      resizeMode="cover"
-                      resizeMethod="auto"
-                    />
-                  </Marker>
-                )}
+                <Marker
+                  onPress={() => {
+                    handleExitContentsForLocation();
+                  }}
+                  key={selectedLocation.placeId}
+                  coordinate={{
+                    latitude: selectedLocation.latitude,
+                    longitude: selectedLocation.longitude,
+                  }}>
+                  <Image
+                    source={require('../assets/map-marker-white.png')}
+                    style={{ width: 45, height: 50 }}
+                    resizeMode="cover"
+                    resizeMethod="auto"
+                  />
+                </Marker>
+              )}
           </MapView>
 
           {!runningRoute && (
             <BottomSheet
-              style={{zIndex: 1}}
+              style={{ zIndex: 1 }}
               ref={sheetRef}
               snapPoints={[
                 currentBottomSheetType == BOTTOM_SHEET_TYPE.CONTENTS_WITHIN_AREA
                   ? windowHeight - 140
                   : currentBottomSheetType ==
                     BOTTOM_SHEET_TYPE.CONTENTS_FOR_LOCATION
-                  ? windowHeight - 190
-                  : windowHeight - 50,
+                    ? windowHeight - 190
+                    : windowHeight - 50,
                 300,
                 80,
               ]}
@@ -922,7 +921,7 @@ export default function NewMap({navigation, userId, route}) {
               }}
               enabledHeaderGestureInteraction={
                 (locationNumber.current > 0 || showDirection) &&
-                currentBottomSheetType !== BOTTOM_SHEET_TYPE.CONTENTS_FOR_RATING
+                  currentBottomSheetType !== BOTTOM_SHEET_TYPE.CONTENTS_FOR_RATING
                   ? true
                   : false
               }
@@ -989,7 +988,7 @@ const mapStyle = [
   {
     featureType: 'poi',
     elementType: 'labels.text.fill',
-    stylers: [{color: 'black'}],
+    stylers: [{ color: 'black' }],
   },
   // {
   //   featureType: 'poi',

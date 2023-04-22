@@ -26,7 +26,7 @@ const Login = props => {
   React.useEffect(() => {
     GoogleSignin.configure({
       webClientId:
-        '477719873582-gonl6flm7625haa8nrm3uf1219vcgiaq.apps.googleusercontent.com',
+        '477719873582-9rbo71baq71nf97lnqn4vh0j1og3em42.apps.googleusercontent.com',
       offlineAccess: true,
     });
   }, []);
@@ -69,6 +69,7 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
 
+      console.log("tis ");
       fetch(`http://${ip.ip}:8000/auth/google`, {
         credentials: 'include',
         method: 'POST',
@@ -82,11 +83,12 @@ const Login = props => {
         .then(res => res.json())
         .then(resBody => {
           if (resBody.statusCode == 200) {
+            console.log("all gucci")
             props.navigation.navigate('MyTabs');
           }
         })
         .catch(err => {
-          console.log(err);
+          console.log("tis an rero" + err);
         });
     } catch (error) {
       console.log(error);
