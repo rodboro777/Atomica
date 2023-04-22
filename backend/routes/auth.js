@@ -18,17 +18,17 @@ router.post("/logout", (req, res) => {
     }
 });
 
-router.post('/google', async (req,res) => {
+router.post('/google', async (req, res) => {
     try {
         var OAuth2 = google.auth.OAuth2;
-        console.log(req.session.user);
+        console.log("USER INFO : " + req.session.user);
         var oauth2Client = new OAuth2(
             process.env.CLIENT_ID,
             process.env.CLIENT_SECRET,
             ""
         );
         const { tokens } = await oauth2Client.getToken(req.body.serverAuthCode);
-        oauth2Client.setCredentials({access_token: tokens.access_token});
+        oauth2Client.setCredentials({ access_token: tokens.access_token });
         var oauth2 = google.oauth2({
             auth: oauth2Client,
             version: 'v2'
@@ -75,7 +75,7 @@ router.post('/google', async (req,res) => {
 router.post("/register", (req, res) => {
     let tmp = req.body.fullName.split(" ");
     let firstName = tmp[0];
-    let lastName = tmp.slice(1,tmp.length).join(" ");
+    let lastName = tmp.slice(1, tmp.length).join(" ");
     User.register({
         username: req.body.username,
         firstName: firstName,
@@ -131,7 +131,7 @@ router.get("/isLoggedIn", (req, res) => {
     res.send({
         isLoggedIn: req.session.user ? true : false,
         userId: req.session.user ? req.session.user._id : undefined,
-    }); 
+    });
 });
 
 module.exports = router;
