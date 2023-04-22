@@ -1,15 +1,7 @@
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  FlatList,
-  Dimensions,
-  ActivityIndicator,
+  View, Text, TextInput, StyleSheet, TouchableOpacity, Image, FlatList, Dimensions, ActivityIndicator,
 } from 'react-native';
-import {React, useState, useRef, useEffect} from 'react';
+import { React, useState, useRef, useEffect } from 'react';
 import Done from '../assets/done.png';
 import axios from 'axios';
 import ip from '../ip';
@@ -18,8 +10,8 @@ import DocumentPicker from 'react-native-document-picker';
 import camera from '../assets/camera.png';
 import trash from '../assets/trash.png';
 
-export default function CreateItinerary({navigation, route}) {
-  const {item, isEdit} = route.params;
+export default function CreateItinerary({ navigation, route }) {
+  const { item, isEdit } = route.params;
   const [itinerary, setItinerary] = useState({
     title: isEdit ? item.name : '',
     travelGuides: isEdit ? item.travelGuides && item.travelGuides : [],
@@ -62,11 +54,10 @@ export default function CreateItinerary({navigation, route}) {
       ...itinerary,
       travelGuides: [
         ...itinerary.travelGuides,
-        {_id: item._id, name: item.name},
+        { _id: item._id, name: item.name },
       ],
     });
   }
-
   const createItinerary = async () => {
     const tgId = itinerary.travelGuides.map(tg => tg._id);
     const formdata = new FormData();
@@ -93,7 +84,7 @@ export default function CreateItinerary({navigation, route}) {
       .then(res => res.json())
       .then(resBody => {
         console.log('success');
-        navigation.navigate('User', {origin: 'CreateItinerary'});
+        navigation.navigate('User', { origin: 'CreateItinerary' });
       })
       .catch(err => {
         console.log(err);
@@ -174,7 +165,7 @@ export default function CreateItinerary({navigation, route}) {
                 justifyContent: 'space-around',
               }}>
               <TouchableOpacity
-                style={{...styles.buttonDONEStyle, backgroundColor: 'red'}}
+                style={{ ...styles.buttonDONEStyle, backgroundColor: 'red' }}
                 disabled={submitting}
                 onPress={() => {
                   setSubmitting(true);
@@ -184,19 +175,19 @@ export default function CreateItinerary({navigation, route}) {
                   <ActivityIndicator color="white" />
                 ) : (
                   <Text
-                    style={{color: 'white', fontWeight: 'bold', fontSize: 17}}>
+                    style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>
                     Yes
                   </Text>
                 )}
               </TouchableOpacity>
               {!submitting && (
                 <TouchableOpacity
-                  style={{...styles.buttonDONEStyle}}
+                  style={{ ...styles.buttonDONEStyle }}
                   onPress={() => {
                     setConfirmDelete(false);
                   }}>
                   <Text
-                    style={{color: 'white', fontWeight: 'bold', fontSize: 17}}>
+                    style={{ color: 'white', fontWeight: 'bold', fontSize: 17 }}>
                     No
                   </Text>
                 </TouchableOpacity>
@@ -210,14 +201,14 @@ export default function CreateItinerary({navigation, route}) {
           style={{
             position: 'absolute',
             left: 20,
-            transform: [{rotate: '-90deg'}],
+            transform: [{ rotate: '-90deg' }],
             height: 30,
             width: 30,
           }}
           onPress={() => navigation.navigate('User')}>
           <Image
             source={upArrow}
-            style={{tintColor: 'black', width: '100%', height: '100%'}}
+            style={{ tintColor: 'black', width: '100%', height: '100%' }}
           />
         </TouchableOpacity>
         <Text
@@ -244,7 +235,7 @@ export default function CreateItinerary({navigation, route}) {
         }}
       />
 
-      <View style={{flexDirection: 'row', padding: 10}}>
+      <View style={{ flexDirection: 'row', padding: 10 }}>
         <TextInput
           style={{
             flex: 1,
@@ -271,11 +262,11 @@ export default function CreateItinerary({navigation, route}) {
           style={styles.travelGuideList}
           data={availableTravelGuides}
           keyExtractor={item => item._id}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.travelGuideItem}
               onPressIn={() => addTravelGuide(item)}>
-              <Text style={{fontFamily: 'Lexend-Regular'}}>{item.name}</Text>
+              <Text style={{ fontFamily: 'Lexend-Regular' }}>{item.name}</Text>
             </TouchableOpacity>
           )}
         />
@@ -285,7 +276,7 @@ export default function CreateItinerary({navigation, route}) {
           style={styles.choosenTravelGuideList}
           data={itinerary.travelGuides && itinerary.travelGuides}
           keyExtractor={item => item._id}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <View style={styles.choosenTravelGuideItem} key={item._id}>
               <Text
                 style={{
@@ -308,7 +299,7 @@ export default function CreateItinerary({navigation, route}) {
                 style={styles.removeButton}>
                 <Image
                   source={trash}
-                  style={{height: '100%', width: '100%', tintColor: 'black'}}
+                  style={{ height: '100%', width: '100%', tintColor: 'black' }}
                 />
               </TouchableOpacity>
             </View>
@@ -380,21 +371,21 @@ export default function CreateItinerary({navigation, route}) {
         {isEdit
           ? itinerary.imageUrl !== ''
           : itinerary.uploadedImage && (
-              <Image
-                source={{
-                  uri:
-                    itinerary.imageUrl !== ''
-                      ? itinerary.imageUrl
-                      : itinerary.uploadedImage.uri,
-                }}
-                style={{
-                  width: 180,
-                  height: 100,
-                  borderRadius: 20,
-                  resizeMode: 'cover',
-                }}
-              />
-            )}
+            <Image
+              source={{
+                uri:
+                  itinerary.imageUrl !== ''
+                    ? itinerary.imageUrl
+                    : itinerary.uploadedImage.uri,
+              }}
+              style={{
+                width: 180,
+                height: 100,
+                borderRadius: 20,
+                resizeMode: 'cover',
+              }}
+            />
+          )}
       </View>
       <View
         style={{
@@ -431,7 +422,7 @@ export default function CreateItinerary({navigation, route}) {
             }}>
             <Image
               source={trash}
-              style={{...styles.buttonImageIconStyle, tintColor: 'red'}}
+              style={{ ...styles.buttonImageIconStyle, tintColor: 'red' }}
             />
           </TouchableOpacity>
         )}

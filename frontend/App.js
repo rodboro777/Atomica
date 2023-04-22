@@ -1,20 +1,18 @@
-import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
-import Map from './screens/Map';
 import NewMap from './screens/NewMap';
-import Library from './screens/Library';
 import PlacesAutoComplete from './components/PlacesAutoComplete';
 import CreateItinerary from './screens/CreateItinerary';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
 import ip from './ip';
-import {withNavigation} from '@react-navigation/compat';
+import { withNavigation } from '@react-navigation/compat';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -42,14 +40,17 @@ function MyTabs() {
     <Tab.Navigator
       initialRouteName=""
       screenOptions={{
+        tabBarHideOnKeyboard: true,
         tabBarItemStyle: {
-          backgroundColor: '#000',
+          backgroundColor: '#fff',
           margin: 0,
           borderRadius: 0,
+
         },
         tabBarLabelStyle: {
           fontWeight: 'bold',
         },
+
       }}>
       <Tab.Screen
         name="Home"
@@ -59,7 +60,7 @@ function MyTabs() {
           tabBarIcon: tabInfo => {
             return (
               <Image
-                source={require('./assets/home.png')}
+                source={require('./assets/home1.png')}
                 style={styles.mapicon}
               />
             );
@@ -93,34 +94,34 @@ function MyTabs() {
           tabBarIcon: tabInfo => {
             return (
               <Image
-                source={require('./assets/user.png')}
+                source={require('./assets/user1.png')}
                 style={styles.mapicon}
               />
             );
           },
         }}>
         {props => {
-          return <UStackNav {...props} 
+          return <UStackNav {...props}
             ownerId={userId}
             origin="Tab"
           />;
         }}
       </Tab.Screen>
-    </Tab.Navigator>
+    </Tab.Navigator >
   );
 }
 
 const HomeScreen = passedProps => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Map" options={{headerShown: false}}>
+      <Stack.Screen name="Map" options={{ headerShown: false }}>
         {props => {
           return <NewMap {...props} {...passedProps} />;
         }}
       </Stack.Screen>
-      <Stack.Screen name="UserProfileFromHome" options={{headerShown: false}}>
+      <Stack.Screen name="UserProfileFromHome" options={{ headerShown: false }}>
         {(props) => {
-          return <User 
+          return <User
             {...props}
             {...passedProps}
             origin='Home'
@@ -135,9 +136,9 @@ const HomeScreen = passedProps => {
 const UStackNav = passedProps => {
   return (
     <Stack.Navigator initialRouteName="User">
-      <Stack.Screen name="User" options={{headerShown: false}}>
+      <Stack.Screen name="User" options={{ headerShown: false }}>
         {props => {
-          console.log(props);
+
           return (
             <UserWithNavigation
               {...passedProps}
@@ -150,18 +151,18 @@ const UStackNav = passedProps => {
         name="Edit User"
         component={EditUser}
         options={{
-          headerTitleStyle: {fontFamily: 'Lexend-SemiBold'},
+          headerTitleStyle: { fontFamily: 'Lexend-SemiBold' },
         }}
       />
       <Stack.Screen
         name="Create Itinerary"
         component={CreateItinerary}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Create TravelGuide"
         component={CreateTravelGuide}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -173,7 +174,7 @@ const SearchStack = () => {
       <Stack.Screen
         name="SearchPlaces"
         component={PlacesAutoComplete}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen name="CItinerary" component={CreateItinerary} />
     </Stack.Navigator>
@@ -188,7 +189,6 @@ const SearchStack = () => {
 //         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 //         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
 //         <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
-
 //       </Stack.Navigator>
 //        <MyTabs />
 
@@ -203,22 +203,22 @@ const App = props => {
         <Stack.Screen
           name="Home"
           component={Login}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="SignUp"
           component={SignUp}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="MyTabs"
           component={MyTabs}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="User"
           component={User}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -229,8 +229,8 @@ export default App;
 
 const styles = StyleSheet.create({
   mapicon: {
-    height: 30,
-    width: 30,
+    height: 32,
+    width: 32,
     marginTop: 20,
   },
 });

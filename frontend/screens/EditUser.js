@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Image
 } from 'react-native';
 
-import {useTheme, Avatar} from 'react-native-paper';
+import { useTheme, Avatar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
@@ -22,13 +22,13 @@ import ImagePicker from 'react-native-image-crop-picker';
 import ip from '../ip';
 
 
-export default function EditUser({navigation, route}) {
-  const {ownerInfo} = route.params;
-  
+export default function EditUser({ navigation, route }) {
+  const { ownerInfo } = route.params;
+
   const [image, setImage] = useState({
     uri: ownerInfo.imageUrl
   });
-  const {colors} = useTheme();
+  const { colors } = useTheme();
   const [fullName, setFullName] = useState(ownerInfo.fullName);
   const [username, setUsername] = useState(ownerInfo.username);
   const [country, setCountry] = useState(ownerInfo.country);
@@ -85,7 +85,7 @@ export default function EditUser({navigation, route}) {
 
   renderInner = () => (
     <View style={styles.panel}>
-      <View style={{alignItems: 'center'}}>
+      <View style={{ alignItems: 'center' }}>
         <Text style={styles.panelTitle}>Upload Photo</Text>
         <Text style={styles.panelSubtitle}>Choose Your Profile Picture</Text>
       </View>
@@ -108,13 +108,13 @@ export default function EditUser({navigation, route}) {
     </View>
   );
 
-  newbs = React.createRef();<Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
+  newbs = React.createRef(); <Button title="Follow" variant='contained' color="black" tintColor='white' titleStyle={{
     fontFamily: 'Lexend-Regular'
-  }}/>
+  }} />
   fall = new Animated.Value(1);
 
   return (
-   <View style={styles.container}>
+    <View style={styles.container}>
       <BottomSheet
         ref={this.newbs}
         snapPoints={[330, 0]}
@@ -124,10 +124,11 @@ export default function EditUser({navigation, route}) {
         callbackNode={this.fall}
         enabledGestureInteraction={true}
       />
-      <Animated.View style={{margin: 20,
+      <Animated.View style={{
+        margin: 20,
         opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-    }}>
-        <View style={{alignItems: 'center', marginBottom: 30}}>
+      }}>
+        <View style={{ alignItems: 'center', marginBottom: 30 }}>
           <TouchableOpacity onPress={() => this.newbs.current.snapTo(0)}>
             <View
               style={{
@@ -138,8 +139,8 @@ export default function EditUser({navigation, route}) {
                 alignItems: 'center',
               }}>
               <ImageBackground
-                style={{height: 100, width: 100}}
-                imageStyle={{borderRadius: 15}}>
+                style={{ height: 100, width: 100 }}
+                imageStyle={{ borderRadius: 15 }}>
                 <View
                   style={{
                     flex: 1,
@@ -147,7 +148,7 @@ export default function EditUser({navigation, route}) {
                     alignItems: 'center',
                   }}>
                   <Avatar.Image
-                    source={{uri: image.uri}}
+                    source={{ uri: image.uri }}
                     size={85}
                   />
                 </View>
@@ -155,12 +156,12 @@ export default function EditUser({navigation, route}) {
             </View>
           </TouchableOpacity>
           <Button onPress={() => this.newbs.current.snapTo(0)} title="Change Profile Picture" variant='outlined' color="black" titleStyle={{
-          fontFamily: 'Lexend-Regular',
-          fontSize: 15
-        }} uppercase={false}/>
+            fontFamily: 'Cereal_Medium',
+            fontSize: 15
+          }} uppercase={false} />
         </View>
         <View style={styles.action}>
-        <Image source={require('../assets/usericon.png')} style={{height:20, width:20}}/>
+          <Image source={require('../assets/usericon.png')} style={{ height: 20, width: 20 }} />
           <TextInput
             placeholder="Full Name"
             placeholderTextColor="#666666"
@@ -170,7 +171,7 @@ export default function EditUser({navigation, route}) {
             style={[
               styles.textInput,
               {
-                fontFamily: 'Lexend-Regular',
+                fontFamily: 'Cereal_Medium',
                 color: colors.text,
                 fontSize: 15,
               },
@@ -178,7 +179,7 @@ export default function EditUser({navigation, route}) {
           />
         </View>
         <View style={styles.action}>
-        <Image source={require('../assets/email.png')} style={{height:20, width:20}}/>
+          <Image source={require('../assets/email.png')} style={{ height: 20, width: 20 }} />
           <TextInput
             placeholder="Username"
             placeholderTextColor="#666666"
@@ -189,7 +190,7 @@ export default function EditUser({navigation, route}) {
             style={[
               styles.textInput,
               {
-                fontFamily: 'Lexend-Regular',
+                fontFamily: 'Cereal_Medium',
                 color: colors.text,
                 fontSize: 15,
               },
@@ -197,7 +198,7 @@ export default function EditUser({navigation, route}) {
           />
         </View>
         <View style={styles.action}>
-        <Image source={require('../assets/country.png')} style={{height:20, width:20}}/>
+          <Image source={require('../assets/country.png')} style={{ height: 20, width: 20 }} />
           <TextInput
             placeholder="Country"
             placeholderTextColor="#666666"
@@ -207,15 +208,15 @@ export default function EditUser({navigation, route}) {
             style={[
               styles.textInput,
               {
-                fontFamily: 'Lexend-Regular',
+                fontFamily: 'Cereal_Medium',
                 color: colors.text,
                 fontSize: 15,
               },
             ]}
           />
         </View>
-        <TouchableOpacity style={styles.commandButton} onPress={() => {handleSubmit()}}>
-          <Text style={styles.panelButtonTitle}>Submit</Text>
+        <TouchableOpacity style={styles.commandButton} onPress={() => { handleSubmit() }}>
+          <Text style={styles.panelButtonTitle}>Done</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -223,98 +224,94 @@ export default function EditUser({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: 'white',
-    },
-    commandButton: {
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: 'black',
-      alignItems: 'center',
-      marginTop: 100,
-
-      borderStyle: 'solid',
-      borderColor: 'black',
-      borderWidth: 5
-    },
-    panel: {
-      padding: 20,
-      backgroundColor: '#FFFFFF',
-      paddingTop: 20,
-      // borderTopLeftRadius: 20,
-      // borderTopRightRadius: 20,
-      // shadowColor: '#000000',
-      // shadowOffset: {width: 0, height: 0},
-      // shadowRadius: 5,
-      // shadowOpacity: 0.4,
-    },
-    header: {
-      backgroundColor: '#FFFFFF',
-      shadowColor: '#333333',
-      shadowOffset: {width: -1, height: -3},
-      shadowRadius: 2,
-      shadowOpacity: 0.4,
-      // elevation: 5,
-      paddingTop: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-    },
-    panelHeader: {
-      alignItems: 'center',
-    },
-    panelHandle: {
-      width: 40,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: '#00000040',
-      marginBottom: 10,
-    },
-    panelTitle: {
-      fontSize: 27,
-      height: 35,
-      fontFamily: 'Lexend-Bold',
-      color: 'black'
-    },
-    panelSubtitle: {
-      fontSize: 14,
-      color: 'black',
-      height: 30,
-      marginBottom: 10,
-      fontFamily: 'Lexend-Regular'
-    },
-    panelButton: {
-      padding: 13,
-      borderRadius: 10,
-      backgroundColor: 'black',
-      alignItems: 'center',
-      marginVertical: 7,
-      fontFamily: 'Lexend-Regular'
-    },
-    panelButtonTitle: {
-      fontSize: 17,
-      fontFamily: 'Lexend-Regular',
-      color: 'white',
-    },
-    action: {
-      flexDirection: 'row',
-      marginTop: 10,
-      marginBottom: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#2e2e2e',
-      paddingBottom: 5,
-    },
-    actionError: {
-      flexDirection: 'row',
-      marginTop: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#FF0000',
-      paddingBottom: 5,
-    },
-    textInput: {
-      flex: 1,
-      marginTop: Platform.OS === 'ios' ? 0 : -12,
-      paddingLeft: 10,
-      color: 'black',
-    },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  commandButton: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#5A5A5A',
+    alignItems: 'center',
+    marginTop: 100,
+  },
+  panel: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    paddingTop: 20,
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
+    // shadowColor: '#000000',
+    // shadowOffset: {width: 0, height: 0},
+    // shadowRadius: 5,
+    // shadowOpacity: 0.4,
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#333333',
+    shadowOffset: { width: -1, height: -3 },
+    shadowRadius: 2,
+    shadowOpacity: 0.4,
+    // elevation: 5,
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  panelHeader: {
+    alignItems: 'center',
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10,
+  },
+  panelTitle: {
+    fontSize: 27,
+    height: 35,
+    fontFamily: 'Lexend-Bold',
+    color: 'black'
+  },
+  panelSubtitle: {
+    fontSize: 14,
+    color: 'black',
+    height: 30,
+    marginBottom: 10,
+    fontFamily: 'Lexend-Regular'
+  },
+  panelButton: {
+    padding: 13,
+    borderRadius: 10,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    marginVertical: 7,
+    fontFamily: 'Lexend-Regular'
+  },
+  panelButtonTitle: {
+    fontSize: 20,
+    fontFamily: 'Cereal_thicc',
+    color: 'white',
+  },
+  action: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2e2e2e',
+    paddingBottom: 5,
+  },
+  actionError: {
+    flexDirection: 'row',
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FF0000',
+    paddingBottom: 5,
+  },
+  textInput: {
+    flex: 1,
+    marginTop: Platform.OS === 'ios' ? 0 : -12,
+    paddingLeft: 10,
+    color: 'black',
+  },
+});

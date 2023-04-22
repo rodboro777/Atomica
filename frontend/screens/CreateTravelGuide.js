@@ -6,25 +6,17 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React, {useState, useRef, useEffect} from 'react';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import React, { useState, useRef, useEffect } from 'react';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DocumentPicker from 'react-native-document-picker';
 import upArrow from '../assets/uparrow.png';
 import camera from '../assets/camera.png';
 import headphones from '../assets/headphones.png';
 import ip from '../ip';
+export default function CreateTravelGuide({ navigation, route }) {
 
-export default function CreateTravelGuide({navigation, route}) {
-  const homePlace = {
-    description: 'Home',
-    geometry: {location: {lat: 48.8152937, lng: 2.4597668}},
-  };
-  const workPlace = {
-    description: 'Work',
-    geometry: {location: {lat: 48.8496818, lng: 2.2940881}},
-  };
   const [defaultPhotoUrl, setDefaultPhotoUrl] = useState('');
-  const key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
+  const key = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
   const [location, setLocation] = React.useState({
     placeId: '',
     name: '',
@@ -41,8 +33,8 @@ export default function CreateTravelGuide({navigation, route}) {
     longitudeDelta: 0.0421,
   });
 
-  const createTravelGuide = async() => {
-    console.log(location);
+  const createTravelGuide = async () => {
+    console.log("got location info");
     const formData = new FormData();
     formData.append('placeId', location.placeId);
     formData.append('name', location.name);
@@ -78,9 +70,10 @@ export default function CreateTravelGuide({navigation, route}) {
         console.log(resBody);
         if (resBody.statusCode == 200) {
           console.log('success');
-          navigation.navigate('User', {origin: "CreateTravelGuide"});
+          navigation.navigate('User', { origin: "CreateTravelGuide" });
         } else if (resBody.statusCode == 403) {
           // TODO user entered the wrong credentials. add a UI for this.
+
           console.log('failed');
         }
       })
@@ -90,34 +83,135 @@ export default function CreateTravelGuide({navigation, route}) {
   };
 
   return (
+
     <View style={styles.container}>
       <View style={styles.pageNameHolder}>
         <TouchableOpacity
-          style={{
-            position: 'absolute',
-            left: 20,
-            transform: [{rotate: '-90deg'}],
-            height: 30,
-            width: 30,
-          }}
+          style={styles.backButton}
           onPress={() => navigation.navigate('User')}>
           <Image
             source={upArrow}
-            style={{tintColor: 'black', width: '100%', height: '100%'}}
+            style={{ tintColor: 'black', width: '100%', height: '100%' }}
           />
         </TouchableOpacity>
         <Text
-          style={{
-            fontFamily: 'Lexend-Light',
-            fontSize: 20,
-            letterSpacing: 1,
-            color: 'black',
-          }}>
+          style={styles.topHeader}>
           {'Create Travel Guide'}
         </Text>
       </View>
+      <Text
+        style={styles.headers}>
+        {'Whereabouts ?'}
+      </Text>
+
+      {/*=============  GOOGLE AUTOCOMPLETE ======================== */}
+      <View
+        style={styles.autocompleteTopContainer}>
+        <Image
+          source={require('../assets/search.png')}
+          style={styles.mapicon}
+        />
+        <View
+          style={styles.autocompleteSearchBar}>
+          <GooglePlacesAutocomplete
+
+            ref={placeRef}
+            placeholder="Search For Location"
+            minLength={2} // minimum length of text to search
+            autoFocus={false}
+            returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+            listViewDisplayed="auto" // true/false/undefined
+            fetchDetails={true}
+            currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
+            currentLocationLabel="Current location"
+            clearTextOnFocus={false}
+            GooglePlacesSearchQuery={{
+              rankby: 'distance',
+              inputtype: 'textquery'
+            }}
+            renderDescription={row => row.description || row.formatted_address || row.name} // custom description render
+            onPress={(data, details = null) => {
+
+              // 'details' is provided when fetchDetails = true
+
+              let locationName = "";
+              if (data.structured_formatting && data.structured_formatting.main_text) {
+                locationName = data.structured_formatting.main_text;
+              } else {
+                locationName = data.name;
+              }
+              console.log('\n locationName  : ', locationName);
+
+              placeRef.current.setAddressText('');
+              setRegion({
+                latitude: details.geometry.location.lat,
+                longitude: details.geometry.location.lng,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              });
+
+              setLocation({
+
+                ...location,
+                locationName: locationName,
+                placeId: data.place_id,
+              });
+
+              // get the photoref.
+              const photoRef = details.photos?.[0]?.photo_reference;
+              const url =
+                photoRef
+                  ? `https://maps.googleapis.com/maps/api/place/photo?photoreference=${photoRef}&sensor=false&maxheight=500&maxwidth=500&key=${key}`
+                  : 'https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty-300x240.jpg';
+              setDefaultPhotoUrl(url);
+            }}
+            getDefaultValue={() => ''}
+            query={{
+              // available options: https://developers.google.com/places/web-service/autocomplete
+              key: key,
+              language: 'en', // language of the results
+              types: 'establishment', // default: 'geocode',
+              location: `${region.latitude}, ${region.longitude}`,
+              radius: 30000,
+            }}
+            textInputProps={{
+              placeholderTextColor: 'black',
+            }}
+            styles={styles.autocompleteDesign}
+            nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
+
+            filterReverseGeocodingByTypes={[
+              'locality',
+              'administrative_area_level_3',
+            ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+            keyboardShouldPersistTaps="handled"
+            debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
+          />
+        </View>
+        {location.locationName && (
+          <View style={styles.searchResult}>
+            <Image
+              source={require('../assets/location.png')}
+              style={styles.mapicon}
+            />
+            <TextInput
+              style={styles.title}
+              value={location.locationName}
+              editable={false}
+            />
+          </View>
+        )}
+
+      </View>
+      {/*============= END GOOGLE AUTOCOMPLETE ======================== */}
+
+      {/*============= TITLE and DESCRIPTION ======================== */}
+      <Text
+        style={styles.headers}>
+        {'Name it'}
+      </Text>
       <TextInput
-        placeholder="Title..."
+        placeholder="Title"
         placeholderTextColor="black"
         style={styles.input}
         onChangeText={e => {
@@ -128,151 +222,7 @@ export default function CreateTravelGuide({navigation, route}) {
         }}
         value={location.name}
       />
-      {/* <View
-        style={{
-          backgroundColor: 'white',
-          height: 1,
-          width: '60%',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
-      /> */}
-      <View
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginTop: 50,
-          width: '90%',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}>
-        <GooglePlacesAutocomplete
-          ref={placeRef}
-          placeholder="Search For Location"
-          minLength={2} // minimum length of text to search
-          autoFocus={false}
-          returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-          listViewDisplayed="auto" // true/false/undefined
-          fetchDetails={true}
-          GooglePlacesSearchQuery={{
-            rankby: 'distance',
-          }}
-          renderDescription={row => row.description} // custom description render
-          onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            console.log(data.structured_formatting.main_text);
-            placeRef.current.setAddressText('');
-            setRegion({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            });
 
-            setLocation({
-              ...location,
-              locationName: data.structured_formatting.main_text,
-              placeId: data.place_id,
-            });
-
-            // get the photoref.
-            const photoRef = details.photos[0].photo_reference;
-            const url =
-              'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
-              photoRef +
-              '&sensor=false&maxheight=500&maxwidth=500&key=' +
-              key;
-            setDefaultPhotoUrl(url);
-          }}
-          getDefaultValue={() => ''}
-          query={{
-            // available options: https://developers.google.com/places/web-service/autocomplete
-            key: key,
-            language: 'en', // language of the results
-            types: 'establishment', // default: 'geocode',
-            location: `${region.latitude}, ${region.longitude}`,
-            radius: 30000,
-          }}
-          textInputProps={{
-            placeholderTextColor: 'white',
-          }}
-          styles={{
-            description: {
-              fontFamily: 'Lexend-Regular',
-              backgroundColor: 'black',
-              color: 'white',
-              textAlign: 'center',
-            },
-            textInputContainer: {
-              color: 'white',
-              borderBottomColor: 'white',
-            },
-            textInput: {
-              backgroundColor: 'black',
-              color: 'white',
-              textAlign: 'center',
-              borderRadius: 10,
-            },
-            predefinedPlacesDescription: {
-              color: 'white',
-            },
-            container: {
-              flex: 0,
-              position: 'relative',
-              zIndex: 1,
-              marginTop: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-            listView: {
-              backgroundColor: 'black',
-            },
-            row: {
-              backgroundColor: 'black',
-            },
-            powered: {
-              opacity: 0,
-            },
-            poweredContainer: {
-              opacity: 0,
-            },
-          }}
-          currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-          currentLocationLabel="Current location"
-          nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-          GoogleReverseGeocodingQuery={
-            {
-              // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
-            }
-          }
-          filterReverseGeocodingByTypes={[
-            'locality',
-            'administrative_area_level_3',
-          ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-          predefinedPlaces={[homePlace, workPlace]}
-          keyboardShouldPersistTaps="handled"
-          debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-        />
-      </View>
-      {location.locationName && (
-        <TextInput
-          style={{
-            ...styles.input,
-            borderWidth: 1,
-            borderColor: 'white',
-            marginTop: 20,
-            width: '80%',
-            fontFamily: 'Lexend-Light',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            borderRadius: 0,
-            textAlign: 'center',
-          }}
-          value={location.locationName}
-          editable={false}
-        />
-      )}
       <TextInput
         placeholder="Description"
         multiline={true}
@@ -286,50 +236,63 @@ export default function CreateTravelGuide({navigation, route}) {
         }}
         value={location.description}
       />
-      <View style={{flexDirection: 'row'}}>
-        <TouchableOpacity
-          style={styles.buttonItiStyle}
-          activeOpacity={0.5}
-          onPress={async () => {
-            try {
-              const result = await DocumentPicker.pick({
-                type: [DocumentPicker.types.allFiles],
-              });
-              console.log(result[0].uri);
-              setLocation({
-                ...location,
-                audio: result[0],
-              });
-            } catch (error) {
-              console.log(error);
-            }
-          }}
+      {/*============= END TITLE and DESCRIPTION ======================== */}
+
+
+      {/*============= CONTENT =============================================*/}
+      <View>
+        <Text
+          style={styles.headers}>
+          {'Add Content'}
+        </Text>
+        <View style={styles.contentContainer}>
+          <TouchableOpacity
+            style={styles.buttonItiStyle}
+            activeOpacity={0.5}
+            onPress={async () => {
+              try {
+                const result = await DocumentPicker.pick({
+                  type: [DocumentPicker.types.allFiles],
+                });
+
+                console.log("Document Picker + " + result[0].uri + "\n");
+                setLocation({
+                  ...location,
+                  audio: result[0],
+                });
+              } catch (error) {
+                console.log(error);
+              }
+            }}
           //onPress={getLocation()}
-        >
-          <Image source={headphones} style={styles.buttonImageIconStyle} />
-          <Text style={styles.buttonTextStyle}>Upload Audio</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.buttonItiStyle}
-          activeOpacity={0.5}
-          onPress={async () => {
-            try {
-              const result = await DocumentPicker.pick({
-                type: [DocumentPicker.types.allFiles],
-              });
-              console.log(result[0]);
-              setLocation({
-                ...location,
-                uploadedPhoto: result[0],
-              });
-            } catch (error) {
-              console.log(error);
-            }
-          }}>
-          <Image source={camera} style={styles.buttonImageIconStyle} />
-          <Text style={styles.buttonTextStyle}>Upload Image</Text>
-        </TouchableOpacity>
+          >
+            <Image source={headphones} style={styles.buttonImageIconStyle} />
+            <Text style={styles.buttonTextStyle}>Upload Audio</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buttonItiStyle}
+            activeOpacity={0.5}
+            onPress={async () => {
+              try {
+                const result = await DocumentPicker.pick({
+                  type: [DocumentPicker.types.allFiles],
+                });
+                console.log("Document Picker + " + result[0] + "\n");
+                setLocation({
+                  ...location,
+                  uploadedPhoto: result[0],
+                });
+              } catch (error) {
+                console.log(error);
+              }
+            }}>
+            <Image source={camera} style={styles.buttonImageIconStyle} />
+            <Text style={styles.buttonTextStyle}>Upload Image</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      {/*============= END CONTENT =============================================*/}
+
       <View
         style={{
           display: 'flex',
@@ -348,15 +311,15 @@ export default function CreateTravelGuide({navigation, route}) {
           <Text
             style={{
               ...styles.buttonTextStyle,
-              fontSize: 18,
-              fontFamily: 'Lexend-Regular',
+              fontSize: 23,
+              fontFamily: 'Cereal_thicc',
               color: 'white',
             }}>
-            SUBMIT
+            Submit
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </View >
   );
 }
 
@@ -387,35 +350,34 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   input: {
-    fontSize: 20,
-    margin: 10,
+    fontSize: 17,
+    margin: 23,
     borderRadius: 10,
-    padding: 10,
+    marginTop: 20,
+    width: '90%',
     backgroundColor: 'white',
     color: 'black',
-    fontFamily: 'Lexend-Light',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgb(224, 212, 212)',
+    fontFamily: 'Cereal_Medium',
+    borderBottomWidth: 2,
+    borderBottomColor: 'grey',
   },
   description: {
     height: 100,
-    marginTop: 30,
-    borderTopColor: 'white',
-    borderBottomColor: 'white',
+    width: '85%',
+    marginTop: 10,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     borderWidth: 1,
+    borderRadius: 15,
     fontSize: 15,
     textAlignVertical: 'top',
     padding: 10,
-    fontFamily: 'Lexend-Light',
-    color: 'black',
+    fontFamily: 'Cereal_Medium',
+    color: 'grey',
+    border: '1px solid grey'
   },
   buttonItiStyle: {
-    flexDirection: 'row',
     backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'white',
-    height: 60,
-    width: '35%',
     borderRadius: 20,
     marginTop: 30,
     display: 'flex',
@@ -425,6 +387,12 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+  mapicon: {
+    marginRight: 10,
+    height: 25,
+    width: 25,
+    marginTop: 20,
+  },
   buttonImageIconStyle: {
     height: 25,
     width: 25,
@@ -432,31 +400,138 @@ const styles = StyleSheet.create({
     tintColor: 'black',
   },
   buttonTextStyle: {
+    fontSize: 20,
     color: 'black',
-    fontFamily: 'Lexend-Light',
+    fontFamily: 'Cereal_Medium',
   },
   buttonIconSeparatorStyle: {
     backgroundColor: '#fff',
     width: 1,
     height: 40,
   },
-  buttonHeaderStyle: {
-    color: '#000',
-    marginTop: 10,
-    marginLeft: 10,
-    fontWeight: 'bold',
-    fontSize: 22,
-    fontFamily: 'monospace',
-  },
+
   buttonDONEStyle: {
-    backgroundColor: 'black',
+    backgroundColor: '#F7572D',
+    position: 'absolute',
     borderColor: 'white',
     height: 55,
     borderRadius: 20,
     width: 150,
     display: 'flex',
+    fontFamily: 'Cereal_Medium',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
   },
+  headers:
+  {
+    fontFamily: 'Cereal_bold',
+    marginTop: 30,
+    marginLeft: 20,
+    fontSize: 20,
+    letterSpacing: 1,
+    color: 'black',
+  },
+
+  topHeader:
+  {
+    fontFamily: 'Cereal_bold',
+    fontSize: 20,
+    letterSpacing: 1,
+    color: 'black',
+  },
+  backButton:
+  {
+    position: 'absolute',
+    left: 20,
+    transform: [{ rotate: '-90deg' }],
+    height: 30,
+    width: 30,
+
+  },
+  autocompleteTopContainer:
+  {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 20,
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    border: '3px solid black',
+    borderColor: 'black',
+    fontFamily: "Cereal_Medium",
+    flexDirection: 'row' // add flexDirection: 'row'
+  },
+  autocompleteSearchBar:
+  {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
+    border: '3px solid black',
+    borderColor: 'black',
+    fontFamily: "Cereal_Medium",
+    flexDirection: 'row' // add flexDirection: 'row'
+  },
+  autocompleteDesign:
+  {
+    description: {
+      color: 'black',
+      fontFamily: 'Cereal_Medium',
+      textAlign: 'center',
+    },
+    textInputContainer: {
+      color: 'black',
+      fontFamily: 'Cereal_Medium',
+      borderBottomColor: 'white',
+    },
+    textInput: {
+      backgroundColor: 'white',
+      fontFamily: 'Cereal_Medium',
+      color: 'black',
+      textAlign: 'left',
+      borderBottomWidth: 2,
+      borderBottomColor: 'grey',
+    },
+    predefinedPlacesDescription: {
+      color: 'black',
+    },
+    listView: {
+      backgroundColor: 'white',
+    },
+    row: {
+      backgroundColor: 'white',
+    },
+    powered: {
+      opacity: 0,
+    },
+    poweredContainer: {
+      opacity: 0,
+
+    },
+  },
+  title:
+  {
+    fontSize: 17,
+    marginTop: 20,
+    paddingBottom: 15,
+    backgroundColor: 'white',
+    color: 'black',
+    fontFamily: 'Cereal_Medium',
+    width: '80%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  searchResult:
+  {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  contentContainer:
+  {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  }
+
 });
