@@ -3,15 +3,15 @@ const path = require("path");
 const gc = new Storage({
   keyFilename: path.join(
     __dirname,
-    "../loyal-venture-368318-8a7920f2df96.json"
+    "../atomica-384322-fa515160432c.json"
   ),
-  projectId: "loyal-venture-368318",
+  projectId: "atomica-384322",
 });
-const bucket = gc.bucket("guidify_bucket");
+const bucket = gc.bucket("atomica_bucket");
 
 class GCSManager {
 
-    // This function returns a url to the file
+  // This function returns a url to the file
   static async uploadAudio(audio, id) {
     return await new Promise((resolve, reject) => {
       const blob = bucket.file(audio);
@@ -23,8 +23,8 @@ class GCSManager {
           resolve(publicUrl);
         })
         .on("error", (err) => {
-          console.log(err);
-          reject(`Unable to upload image, something went wrong`);
+          console.log("this if GCS MANAGER: " + err);
+          reject(`Unable to upload audio, something went wrong`);
         })
         .end(audio.buffer);
     });

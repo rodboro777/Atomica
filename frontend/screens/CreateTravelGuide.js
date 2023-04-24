@@ -34,10 +34,14 @@ export default function CreateTravelGuide({ navigation, route }) {
   });
 
   const createTravelGuide = async () => {
-    console.log("got location info");
+
     const formData = new FormData();
+
+    //write a console.log to see what the location looks like before you send it to the backend
+
     formData.append('placeId', location.placeId);
     formData.append('name', location.name);
+    formData.append('public', true);
     formData.append('locationName', location.locationName);
     formData.append('description', location.description);
     formData.append('audio', {
@@ -46,7 +50,7 @@ export default function CreateTravelGuide({ navigation, route }) {
       name: location.audio.name,
     });
 
-    if (location.uploadedPhoto) {
+    if (location.uploadedPhoto !== null && typeof location.uploadedPhoto !== 'undefined') {
       formData.append('image', location.uploadedPhoto);
     } else {
       formData.append('imageUrl', defaultPhotoUrl);
@@ -56,6 +60,9 @@ export default function CreateTravelGuide({ navigation, route }) {
       lat: region.latitude,
       lng: region.longitude
     }));
+
+    console.log('ALLLLLLL ' + formData.getAll('description'));
+    console.log('ALLLLLLL ' + formData.getAll('name'));
 
     await fetch(`http://${ip.ip}:8000/travelGuide`, {
       credentials: 'include',
@@ -73,7 +80,6 @@ export default function CreateTravelGuide({ navigation, route }) {
           navigation.navigate('User', { origin: "CreateTravelGuide" });
         } else if (resBody.statusCode == 403) {
           // TODO user entered the wrong credentials. add a UI for this.
-
           console.log('failed');
         }
       })
@@ -140,7 +146,9 @@ export default function CreateTravelGuide({ navigation, route }) {
               } else {
                 locationName = data.name;
               }
-              console.log('\n locationName  : ', locationName);
+
+              console.log('THIS IS LAT' + details.geometry.location.lat)
+              console.log('THIS IS LONG' + details.geometry.location.lng)
 
               placeRef.current.setAddressText('');
               setRegion({
@@ -158,12 +166,14 @@ export default function CreateTravelGuide({ navigation, route }) {
               });
 
               // get the photoref.
-              const photoRef = details.photos?.[0]?.photo_reference;
-              const url =
-                photoRef
-                  ? `https://maps.googleapis.com/maps/api/place/photo?photoreference=${photoRef}&sensor=false&maxheight=500&maxwidth=500&key=${key}`
-                  : 'https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty-300x240.jpg';
+              const photoRef = details?.photos?.[0]?.photo_reference;
+              const url = photoRef
+                ? `https://maps.googleapis.com/maps/api/place/photo?photoreference=${photoRef}&sensor=false&maxheight=500&maxwidth=500&key=${key}`
+                : 'https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty-300x240.jpg';
+
+              console.log('THIS IS URL OF PHOT AFTER ' + url);
               setDefaultPhotoUrl(url);
+
             }}
             getDefaultValue={() => ''}
             query={{
@@ -214,27 +224,25 @@ export default function CreateTravelGuide({ navigation, route }) {
         placeholder="Title"
         placeholderTextColor="black"
         style={styles.input}
-        onChangeText={e => {
+        value={location.name}
+        onChangeText={e =>
           setLocation({
             ...location,
-            name: e,
-          });
-        }}
-        value={location.name}
+            name: e
+          })
+        }
+
       />
 
       <TextInput
+
         placeholder="Description"
         multiline={true}
         placeholderTextColor="black"
-        style={styles.description}
-        onChangeText={e => {
-          setLocation({
-            ...location,
-            description: e,
-          });
-        }}
         value={location.description}
+        style={styles.description}
+        onChangeText={text => setLocation({ ...location, description: text })}
+
       />
       {/*============= END TITLE and DESCRIPTION ======================== */}
 
@@ -306,6 +314,7 @@ export default function CreateTravelGuide({ navigation, route }) {
           style={styles.buttonDONEStyle}
           activeOpacity={0.5}
           onPress={() => {
+
             createTravelGuide();
           }}>
           <Text

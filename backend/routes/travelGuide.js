@@ -78,7 +78,7 @@ router.get('/byCoordinates', async (req, res) => {
       const itineraries = travelGuide.itineraries;
       delete travelGuide.itineraries;
       const placeId = travelGuide.placeId;
-      
+
       if (!(placeId in data)) {
         data[placeId] = {
           travelGuides: [],
@@ -312,7 +312,7 @@ router.post(
         statusCode: 200,
       });
     } catch (err) {
-      console.log(err);
+      console.log("this is from here : " + err);
       res.send({
         statusCode: 500,
       });
