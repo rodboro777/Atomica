@@ -1,7 +1,7 @@
 import './App.css';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {GoogleAuth} from 'google-auth-library';
+import { GoogleAuth } from 'google-auth-library';
 import { SpeechClient } from '@google-cloud/speech/build/src/v1p1beta1';
 import Navbar from './Navbar';
 import mockImage from './dkit_campus.jpeg';
@@ -31,13 +31,13 @@ function App() {
 
   // SPEECH-TO-TEXT STUFFS
   // Load the contents of the JSON credentials file
-  const keyFile = require('./guidify-369315-78db1b10c2fd.json');
+  const keyFile = require('./atomica-384322-fa515160432c.json');
   // Create a new GoogleAuth client with the credentials
   const auth = new GoogleAuth({
     credentials: keyFile,
     scopes: ['https://www.googleapis.com/auth/cloud-platform']
   });
-    // Create a new SpeechClient with the authentication client
+  // Create a new SpeechClient with the authentication client
   const client = new SpeechClient({
     auth: auth
   });
@@ -52,7 +52,7 @@ function App() {
     Tooltip,
     Legend
   );
-  
+
   const options = {
     scales: {
       x: {
@@ -82,7 +82,7 @@ function App() {
       }
     }
   };
-  
+
   const labels = ["Valid", "Invalid - others", "Invalid - harassment"];
 
 
@@ -110,15 +110,15 @@ function App() {
   };
 
   async function getTravelGuides() {
-        await axios
-          .get(`http://localhost:8000/travelGuide/applications?status=${currentPage}`)
-          .then(res => {
-            const data = res.data.travelGuidesRequests;
-            setTravelGuideRequests(data);
-          })
-          .catch(err => {
-            console.log(err);
-          });
+    await axios
+      .get(`http://localhost:8000/travelGuide/applications?status=${currentPage}`)
+      .then(res => {
+        const data = res.data.travelGuidesRequests;
+        setTravelGuideRequests(data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   async function makeAction(id, action) {
@@ -147,7 +147,7 @@ function App() {
     // construct gcsUri
     const tmp = audioUrl.split("/");
     const gcsUri = `gs://${tmp[3]}/${tmp[4]}`;
-    
+
     // transcribe audio.
     const encoding = 'MP3';
     const sampleRateHertz = 16000;
@@ -158,16 +158,16 @@ function App() {
       languageCode: languageCode,
       enableWordConfidence: true,
     };
-  
+
     const audio = {
       uri: gcsUri,
     };
-  
+
     const request = {
       config: config,
       audio: audio,
     };
-  
+
     // Detects speech in the audio file. This creates a recognition job that you
     // can wait for now, or get its result later.
     const [operation] = await client.longRunningRecognize(request);
@@ -186,9 +186,9 @@ function App() {
   async function autoClassify(requestId, audioUrl) {
     let tmp = {};
     tmp[requestId] = true;
-    setLoading({...loading, ...tmp});
+    setLoading({ ...loading, ...tmp });
     const [transcription, transcribeConfidenceLevel] = await transcribeAudio(audioUrl);
-    
+
     // Auto classify audio.
     fetch(`http://127.0.0.1:5000`, {
       method: 'POST',
@@ -199,42 +199,42 @@ function App() {
         text: transcription,
       }),
     })
-    // axios.post("http://localhost:5000/", JSON.stringify({
-    //   text: transcription,
-    // }), {
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // })
-    .then(res => res.json())
-    .then(res => {
-      let tmp = {};
-      tmp[requestId] = res;
-      tmp[requestId] = {
-        ...tmp[requestId],
-        transcribeConfidenceLevel: transcribeConfidenceLevel
-      }
-      setAutoClassifyData({
-        ...autoClassifyData,
-        ...tmp,
+      // axios.post("http://localhost:5000/", JSON.stringify({
+      //   text: transcription,
+      // }), {
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   }
+      // })
+      .then(res => res.json())
+      .then(res => {
+        let tmp = {};
+        tmp[requestId] = res;
+        tmp[requestId] = {
+          ...tmp[requestId],
+          transcribeConfidenceLevel: transcribeConfidenceLevel
+        }
+        setAutoClassifyData({
+          ...autoClassifyData,
+          ...tmp,
+        })
+        setLoading(prev => {
+          tmp = prev;
+          delete tmp[requestId];
+          return tmp;
+        });
+        setReadyForReview(prev => {
+          let temp = {};
+          temp[requestId] = true;
+          return {
+            ...prev,
+            ...temp,
+          };
+        });
       })
-      setLoading(prev => {
-        tmp = prev;
-        delete tmp[requestId];
-        return tmp;
-      });
-      setReadyForReview(prev => {
-        let temp = {};
-        temp[requestId] = true;
-        return {
-          ...prev,
-          ...temp,
-        };
-      });
-    })
-    .catch(err => {
-      console.log(err);
-    })
+      .catch(err => {
+        console.log(err);
+      })
   }
 
   function getBarChartBorderColor(id) {
@@ -263,21 +263,21 @@ function App() {
       <div id="audio-div">
         {
           travelGuideRequests.length === 0 ?
-          <div className="nothing">
-            <h3>No Travel Guide Requests</h3>
-          </div> : travelGuideRequests.map(request => (
-              <div id={request._id} className="audio-single" style={{display: "flex"}}>
-                <div style={{width: "40%", height: 'auto', float: "left", justifyContent: 'left', alignItems: 'center', display: 'flex'}}>
-                  <img src={request.imageUrl} style={{width: '100%', height: '200px', borderRadius: '5%', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'}}/>
+            <div className="nothing">
+              <h3>No Travel Guide Requests</h3>
+            </div> : travelGuideRequests.map(request => (
+              <div id={request._id} className="audio-single" style={{ display: "flex" }}>
+                <div style={{ width: "40%", height: 'auto', float: "left", justifyContent: 'left', alignItems: 'center', display: 'flex' }}>
+                  <img src={request.imageUrl} style={{ width: '100%', height: '200px', borderRadius: '5%', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px' }} />
                 </div>
-                <div style={{width: "50%", float: "left", alignContent: 'left', paddingLeft: '10px', marginLeft: '10px', boxShadow: 'rgba(0, 0, 0, 0.24) 0 0 7px', borderRadius: '2%'}}>
+                <div style={{ width: "50%", float: "left", alignContent: 'left', paddingLeft: '10px', marginLeft: '10px', boxShadow: 'rgba(0, 0, 0, 0.24) 0 0 7px', borderRadius: '2%' }}>
                   <div className="audio title">
                     <h3>{request.name}</h3>
                   </div>
                   <div className="audio description">
                     <p>{request.description}</p>
                   </div>
-                  <div className="audio" style={{padding: '0', backgroundColor: 'white'}}>
+                  <div className="audio" style={{ padding: '0', backgroundColor: 'white' }}>
                     <audio controls id="audio" onPlay={() => {
                       setReadyForReview(prev => {
                         let tmp = {};
@@ -288,60 +288,60 @@ function App() {
                         }
                       });
                     }}>
-                      <source src={request.audioUrl} type="audio/mpeg"/>
+                      <source src={request.audioUrl} type="audio/mpeg" />
                     </audio>
                   </div>
-                  {currentPage === TG_STATUS.PENDING ? <div className="audio buttons" style={{textAlign:'left', justifyContent:'left'}}>
-                    {request._id in loading ? 
+                  {currentPage === TG_STATUS.PENDING ? <div className="audio buttons" style={{ textAlign: 'left', justifyContent: 'left' }}>
+                    {request._id in loading ?
                       <CircleLoader
-                      color={color}
-                      loading={loading}
-                      cssOverride={override}
-                      size={50}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    /> : 
-                    <>
-                    {autoClassifyData[request._id] ? <>
-                    <br/>
-                    <p>Google Audio Transcribe Confidence Level: <b>{autoClassifyData[request._id].transcribeConfidenceLevel.toFixed(2)}</b></p>
-                    <br/>
-                    <p>AI Confidence Level</p>
-                    <Bar style={{border:'solid', borderColor: getBarChartBorderColor(request._id), boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px', borderRadius: '3%', padding: '5px', width: '100%'}} options={options} data={{
-                      labels,
-                      datasets: [
-                        {
-                          data: [
-                            parseFloat(autoClassifyData[request._id][CLASSIFICATION.VALID]),
-                            parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_OTHERS]),
-                            parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_HARASSMENT])
-                          ],
-                          borderColor: ["#2c733f", "#b88600", "#f20041"],
-                          backgroundColor: ['#6cac57', '#e6a800', '#eb5980'],
+                        color={color}
+                        loading={loading}
+                        cssOverride={override}
+                        size={50}
+                        aria-label="Loading Spinner"
+                        data-testid="loader"
+                      /> :
+                      <>
+                        {autoClassifyData[request._id] ? <>
+                          <br />
+                          <p>Google Audio Transcribe Confidence Level: <b>{autoClassifyData[request._id].transcribeConfidenceLevel.toFixed(2)}</b></p>
+                          <br />
+                          <p>AI Confidence Level</p>
+                          <Bar style={{ border: 'solid', borderColor: getBarChartBorderColor(request._id), boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px', borderRadius: '3%', padding: '5px', width: '100%' }} options={options} data={{
+                            labels,
+                            datasets: [
+                              {
+                                data: [
+                                  parseFloat(autoClassifyData[request._id][CLASSIFICATION.VALID]),
+                                  parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_OTHERS]),
+                                  parseFloat(autoClassifyData[request._id][CLASSIFICATION.INVALID_HARASSMENT])
+                                ],
+                                borderColor: ["#2c733f", "#b88600", "#f20041"],
+                                backgroundColor: ['#6cac57', '#e6a800', '#eb5980'],
+                              }
+                            ]
+                          }} /> </> :
+                          <Button
+                            style={{ color: '#6cac57', borderColor: '#6cac57', marginTop: '10px', fontFamily: 'lexend' }} variant="outlined"
+                            onClick={() => {
+                              autoClassify(request._id, request.audioUrl);
+                            }}
+                          >
+                            Auto Classify
+                          </Button>
                         }
-                      ]
-                    }} /> </> : 
-                    <Button 
-                      style={{color: '#6cac57', borderColor: '#6cac57', marginTop: '10px', fontFamily: 'lexend'}} variant="outlined"
-                      onClick={() => {
-                        autoClassify(request._id, request.audioUrl);
-                      }}
-                    >
-                      Auto Classify
-                    </Button>
-                    }
-                    </>
+                      </>
                     }
                   </div> :
-                  request.reviewerComment && <div>
-                    <br />
-                    <p><b>Reviewer Comment</b></p>
-                    <p>{`"${request.reviewerComment}"`}</p>
-                  </div>
+                    request.reviewerComment && <div>
+                      <br />
+                      <p><b>Reviewer Comment</b></p>
+                      <p>{`"${request.reviewerComment}"`}</p>
+                    </div>
                   }
-                  {(currentPage === TG_STATUS.PENDING && readyForReview[request._id]) && <div className="audio" style={{textAlign:'left', justifyContent:'left'}}>
+                  {(currentPage === TG_STATUS.PENDING && readyForReview[request._id]) && <div className="audio" style={{ textAlign: 'left', justifyContent: 'left' }}>
                     <TextField
-                      style={{borderColor: 'black'}}
+                      style={{ borderColor: 'black' }}
                       id="outlined-multiline-static"
                       label="Comment"
                       multiline
@@ -359,10 +359,10 @@ function App() {
                       }}
                     />
                     <div>
-                      <Button style={{color: '#6cac57', borderColor: '#6cac57', marginTop: '10px', fontFamily: 'lexend'}} variant='outlined' onClick={() => {
+                      <Button style={{ color: '#6cac57', borderColor: '#6cac57', marginTop: '10px', fontFamily: 'lexend' }} variant='outlined' onClick={() => {
                         makeAction(request._id, true);
                       }}>Approve</Button>
-                      <Button style={{color: '#f54284', borderColor: '#ff0f68', marginTop: '10px', marginLeft: '10px', fontFamily: 'lexend'}} variant='outlined' onClick={() => {
+                      <Button style={{ color: '#f54284', borderColor: '#ff0f68', marginTop: '10px', marginLeft: '10px', fontFamily: 'lexend' }} variant='outlined' onClick={() => {
                         makeAction(request._id, false);
                       }}>Reject</Button>
                     </div>

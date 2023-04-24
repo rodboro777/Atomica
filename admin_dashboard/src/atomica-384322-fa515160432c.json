@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "atomica-384322",
+  "private_key_id": "fa515160432c4e85009622ed302693065078ca46",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDeVUx2W9sbz0M0\nZhoSh89Lp5G8flxz/ckdD5ztf7OhJgcvg7TUkCFzl9QNnNpRit1lj8nPj1YSXRys\nRN5TB7Kh4OE7Udkjgyr8Q/iOR7rxKgwLi+huSec5NCY+iqzeofyoAumSS7hdyZ8l\nwsjKGbmqVIluwMDSaS6P5aQh40/xL1wG10s0RgKMn1HOdo09EtQMUNbDDDKd5eep\na6J6eZ4WvJGp7yhSjZo9ZXIQ1G2Z7Kj8XphmHd0sYJOZ2mxaF0qr27xOBAOlI+WL\nzKTf6qeL7l9UepoVv7YVm0SO8AzwpFJIrvXUBK4IbJA9FvcXrBCYWL6xk12V5DNV\nxXImZpd7AgMBAAECggEAPIUskKVVYd8L1KYcX8HvOBFPlucwpHRHO+1lkrKpw2p2\nF0V7QkdPi8ce9mulc//gX0aCMUk7rTkCVpRSjnhwdCciOEMB3+xTFaMs9BHrfb0r\n1TLK3MaqNcSPyoN2Jg4jF9rfGK8a6xC4jQ9WF8lj5E0pseevNTdjcNEaWg0l1ClF\nl/y9ATTD6kKqrv6A6wEP6Tv5PKJ0e5nw8Z7RvjqK1BqBuSwpyiETI+WxtWnVky+j\nuKflnr1Ji9YFW3CCE4bPmsf5NDSlUu2EMEygJyDk/fq9aUsrgrEq7vl6NnMNChYg\n4qy0NJzuv8kWNaHz8hIm6wf4T49nvDvCxxMYdr/n0QKBgQD5mOWI8X90a4zh1Qig\ngfgSfFm+Ee6kLZUieZbdXuPkeke+TaoMj3jjxCHWK2HlzrtpILnfWXVXUKTmazOe\nvEs1HS8K5XkXaFYjM4VzixxLmH00GH8vqaX0ig3Nixsesy0ZCxwYkHgcJ745tvO8\nflCRCCzJFTo6yAOTnjfnOKlpcQKBgQDkCVv1GrS+sJgaWgg4FznL+BsqgYyNp+UU\nJdbyKqfXYOX3BJ7l5tCWsD30F0cbYo/pZq49f+fpI2Wdnrp4SixUN09AhSbjJUdn\naRA0GOLg0jB612hfS7ICdppFDk25MVSKJHlUc69OcWtUdFOjWuHsenf7VC9qbl6w\npw8nJ3M5qwKBgQD1pN+KRjrs5ghSHeqOpTrzXoSoBlf6Jo5WzpmGpqPcsee3yBGq\nqO0OJHI0qJ+Bn1NcpIOp6A4O7+RKjYjRGXle/ajVrX/eZKYZoNQfIfKoB5x5T/6k\ndu9IWzI4b0YykZ65vfBZ0J0VAJw7iu4YPaynAAerowOa5Ex41Mcp/d7lUQKBgQDf\nz/vMZojNvD+dZY45lzon4nyvTHVqN0ZUbws3pfwUHUu4FXXriY5ix9oWr54f164N\n07TiMZ6pqQ88E6VLGOnHQn3rgoR3Xohli63WpDJRnJruhmsvVPkDB+tEKdTJFgy2\nhTP8WorOP+2q9317kGC7nDwUljzvhiIz2dO6hzLFfwKBgQCeH9awoUcwGiWhuDTw\nkzLIGM/g3SEyvx1a7brQPVM39AJ7ItKVBBRdzp4uwLGvsoObg3R6bHXB5PRr7vMt\nYgfPxpdWELEnP5yjDJhI37kP6oTOcYJLLj7Tx9m/CGTzswW5B1wGiIWMPJ0nnFXB\n5D3LmWoSHmwpkF9T8X6Ti/v0mg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "atomica@atomica-384322.iam.gserviceaccount.com",
+  "client_id": "103587784237253893991",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/atomica%40atomica-384322.iam.gserviceaccount.com"
+}
