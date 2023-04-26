@@ -17,21 +17,21 @@ const Account = props => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        width: 135,
+        width: 155,
         height: 45,
         borderRadius: 5,
         marginHorizontal: 10,
         marginTop: 10
     },
     accIcon: {
-        color: 'white',
+        color: 'darkgreen',
         fontSize: 20,
         fontWeight: 'bold',
         marginVertical: 13,
         marginHorizontal: 15,
     },
     textTitle: {
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
         fontSize: 18,
         marginVertical: 10,

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -13,6 +14,7 @@ import upArrow from '../assets/uparrow.png';
 import camera from '../assets/camera.png';
 import headphones from '../assets/headphones.png';
 import ip from '../ip';
+import Inputs from '../components/Inputs';
 export default function CreateTravelGuide({ navigation, route }) {
 
   const [defaultPhotoUrl, setDefaultPhotoUrl] = useState('');
@@ -91,6 +93,7 @@ export default function CreateTravelGuide({ navigation, route }) {
   return (
 
     <View style={styles.container}>
+      <ScrollView>
       <View style={styles.pageNameHolder}>
         <TouchableOpacity
           style={styles.backButton}
@@ -233,7 +236,6 @@ export default function CreateTravelGuide({ navigation, route }) {
         }
 
       />
-
       <TextInput
 
         placeholder="Description"
@@ -328,6 +330,7 @@ export default function CreateTravelGuide({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </View >
   );
 }

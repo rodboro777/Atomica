@@ -16,7 +16,7 @@ class Inputs extends Component {
         <View
         style={[styles.container, {
             borderColor: this.state.isFocused ? 'black' : 'grey',
-            backgroundColor: this.state.isFocused ? 'white' : '#fafafa'
+            backgroundColor: this.state.isFocused ? '#cfe5ff' : '#cfe5ff'
         }]}>
         <Input 
             onBlur={() => this.onFocusChange(false)}
@@ -45,9 +45,9 @@ const styles = StyleSheet.create({
     container: {
         width: '90%',
         height: 50,
-        borderRadius: 100,
+        borderRadius: 3,
         marginBottom: 20,
-        borderWidth: 3,
+        borderWidth: 0,
     },
     inputContainer: {
         borderBottomWidth: 0
