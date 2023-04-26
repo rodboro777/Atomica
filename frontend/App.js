@@ -8,6 +8,7 @@ import Login from './screens/Login';
 import NewMap from './screens/NewMap';
 import PlacesAutoComplete from './components/PlacesAutoComplete';
 import CreateItinerary from './screens/CreateItinerary';
+import AddTravelGuides from './screens/AddTravelGuides';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import EditUser from './screens/EditUser';
@@ -162,6 +163,11 @@ const UStackNav = passedProps => {
       <Stack.Screen
         name="Create TravelGuide"
         component={CreateTravelGuide}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Add TravelGuide"
+        component={AddTravelGuides}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

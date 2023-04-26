@@ -9,8 +9,13 @@ import upArrow from '../assets/uparrow.png';
 import DocumentPicker from 'react-native-document-picker';
 import camera from '../assets/camera.png';
 import trash from '../assets/trash.png';
+import TravelGuide from '../components/TravelGuide';
 
 export default function CreateItinerary({ navigation, route }) {
+
+  const ownerId = route.params.ownerId;
+  const selectedItems = route.params.selectedItems;
+
   const { item, isEdit } = route.params;
   const [itinerary, setItinerary] = useState({
     title: isEdit ? item.name : '',
@@ -22,8 +27,78 @@ export default function CreateItinerary({ navigation, route }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [availableTravelGuides, setAvailableTravelGuides] = useState([]);
   const isEmpty = useRef(true);
-  const [search, setSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
+  const PRIMARY_SECTIONS = [
+    {
+      id: 'userInfoSection',
+      type: 'userInfoSection',
+    },
+    {
+      id: 'profileButton',
+      type: 'profileButton',
+    },
+    {
+      id: 'contentFilter',
+      type: 'contentFilter',
+    },
+  ];
+  const [ownerInfo, setOwnerInfo] = useState({
+    id: ownerId,
+    fullName: '',
+    country: '',
+  });
+
+  const [contentList, setContentList] = useState([]);
+
+  fetch(`http://${ip.ip}:8000/user/info?id=${ownerId}`, {
+    credentials: 'include',
+    method: 'GET',
+  })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        setOwnerInfo({
+          ...ownerInfo,
+          fullName: resBody.info.firstName + ' ' + resBody.info.lastName,
+          country: resBody.info.country,
+          username: resBody.info.username,
+          imageUrl: resBody.info.imageUrl,
+        });
+      } else {
+        navigation.navigate('MyTabs');
+      }
+    });
+
+
+  // Get the travel guides created by the owner.
+  fetch(`http://${ip.ip}:8000/travelGuide/byCreator?creatorId=${ownerId}`, {
+    credentials: 'include',
+    method: 'GET',
+  })
+    .then(res => res.json())
+    .then(resBody => {
+      if (resBody.statusCode == 200) {
+        setTravelGuides(resBody.travelGuides);
+
+      }
+    });
+
+  useEffect(() => {
+    let candidateList = [...PRIMARY_SECTIONS];
+    travelGuides.forEach(travelGuide => {
+      candidateList.push({
+        id: travelGuide._id,
+        type: 'travelGuide',
+        travelGuide: travelGuide,
+      });
+    });
+    setContentList(candidateList);
+  }, [
+    ownerInfo,
+    travelGuides,
+  ]);
 
   async function handleSearch(name) {
     if (name.trim().length == 0) {
@@ -91,6 +166,21 @@ export default function CreateItinerary({ navigation, route }) {
       });
   };
 
+
+  function renderItem({ item }) {
+    if (item.type == 'travelGuide') {
+      return (
+        <TravelGuide
+          travelGuide={item.travelGuide}
+          currentPlayingTG={currentPlayingTG}
+          setCurrentPlayingTG={setCurrentPlayingTG}
+          isUserProfilePage={true}
+          navigation={navigation}
+        />
+      );
+    }
+  }
+
   useEffect(() => {
     if (isEdit) {
       console.log(item.travelGuideId);
@@ -107,6 +197,8 @@ export default function CreateItinerary({ navigation, route }) {
         });
     }
   }, []);
+
+
   async function handleDelete(id) {
     fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
       credentials: 'include',
@@ -218,12 +310,15 @@ export default function CreateItinerary({ navigation, route }) {
             letterSpacing: 1,
             color: 'black',
           }}>
-          {isEdit ? 'Edit Itinerary' : 'Create Itinerary'}
+          {isEdit ? 'Edit Itinerary ✍️' : 'Create Itinerary 🚀'}
         </Text>
       </View>
-
+      <Text
+        style={styles.headers}>
+        {'Name it'}
+      </Text>
       <TextInput
-        placeholder="Itinerary Title..."
+        placeholder="Title..."
         placeholderTextColor="black"
         style={styles.input}
         value={itinerary.title}
@@ -234,29 +329,35 @@ export default function CreateItinerary({ navigation, route }) {
           });
         }}
       />
+      <Text
+        style={styles.headers}>
+        {'Added travel guides'}
+      </Text>
 
-      <View style={{ flexDirection: 'row', padding: 10 }}>
-        <TextInput
-          style={{
-            flex: 1,
-            height: 40,
-            borderColor: 'gray',
-            borderWidth: 1,
-            borderRadius: 5,
-            fontFamily: 'Lexend-Regular',
-            padding: 10,
-            backgroundColor: 'black',
-            color: 'white',
-          }}
-          placeholder="Search for travel guides"
-          placeholderTextColor={'white'}
-          value={search}
-          onChangeText={e => {
-            setSearch(e);
-            handleSearch(e);
-          }}
+      {!selectedItems && (
+        <TouchableOpacity
+          style={styles.travelGuideItem}
+
+          onPress={() => {
+            navigation.navigate('Add TravelGuide', { item: {}, isEdit: false, ownerId: ownerId });
+          }}>
+          <Text style={{ fontFamily: 'Cereal_thicc' }}>+</Text>
+          <Text style={{ fontFamily: 'Lexend-Regular' }}>{item.name}</Text>
+        </TouchableOpacity>
+      )}
+      {selectedItems && (
+        <FlatList
+          data={contentList}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          bounces={false}
+          alwaysBounceVertical={false}
+          overScrollMode="never"
+          showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[2]}
         />
-      </View>
+      )}
+
       {isEmpty.current == false && (
         <FlatList
           style={styles.travelGuideList}
@@ -271,7 +372,7 @@ export default function CreateItinerary({ navigation, route }) {
           )}
         />
       )}
-      <View>
+      {/* <View>
         <FlatList
           style={styles.choosenTravelGuideList}
           data={itinerary.travelGuides && itinerary.travelGuides}
@@ -305,7 +406,7 @@ export default function CreateItinerary({ navigation, route }) {
             </View>
           )}
         />
-      </View>
+      </View> */}
       <TextInput
         placeholder="Description..."
         placeholderTextColor="black"
@@ -554,24 +655,52 @@ const styles = StyleSheet.create({
   },
 
   travelGuideList: {
-    backgroundColor: 'white',
+    backgroundColor: 'black',
     borderRadius: 10,
     padding: 10,
-    height: 200,
+    height: 50,
     minHeight: 200,
   },
   travelGuideItem: {
     textAlign: 'center',
     padding: 10,
+    margin: 10,
+    marginLeft: 20,
     color: 'black',
-    borderBottomWidth: 1,
+    width: '40%',
+    borderStyle: 'dashed',
     marginTop: 10,
+    borderWidth: 3,
+    width: '30%',
+    borderRadius: 10,
   },
   choosenTravelGuideList: {
-    height: 150,
+    height: 50,
     textAlign: 'center',
     borderColor: 'black',
     backgroundColor: 'whitesmoke',
+  },
+  headers:
+  {
+    fontFamily: 'Cereal_bold',
+    marginTop: 10,
+    marginLeft: 20,
+    fontSize: 20,
+    letterSpacing: 1,
+    color: 'black',
+  },
+
+  input: {
+    fontSize: 17,
+    margin: 23,
+    borderRadius: 10,
+    marginTop: 20,
+    width: '90%',
+    backgroundColor: 'white',
+    color: 'black',
+    fontFamily: 'Cereal_Medium',
+    borderBottomWidth: 2,
+    borderBottomColor: 'grey',
   },
   choosenTravelGuideItem: {
     padding: 10,

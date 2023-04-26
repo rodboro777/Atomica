@@ -71,7 +71,7 @@ export default function NewMap({ navigation, userId, route }) {
 
   const [locationsWithinFrame, setLocationsWithinFrame] = useState([]);
   const locationNumber = useRef([]);
-  const mapKey = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
+  const mapKey = 'AIzaSyBCRkWTNumRm0kjDmC8V25s0oiPpmxZoY0';
 
   function handleRegionChange(val) {
     setRegion(val);
@@ -318,8 +318,8 @@ export default function NewMap({ navigation, userId, route }) {
         setRegion({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.42,
+          longitudeDelta: 0.41,
         });
         setUserLocation({
           latitude: pos.coords.latitude,
@@ -759,7 +759,7 @@ export default function NewMap({ navigation, userId, route }) {
                 return (
                   <MapViewDirections
                     key={id}
-                    apikey="AIzaSyBTu-eAg_Ou65Nzk3-2tvGjbg9rcC2_M3I"
+                    apikey={mapKey}
                     strokeWidth={3}
                     strokeColor="black"
                     origin={
@@ -782,6 +782,7 @@ export default function NewMap({ navigation, userId, route }) {
                   latitude: tgMarkers[tgNumber].latitude,
                   longitude: tgMarkers[tgNumber].longitude,
                 }}>
+                {/** THIS NEEDS TO BE CHANGED TO DIFFERENT MARKER */}
                 <Image
                   source={require('../assets/map-marker-black.png')}
                   style={{ width: 45, height: 50 }}

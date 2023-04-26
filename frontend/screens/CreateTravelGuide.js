@@ -16,7 +16,7 @@ import ip from '../ip';
 export default function CreateTravelGuide({ navigation, route }) {
 
   const [defaultPhotoUrl, setDefaultPhotoUrl] = useState('');
-  const key = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
+  const key = 'AIzaSyB1t38ZZXBXyQJb7e5bZ9S46MW8lhp5eks';
   const [location, setLocation] = React.useState({
     placeId: '',
     name: '',

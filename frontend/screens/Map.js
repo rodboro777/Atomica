@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -18,11 +18,11 @@ import {
 import TopInfoCard from '../components/TopInfoCard';
 import BottomInfoCard from '../components/BottomInfoCard';
 import RatingStars from '../components/RatingStars';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import MapView, {Marker, Circle} from 'react-native-maps';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from '@react-native-community/geolocation';
-import {FloatingAction} from 'react-native-floating-action';
+import { FloatingAction } from 'react-native-floating-action';
 import Modal from 'react-native-modal';
 import PlayIcon from '../assets/play_1.png';
 import PauseIcon from '../assets/pause.png';
@@ -95,7 +95,7 @@ const Map = () => {
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
-  const key = 'AIzaSyCsdtGfQpfZc7tbypPioacMv2y7eMoaW6g';
+  const key = 'AIzaSyBCRkWTNumRm0kjDmC8V25s0oiPpmxZoY0';
   const url =
     'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
     photo +
@@ -122,7 +122,7 @@ const Map = () => {
     opacity: 0.2,
     x: 0,
     y: 3,
-    style: {marginVertical: 5},
+    style: { marginVertical: 5 },
   };
 
   const toggleModal = e => {
@@ -183,7 +183,7 @@ const Map = () => {
         });
       },
       error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-      {enableHighAccuracy: true},
+      { enableHighAccuracy: true },
     );
   };
 
@@ -218,7 +218,7 @@ const Map = () => {
     setShowDirection(true);
   }
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <Pressable
         style={styles.itemWrapperStyle}
@@ -276,12 +276,12 @@ const Map = () => {
     }
   }
   useEffect(() => {
-    SoundPlayer.addEventListener('FinishedPlaying', ({success}) => {
+    SoundPlayer.addEventListener('FinishedPlaying', ({ success }) => {
       setCurrentlyPlaying([null, false]);
     });
   }, []);
   useEffect(() => {
-    SoundPlayer.addEventListener('FinishedLoading', ({success}) => {
+    SoundPlayer.addEventListener('FinishedLoading', ({ success }) => {
       setLoadingAudio(false);
     });
   }, []);
@@ -324,11 +324,11 @@ const Map = () => {
         const itUsername = await getUsernames(it);
         let modifiedTg = [];
         for (let i = 0; i < tgUsername.length; i++) {
-          modifiedTg.push({...tg[i], username: tgUsername[i]});
+          modifiedTg.push({ ...tg[i], username: tgUsername[i] });
         }
         let modifiedIt = [];
         for (let i = 0; i < itUsername.length; i++) {
-          modifiedIt.push({...it[i], username: itUsername[i]});
+          modifiedIt.push({ ...it[i], username: itUsername[i] });
         }
         setTravelGuides(modifiedTg);
         setItineraries(modifiedIt);
@@ -359,7 +359,7 @@ const Map = () => {
         const tgUsername = await getUsernames(tg);
         let modifiedTg = [];
         for (let i = 0; i < tgUsername.length; i++) {
-          modifiedTg.push({...tg[i], username: tgUsername[i]});
+          modifiedTg.push({ ...tg[i], username: tgUsername[i] });
         }
         const ids = [];
         modifiedTg.map(tg => {
@@ -402,7 +402,7 @@ const Map = () => {
           });
         }
         mapRef.current.fitToCoordinates(coordinates, {
-          edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
           animated: true,
         });
         setRunningIds(ids);
@@ -420,9 +420,9 @@ const Map = () => {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c; // distance in km
     return d * 1000; // distance in m
@@ -451,14 +451,14 @@ const Map = () => {
         };
       },
       error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
-      {enableHighAccuracy: true},
+      { enableHighAccuracy: true },
     );
   }, []);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         if (runningIti && isOnTrack.current) {
           let range = getDistance(
             latitude,
@@ -506,12 +506,12 @@ const Map = () => {
           setDirDistance(desD);
           console.log(
             'lat: ' +
-              latitude +
-              ' long: ' +
-              longitude +
-              ' distance: ' +
-              desD +
-              'm',
+            latitude +
+            ' long: ' +
+            longitude +
+            ' distance: ' +
+            desD +
+            'm',
           );
           if (
             testD <= 20 &&
@@ -538,7 +538,7 @@ const Map = () => {
         };
       },
       error => console.log(error),
-      {enableHighAccuracy: true, distanceFilter: 10},
+      { enableHighAccuracy: true, distanceFilter: 10 },
     );
 
     return () => Geolocation.clearWatch(watchId);
@@ -578,7 +578,7 @@ const Map = () => {
       });
     });
     mapRef.current.fitToCoordinates(coordinates, {
-      edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
       animated: true,
     });
   }
@@ -846,87 +846,87 @@ const Map = () => {
 
   const mapStyleLight = [];
   const mapStyleDark = [
-    {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
-    {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
-    {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+    { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
     {
       featureType: 'administrative.locality',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#d59563'}],
+      stylers: [{ color: '#d59563' }],
     },
     {
       featureType: 'poi',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#d59563'}],
+      stylers: [{ color: '#d59563' }],
     },
     {
       featureType: 'poi.park',
       elementType: 'geometry',
-      stylers: [{color: '#263c3f'}],
+      stylers: [{ color: '#263c3f' }],
     },
     {
       featureType: 'poi.park',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#6b9a76'}],
+      stylers: [{ color: '#6b9a76' }],
     },
     {
       featureType: 'road',
       elementType: 'geometry',
-      stylers: [{color: '#38414e'}],
+      stylers: [{ color: '#38414e' }],
     },
     {
       featureType: 'road',
       elementType: 'geometry.stroke',
-      stylers: [{color: '#212a37'}],
+      stylers: [{ color: '#212a37' }],
     },
     {
       featureType: 'road',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#9ca5b3'}],
+      stylers: [{ color: '#9ca5b3' }],
     },
     {
       featureType: 'road.highway',
       elementType: 'geometry',
-      stylers: [{color: '#746855'}],
+      stylers: [{ color: '#746855' }],
     },
     {
       featureType: 'road.highway',
       elementType: 'geometry.stroke',
-      stylers: [{color: '#1f2835'}],
+      stylers: [{ color: '#1f2835' }],
     },
     {
       featureType: 'road.highway',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#f3d19c'}],
+      stylers: [{ color: '#f3d19c' }],
     },
     {
       featureType: 'transit',
       elementType: 'geometry',
-      stylers: [{color: '#2f3948'}],
+      stylers: [{ color: '#2f3948' }],
     },
     {
       featureType: 'transit.station',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#d59563'}],
+      stylers: [{ color: '#d59563' }],
     },
     {
       featureType: 'water',
       elementType: 'geometry',
-      stylers: [{color: '#17263c'}],
+      stylers: [{ color: '#17263c' }],
     },
     {
       featureType: 'water',
       elementType: 'labels.text.fill',
-      stylers: [{color: '#515c6d'}],
+      stylers: [{ color: '#515c6d' }],
     },
     {
       featureType: 'water',
       elementType: 'labels.text.stroke',
-      stylers: [{color: '#17263c'}],
+      stylers: [{ color: '#17263c' }],
     },
   ];
   return (
-    <SafeAreaView style={{flex: 1, position: 'relative'}}>
+    <SafeAreaView style={{ flex: 1, position: 'relative' }}>
       {runningIti && (
         <TopInfoCard
           tg={itiTg}
@@ -959,7 +959,7 @@ const Map = () => {
           setShowRating={setShowRating}
         />
       )}
-      <View style={{alignItems: 'center'}}>
+      <View style={{ alignItems: 'center' }}>
         {!showDetailIti && (
           <GooglePlacesAutocomplete
             ref={placeRef}
@@ -1079,7 +1079,7 @@ const Map = () => {
             ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
             keyboardShouldPersistTaps="handled"
             debounce={200} // debounce the requests in ms. Set to 0 to remove debounce. By default 0ms.
-            //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
+          //renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
           />
         )}
       </View>
@@ -1168,8 +1168,8 @@ const Map = () => {
                   runningIti
                     ? userLocation
                     : index == 0
-                    ? userLocation
-                    : runningIds[index - 1]
+                      ? userLocation
+                      : runningIds[index - 1]
                 }
                 destination={runningIti ? runningIds[tgNumber] : id}
                 mode="WALKING"
@@ -1225,7 +1225,7 @@ const Map = () => {
         }}
         color="black"
         position="right"
-        distanceToEdge={{horizontal: 20, vertical: 40}}
+        distanceToEdge={{ horizontal: 20, vertical: 40 }}
       />
       <Modal
         onBackdropPress={() => !showDetailIti && setModalVisible(false)}
@@ -1245,13 +1245,13 @@ const Map = () => {
           style={[
             styles.modalContent,
             {
-              transform: [{translateY: modalAni}],
+              transform: [{ translateY: modalAni }],
             },
           ]}>
           {showRating ? (
             <View style={styles.center}>
               <View style={styles.barIcon} />
-              <View style={{padding: 10, width: '100%'}}>
+              <View style={{ padding: 10, width: '100%' }}>
                 <Text
                   style={{
                     textAlign: 'center',
@@ -1352,7 +1352,7 @@ const Map = () => {
                   marginTop: 10,
                   fontFamily: 'Lexend-ExtraLight',
                 }}>
-                <View style={{width: 150}}></View>
+                <View style={{ width: 150 }}></View>
               </View>
             </View>
           ) : (
@@ -1368,7 +1368,7 @@ const Map = () => {
                 {description}
               </Text>
               <Image
-                source={{uri: url}}
+                source={{ uri: url }}
                 style={{
                   height: 100,
                   width: 370,
@@ -1385,7 +1385,7 @@ const Map = () => {
                   width: '100%',
                   justifyContent: 'space-around',
                 }}>
-                <View style={{width: 150}}>
+                <View style={{ width: 150 }}>
                   <Pressable
                     style={{
                       backgroundColor: showTg ? 'black' : 'whitesmoke',
@@ -1414,7 +1414,7 @@ const Map = () => {
                     borderColor: 'white',
                   }}
                 />
-                <View style={{width: 150}}>
+                <View style={{ width: 150 }}>
                   <Pressable
                     style={{
                       backgroundColor: showTg ? 'whitesmoke' : 'black',
@@ -1441,7 +1441,7 @@ const Map = () => {
           )}
           {/* <StatusBar backgroundColor="#000" /> */}
           {!showRating && (
-            <View style={{maxHeight: 500, padding: 10}}>
+            <View style={{ maxHeight: 500, padding: 10 }}>
               <FlatList
                 data={
                   showDetailIti ? itiTg : showTg ? travelGuides : itineraries
@@ -1452,7 +1452,7 @@ const Map = () => {
                 onEndReached={loadMoreItem}
                 onEndReachedThreshold={2}
                 showsVerticalScrollIndicator={true}
-                contentContainerStyle={{flexGrow: 1}}
+                contentContainerStyle={{ flexGrow: 1 }}
               />
             </View>
           )}

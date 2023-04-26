@@ -8,8 +8,8 @@ import {
   Text,
   Alert,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {Button} from '@react-native-material/core';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button } from '@react-native-material/core';
 import axios from 'axios';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,19 +20,19 @@ import Application from '../components/Application';
 import UserInfoSection from '../components/UserInfoSection';
 import ContentFilter from '../components/ContentFilter';
 import SoundPlayer from 'react-native-sound-player';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function User({ownerId, navigation, origin, route}) {
+export default function User({ ownerId, navigation, origin, route }) {
   const isFocused = useIsFocused();
   bs = React.createRef();
   fall = new Animated.Value(1);
 
   renderInner = () => (
     <View style={styles.panel}>
-      <View style={{alignItems: 'center'}}>
+      <View style={{ alignItems: 'center' }}>
         <Text style={styles.panelTitle}>Create Content</Text>
       </View>
       <TouchableOpacity
@@ -45,7 +45,7 @@ export default function User({ownerId, navigation, origin, route}) {
       <TouchableOpacity
         style={styles.panelButton}
         onPress={() => {
-          navigation.navigate('Create Itinerary', {item: {}, isEdit: false});
+          navigation.navigate('Create Itinerary', { item: {}, isEdit: false, ownerId: userId });
         }}>
         <Text style={styles.panelButtonTitle}>Create Itinerary</Text>
       </TouchableOpacity>
@@ -58,7 +58,7 @@ export default function User({ownerId, navigation, origin, route}) {
   );
 
   useEffect(() => {
-    console.log('FINISH CREATING TRAVEL GUIDEEE');
+    console.log('Travel Guide Created');
     console.log(route);
     this.bs.current.snapTo(1);
     if (route && route.params && route.params.origin == 'CreateTravelGuide') {
@@ -257,7 +257,7 @@ export default function User({ownerId, navigation, origin, route}) {
     });
   }, []);
 
-  function renderItem({item}) {
+  function renderItem({ item }) {
     if (item.type == 'userInfoSection') {
       return <UserInfoSection ownerInfo={ownerInfo} followInfo={followInfo} />;
     } else if (item.type == 'profileButton') {
@@ -274,8 +274,8 @@ export default function User({ownerId, navigation, origin, route}) {
               userId === ownerId
                 ? 'Edit Profile'
                 : isFollowing
-                ? 'Unfollow'
-                : 'Follow'
+                  ? 'Unfollow'
+                  : 'Follow'
             }
             variant="contained"
             color="black"
@@ -351,7 +351,7 @@ export default function User({ownerId, navigation, origin, route}) {
 
   async function handlePress() {
     if (ownerId == userId) {
-      navigation.navigate('Edit User', {ownerInfo: ownerInfo});
+      navigation.navigate('Edit User', { ownerInfo: ownerInfo });
     } else {
       let reqBody = {
         followerId: userId,
@@ -394,7 +394,7 @@ export default function User({ownerId, navigation, origin, route}) {
                   flex: 1.5,
                 }}
                 onPress={() => {
-                    navigation.navigate('Map');
+                  navigation.navigate('Map');
                 }}>
                 <Icon
                   name="keyboard-backspace"
@@ -407,7 +407,7 @@ export default function User({ownerId, navigation, origin, route}) {
                 />
               </TouchableOpacity>
             )}
-            <View style={{flex: 10}}>
+            <View style={{ flex: 10 }}>
               <Text
                 style={{
                   marginTop: 5,
