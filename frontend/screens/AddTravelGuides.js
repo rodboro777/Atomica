@@ -140,6 +140,7 @@ export default function User({ navigation, origin, route }) {
 
     useEffect(() => {
         if (userId && userId != ownerId) {
+            console.log("just a log")
             fetch(
                 `http://${ip.ip}:8000/follow/isFollowing?followerId=${userId}&followedId=${ownerId}`,
                 {
