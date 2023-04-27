@@ -11,7 +11,6 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@react-native-material/core';
 import axios from 'axios';
-
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ip from '../ip.json';
 import TravelGuide from '../components/TravelGuide';
@@ -29,7 +28,7 @@ export default function User({ ownerId, navigation, origin, route }) {
   const isFocused = useIsFocused();
   bs = React.createRef();
   fall = new Animated.Value(1);
-
+  const [selectedItems, setSelectedItems] = useState([]);
   renderInner = () => (
     <View style={styles.panel}>
       <View style={{ alignItems: 'center' }}>
@@ -45,7 +44,7 @@ export default function User({ ownerId, navigation, origin, route }) {
       <TouchableOpacity
         style={styles.panelButton}
         onPress={() => {
-          navigation.navigate('Create Itinerary', { item: {}, isEdit: false, ownerId: userId });
+          navigation.navigate('Create Itinerary', { item: {}, isEdit: false, ownerId: userId, selectedItems: selectedItems });
         }}>
         <Text style={styles.panelButtonTitle}>Create Itinerary</Text>
       </TouchableOpacity>
@@ -54,7 +53,7 @@ export default function User({ ownerId, navigation, origin, route }) {
         onPress={() => this.bs.current.snapTo(1)}>
         <Text style={styles.panelButtonTitle}>Cancel</Text>
       </TouchableOpacity>
-    </View>
+    </View >
   );
 
   useEffect(() => {

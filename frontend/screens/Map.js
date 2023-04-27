@@ -174,8 +174,8 @@ const Map = () => {
         setTemp({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitudeDelta: 0.04,
+          longitudeDelta: 0.01,
         });
         setUserLocation({
           latitude: pos.coords.latitude,

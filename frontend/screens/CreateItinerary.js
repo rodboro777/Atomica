@@ -14,7 +14,11 @@ import TravelGuide from '../components/TravelGuide';
 export default function CreateItinerary({ navigation, route }) {
 
   const ownerId = route.params.ownerId;
-  const selectedItems = route.params.selectedItems;
+  const [selectedItems, setMySelectedItems] = useState([]);
+  useEffect(() => {
+    setMySelectedItems(route.params.selectedItems);
+  }, [route.params.selectedItems]);
+
 
   const { item, isEdit } = route.params;
   const [itinerary, setItinerary] = useState({
@@ -25,25 +29,8 @@ export default function CreateItinerary({ navigation, route }) {
     imageUrl: isEdit ? item.imageUrl : '',
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [availableTravelGuides, setAvailableTravelGuides] = useState([]);
-  const isEmpty = useRef(true);
   const [submitting, setSubmitting] = useState(false);
-  const [travelGuides, setTravelGuides] = useState([]);
   const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
-  const PRIMARY_SECTIONS = [
-    {
-      id: 'userInfoSection',
-      type: 'userInfoSection',
-    },
-    {
-      id: 'profileButton',
-      type: 'profileButton',
-    },
-    {
-      id: 'contentFilter',
-      type: 'contentFilter',
-    },
-  ];
   const [ownerInfo, setOwnerInfo] = useState({
     id: ownerId,
     fullName: '',
@@ -72,67 +59,64 @@ export default function CreateItinerary({ navigation, route }) {
     });
 
 
-  // Get the travel guides created by the owner.
-  fetch(`http://${ip.ip}:8000/travelGuide/byCreator?creatorId=${ownerId}`, {
-    credentials: 'include',
-    method: 'GET',
-  })
-    .then(res => res.json())
-    .then(resBody => {
-      if (resBody.statusCode == 200) {
-        setTravelGuides(resBody.travelGuides);
+  // Get the travel guides created based on the selected items
+  useEffect(() => {
 
+
+    console.log('selectedItems : ', selectedItems);
+    if (!selectedItems || selectedItems.length === 0) {
+      return; // do nothing if selectedItems is undefined or empty
+    }
+    console.log('useffect called ');
+    const fetchData = async () => {
+      try {
+        const promises = selectedItems.map((id) => axios.get(`http://${ip.ip}:8000/travelGuide?id=${id}`));
+        const responses = await Promise.all(promises);
+        const guides = [];
+        responses.forEach((response) => {
+          if (response.data && response.data.travelGuide) {
+
+            guides.push(response.data.travelGuide);
+
+          }
+        });
+        const contentList = [];
+        guides.forEach((tg) => {
+          contentList.push({
+            id: tg._id,
+            type: 'travelGuide',
+            travelGuide: tg,
+          });
+        });
+        setContentList(contentList);
+      } catch (error) {
+        console.error(error);
       }
-    });
+    };
+
+    fetchData();
+  }, [selectedItems]);
 
   useEffect(() => {
-    let candidateList = [...PRIMARY_SECTIONS];
-    travelGuides.forEach(travelGuide => {
-      candidateList.push({
-        id: travelGuide._id,
-        type: 'travelGuide',
-        travelGuide: travelGuide,
-      });
-    });
-    setContentList(candidateList);
-  }, [
-    ownerInfo,
-    travelGuides,
-  ]);
+    if (isEdit) {
+      console.log("is edit is enabled" + isEdit)
+      console.log(item.travelGuideId);
 
-  async function handleSearch(name) {
-    if (name.trim().length == 0) {
-      setAvailableTravelGuides([]);
-      isEmpty.current = true;
-      return;
+      axios
+        .post(`http://${ip.ip}:8000/travelGuide/byIds`, item.travelGuideId)
+        .then(res => {
+          setItinerary({
+            ...itinerary,
+            travelGuides: res.data.travelGuides,
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
-    await fetch(`http://${ip.ip}:8000/travelGuide/startsWith?prefix=${name}`, {
-      credentials: 'include',
-      method: 'GET',
-    })
-      .then(res => res.json())
-      .then(resBody => {
-        if (resBody.travelGuides.length > 0) {
-          setAvailableTravelGuides(resBody.travelGuides);
-        }
-        if (availableTravelGuides.length > 0) {
-          isEmpty.current = false;
-        }
-      });
-  }
+  }, []);
 
-  function addTravelGuide(item) {
-    isEmpty.current = true;
-    setSearch('');
-    if (itinerary.travelGuides.find(tg => tg._id == item._id)) return;
-    setItinerary({
-      ...itinerary,
-      travelGuides: [
-        ...itinerary.travelGuides,
-        { _id: item._id, name: item.name },
-      ],
-    });
-  }
+
   const createItinerary = async () => {
     const tgId = itinerary.travelGuides.map(tg => tg._id);
     const formdata = new FormData();
@@ -166,38 +150,29 @@ export default function CreateItinerary({ navigation, route }) {
       });
   };
 
-
   function renderItem({ item }) {
     if (item.type == 'travelGuide') {
       return (
-        <TravelGuide
-          travelGuide={item.travelGuide}
-          currentPlayingTG={currentPlayingTG}
-          setCurrentPlayingTG={setCurrentPlayingTG}
-          isUserProfilePage={true}
-          navigation={navigation}
-        />
+        <View style={styles.travelGuideContainer}>
+          <TravelGuide
+            travelGuide={item.travelGuide}
+            currentPlayingTG={currentPlayingTG}
+            setCurrentPlayingTG={setCurrentPlayingTG}
+            isUserProfilePage={true}
+            navigation={navigation}
+            itineraryMode={true}
+          />
+          <TouchableOpacity style={styles.deleteButton} onPress={() => {
+            console.log('touchable opacity called for ID' + item.travelGuide._id)
+            handleRemove(item.travelGuide._id)
+          }}>
+            <Text style={styles.deleteButtonText}>X</Text>
+          </TouchableOpacity>
+        </View>
+
       );
     }
   }
-
-  useEffect(() => {
-    if (isEdit) {
-      console.log(item.travelGuideId);
-      axios
-        .post(`http://${ip.ip}:8000/travelGuide/byIds`, item.travelGuideId)
-        .then(res => {
-          setItinerary({
-            ...itinerary,
-            travelGuides: res.data.travelGuides,
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-  }, []);
-
 
   async function handleDelete(id) {
     fetch(`http://${ip.ip}:8000/itinerary?id=${id}`, {
@@ -213,6 +188,16 @@ export default function CreateItinerary({ navigation, route }) {
         console.log(err);
       });
   }
+
+  // Remove travel guide from travelGuides array
+  function handleRemove(id) {
+
+    // Remove travel guide from contentList array
+    setContentList(contentList.filter(item => item.id !== id));
+    setMySelectedItems(selectedItems.filter((selectedItem) => selectedItem !== id));
+
+  }
+
 
   return (
     <View style={styles.container}>
@@ -288,6 +273,9 @@ export default function CreateItinerary({ navigation, route }) {
           </View>
         </View>
       )}
+
+
+
       <View style={styles.pageNameHolder}>
         <TouchableOpacity
           style={{
@@ -334,44 +322,39 @@ export default function CreateItinerary({ navigation, route }) {
         {'Added travel guides'}
       </Text>
 
-      {!selectedItems && (
+      {selectedItems.length > 0 ? (
+
+        <View style={{ height: '30%' }}>
+          <FlatList
+            data={contentList}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            bounces={false}
+            alwaysBounceVertical={false}
+            overScrollMode="never"
+            showsVerticalScrollIndicator={false}
+            stickyHeaderIndices={[2]}
+            horizontal={true} // set horizontal prop to true
+            // center items horizontally
+            snapToInterval={Dimensions.get('window').width} // snap to the width of the screen
+            decelerationRate={0.9} // adjust the deceleration rate
+          />
+        </View>
+      ) : (
         <TouchableOpacity
           style={styles.travelGuideItem}
 
           onPress={() => {
             navigation.navigate('Add TravelGuide', { item: {}, isEdit: false, ownerId: ownerId });
           }}>
+
           <Text style={{ fontFamily: 'Cereal_thicc' }}>+</Text>
           <Text style={{ fontFamily: 'Lexend-Regular' }}>{item.name}</Text>
         </TouchableOpacity>
       )}
-      {selectedItems && (
-        <FlatList
-          data={contentList}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          bounces={false}
-          alwaysBounceVertical={false}
-          overScrollMode="never"
-          showsVerticalScrollIndicator={false}
-          stickyHeaderIndices={[2]}
-        />
-      )}
 
-      {isEmpty.current == false && (
-        <FlatList
-          style={styles.travelGuideList}
-          data={availableTravelGuides}
-          keyExtractor={item => item._id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.travelGuideItem}
-              onPressIn={() => addTravelGuide(item)}>
-              <Text style={{ fontFamily: 'Lexend-Regular' }}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      )}
+
+
       {/* <View>
         <FlatList
           style={styles.choosenTravelGuideList}
@@ -568,22 +551,21 @@ const styles = StyleSheet.create({
   },
   description: {
     margin: 10,
+    marginTop: 0,
     borderRadius: 10,
     fontSize: 15,
-    fontFamily: 'Lexend-Regular',
+    fontFamily: 'Cereal_Medium',
     color: 'black',
-    minHeight: 200,
+    minHeight: 100,
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
+    shadowOpacity: 3,
     shadowRadius: 1.41,
-    elevation: 2,
+    elevation: 5,
     textAlignVertical: 'top',
     padding: 10,
+    border: '1px solid `rgb(245,245,245)`',
+    borderTopWidth: 1,
   },
   buttonItiStyle: {
     borderWidth: 1,
@@ -609,6 +591,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 22,
     fontFamily: 'monospace',
+  },
+  travelGuideContainer: {
+    height: "200%",
+    backgroundColor: 'black',
+    width: Dimensions.get('window').width - 40, // subtract some margin from the screen width
+    marginRight: 20, // add some margin between items
+    borderRadius: 10,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'red',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   buttonDONEStyle: {
     width: 150,
