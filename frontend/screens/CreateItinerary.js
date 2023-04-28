@@ -17,10 +17,56 @@ export default function CreateItinerary({ navigation, route }) {
   const [selectedItems, setMySelectedItems] = useState([]);
   useEffect(() => {
     setMySelectedItems(route.params.selectedItems);
+    setItinerary({
+      ...itinerary,
+      travelGuides: route.params.selectedItems.map((id) => {
+        return {
+          id: id,
+          name: '',
+          description: '',
+          imageUrl: '',
+          videoUrl: '',
+        }
+      }),
+    })
+
   }, [route.params.selectedItems]);
+  function addTravelGuide(item) {
+    isEmpty.current = true;
+    setSearch('');
+    if (itinerary.travelGuides.find(tg => tg._id == item._id)) return;
+    setItinerary({
+      ...itinerary,
+      travelGuides: [
+        ...itinerary.travelGuides,
+        { _id: item._id, name: item.name },
+      ],
+    });
+  }
+  async function handleSearch(name) {
+    if (name.trim().length == 0) {
+      setAvailableTravelGuides([]);
+      isEmpty.current = true;
+      return;
+    }
+    await fetch(`http://${ip.ip}:8000/travelGuide/startsWith?prefix=${name}`, {
+      credentials: 'include',
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(resBody => {
+        if (resBody.travelGuides.length > 0) {
+          setAvailableTravelGuides(resBody.travelGuides);
+        }
+        if (availableTravelGuides.length > 0) {
+          isEmpty.current = false;
+        }
+      });
+  }
 
 
   const { item, isEdit } = route.params;
+
   const [itinerary, setItinerary] = useState({
     title: isEdit ? item.name : '',
     travelGuides: isEdit ? item.travelGuides && item.travelGuides : [],
@@ -97,6 +143,7 @@ export default function CreateItinerary({ navigation, route }) {
     fetchData();
   }, [selectedItems]);
 
+  // If edit mode is enabled, get the travel guides created by the user
   useEffect(() => {
     if (isEdit) {
       console.log("is edit is enabled" + isEdit)
@@ -196,6 +243,13 @@ export default function CreateItinerary({ navigation, route }) {
     setContentList(contentList.filter(item => item.id !== id));
     setMySelectedItems(selectedItems.filter((selectedItem) => selectedItem !== id));
 
+    //remove guides from itinerary
+    setItinerary({
+      ...itinerary,
+      travelGuides: itinerary.travelGuides.filter(
+        tg => tg._id != item._id,
+      ),
+    });
   }
 
 
@@ -355,7 +409,7 @@ export default function CreateItinerary({ navigation, route }) {
 
 
 
-      {/* <View>
+      <View>
         <FlatList
           style={styles.choosenTravelGuideList}
           data={itinerary.travelGuides && itinerary.travelGuides}
@@ -389,7 +443,7 @@ export default function CreateItinerary({ navigation, route }) {
             </View>
           )}
         />
-      </View> */}
+      </View>
       <TextInput
         placeholder="Description..."
         placeholderTextColor="black"

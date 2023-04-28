@@ -271,18 +271,26 @@ export default function User({ ownerId, navigation, origin, route }) {
           <Button
             title={
               userId === ownerId
-                ? 'Edit Profile'
+                ? 'Personal Information'
                 : isFollowing
                   ? 'Unfollow'
                   : 'Follow'
             }
             variant="contained"
-            color="black"
-            tintColor="white"
+            color="white"
+            tintColor="black"
             onPress={() => handlePress()}
             titleStyle={{
-              fontFamily: 'Lexend-Regular',
+              fontFamily: 'Cereal_Medium',
             }}
+            icon={
+              <Icon
+                name="heart"
+                size={20}
+                color="black"
+                style={{ marginRight: 10 }}
+              />
+            }
           />
         </View>
       );

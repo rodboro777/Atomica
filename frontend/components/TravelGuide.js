@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SoundPlayer from 'react-native-sound-player';
 import { Avatar, Title, Caption, TouchableRipple } from 'react-native-paper';
 import ip from '../ip.json';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 export default function TravelGuide({
   currentPlayingTG,
@@ -16,8 +17,10 @@ export default function TravelGuide({
   enableTravelGuideNav = true,
   currentTime,
   addTravelGuide,
-  itineraryMode
+  itineraryMode,
+  coordinates
 }) {
+
   let secs = Math.floor(travelGuide.audioLength % 60);
   let mins = Math.floor(travelGuide.audioLength / 60);
   let formattedAudioLength = `${mins}:${secs}`;
@@ -51,6 +54,13 @@ export default function TravelGuide({
     }
 
     activateTravelGuideNav(travelGuide);
+  }
+
+  function handleStreetView() {
+    navigation.navigate('StreetViewScreen', {
+      travelGuide: travelGuide,
+    });
+    return;
   }
 
   useEffect(() => {
@@ -269,14 +279,14 @@ export default function TravelGuide({
             }}>{travelGuide.locationName}</Text>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-            <Icon name="clock-time-eight" color="black" size={35} />
-            <Text style={{ fontFamily: 'Cereal_Medium', fontSize: 18, color: 'black' }}>{formattedAudioLength}</Text>
+          <View style={{ flexDirection: 'row', }}>
+            <Text style={{ fontFamily: 'Cereal_Medium', fontSize: 19, color: 'black', paddingRight: 5 }}>{formattedAudioLength} h</Text>
           </View>
         </View>
 
 
         <View style={{ flexDirection: 'row', marginLeft: 7, justifyContent: 'space-between' }}>
+
           <View style={{ flex: 2, marginBottom: 5 }}>
             <Text style={{
               fontFamily: 'Cereal_bold',
@@ -292,7 +302,10 @@ export default function TravelGuide({
             }}>{travelGuide.description}</Text>
 
           </View>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row', padding: 10 }}>
+            <TouchableOpacity onPress={handleStreetView} >
+              <Icon name="human" color="#F47621" size={35} />
+            </TouchableOpacity>
             <TouchableOpacity onPress={handleAudioButtonPress}>
               <Icon name={currentPlayingTG != travelGuide._id ? "play-circle" : isPaused ? "play-circle" : "pause-circle"} color="black" size={35} />
             </TouchableOpacity>
@@ -311,7 +324,7 @@ export default function TravelGuide({
 }
 const styles = {
   mapicon: {
-    height: 22,
-    width: 22,
+    height: '20%',
+    width: '20%',
   },
 }

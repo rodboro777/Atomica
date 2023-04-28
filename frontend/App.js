@@ -11,9 +11,12 @@ import CreateItinerary from './screens/CreateItinerary';
 import AddTravelGuides from './screens/AddTravelGuides';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import EditUser from './screens/EditUser';
 import ip from './ip';
 import { withNavigation } from '@react-navigation/compat';
+import StreetViewScreen from './screens/StreetViewScreen';
+import Favorites from './screens/Favorites';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -72,16 +75,18 @@ function MyTabs() {
         }}
       </Tab.Screen>
       <Tab.Screen
-        name="Search"
-        component={SearchStack}
+        name="Favorites"
+        component={Favorites}
         options={{
           headerShown: false,
           tabBarLabel: '',
           tabBarIcon: tabInfo => {
             return (
-              <Image
-                source={require('./assets/search.png')}
-                style={styles.mapicon}
+              <Icon
+                name="favorite-outline"
+                size={35}
+                color="darkgrey"
+                style={{ marginRight: 10 }}
               />
             );
           },
@@ -130,6 +135,7 @@ const HomeScreen = passedProps => {
           />
         }}
       </Stack.Screen>
+
     </Stack.Navigator>
   );
 };
@@ -170,7 +176,7 @@ const UStackNav = passedProps => {
         component={AddTravelGuides}
         options={{ headerShown: false }}
       />
-    </Stack.Navigator>
+    </Stack.Navigator >
   );
 };
 
@@ -187,20 +193,6 @@ const SearchStack = () => {
   );
 };
 
-// const App = () => {
-//   return (
-
-//     <NavigationContainer>
-//        <Stack.Navigator initialRouteName="Login">
-//         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-//         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-//         <Stack.Screen name="Map" component={Map} options={{ headerShown: false }} />
-//       </Stack.Navigator>
-//        <MyTabs />
-
-//     </NavigationContainer>
-//   );
-// };
 
 const App = props => {
   return (
@@ -224,6 +216,16 @@ const App = props => {
         <Stack.Screen
           name="User"
           component={User}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="StreetViewScreen"
+          component={StreetViewScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Favorites"
+          component={Favorites}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
