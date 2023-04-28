@@ -4,7 +4,6 @@ import axios from 'axios';
 import { GoogleAuth } from 'google-auth-library';
 import { SpeechClient } from '@google-cloud/speech/build/src/v1p1beta1';
 import Navbar from './Navbar';
-import mockImage from './dkit_campus.jpeg';
 import Button from '@mui/material/Button';
 import CircleLoader from "react-spinners/CircleLoader";
 import TextField from '@mui/material/TextField';
@@ -31,7 +30,7 @@ function App() {
 
   // SPEECH-TO-TEXT STUFFS
   // Load the contents of the JSON credentials file
-  const keyFile = require('./atomica-384322-fa515160432c.json');
+  const keyFile = require('./atomica-384322-1a8e58fe7dfe.json');
   // Create a new GoogleAuth client with the credentials
   const auth = new GoogleAuth({
     credentials: keyFile,
@@ -144,6 +143,8 @@ function App() {
   }
 
   async function transcribeAudio(audioUrl) {
+
+    console.log('transcribeAudio called')
     // construct gcsUri
     const tmp = audioUrl.split("/");
     const gcsUri = `gs://${tmp[3]}/${tmp[4]}`;
@@ -184,6 +185,8 @@ function App() {
   }
 
   async function autoClassify(requestId, audioUrl) {
+
+    console.log('autoClassify called')
     let tmp = {};
     tmp[requestId] = true;
     setLoading({ ...loading, ...tmp });

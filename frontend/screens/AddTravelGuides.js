@@ -20,7 +20,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function User({ navigation, origin, route }) {
+export default function AddTravelGuides({ navigation, origin, route }) {
     const isFocused = useIsFocused();
     bs = React.createRef();
     fall = new Animated.Value(1);
@@ -72,7 +72,6 @@ export default function User({ navigation, origin, route }) {
     const [currentPage, setCurrentPage] = useState(PAGE_TYPE.GUIDES);
     const [contentList, setContentList] = useState([]);
     const [currentPlayingTG, setCurrentPlayingTG] = useState(null);
-
 
 
     const preparePageData = () => {
@@ -215,8 +214,8 @@ export default function User({ navigation, origin, route }) {
             return (
                 <TouchableOpacity
                     style={{
-                        position: 'relative',
                         marginBottom: 10,
+                        width: '50%',
                     }}
                     onPress={handleItemPress}>
                     {isSelected && (
@@ -229,6 +228,8 @@ export default function User({ navigation, origin, route }) {
                                 right: 0,
                                 backgroundColor: 'rgba(0, 0, 0, 0.2)',
                                 zIndex: 1,
+                                width: '100%',
+
                             }}
                         />
 
@@ -332,18 +333,22 @@ export default function User({ navigation, origin, route }) {
                         <Text style={{ marginRight: 9, color: 'black', fontFamily: 'Cereal_bold', fontSize: 18 }}>{selectedItems.length} selected</Text>
                     </View>
 
-                    <FlatList
-                        data={contentList}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                        bounces={false}
-                        alwaysBounceVertical={false}
-                        overScrollMode="never"
-                        showsVerticalScrollIndicator={false}
-                        stickyHeaderIndices={[2]}
-                    />
+                    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', flexGrow: 0 }}>
+                        <FlatList
+                            data={contentList}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                            bounces={false}
+                            alwaysBounceVertical={false}
+                            overScrollMode="never"
+                            showsVerticalScrollIndicator={false}
+                            numColumns={2}
+                        />
+                    </View>
+
                 </>
-            )}
+            )
+            }
             <BottomSheet
                 ref={this.bs}
                 snapPoints={[260, 0]}
@@ -357,7 +362,7 @@ export default function User({ navigation, origin, route }) {
                     margin: 0,
                     opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
                 }}></Animated.View>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
@@ -365,6 +370,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         flex: 1,
+        width: '100%',
     },
     userInfoHeader: {
         paddingHorizontal: 20,
@@ -478,4 +484,5 @@ const styles = StyleSheet.create({
         fontFamily: 'Lexend-Regular',
         color: 'white',
     },
+
 });

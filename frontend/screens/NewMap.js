@@ -318,8 +318,8 @@ export default function NewMap({ navigation, userId, route }) {
         setRegion({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
-          latitudeDelta: 0.42,
-          longitudeDelta: 0.41,
+          latitudeDelta: 0.04,
+          longitudeDelta: 0.01,
         });
         setUserLocation({
           latitude: pos.coords.latitude,
