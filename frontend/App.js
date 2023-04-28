@@ -12,6 +12,7 @@ import AddTravelGuides from './screens/AddTravelGuides';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import EditUser from './screens/EditUser';
 import Oindex from './screens/onBoarding/Oindex';
 import ip from './ip';
