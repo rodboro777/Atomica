@@ -12,7 +12,6 @@ import AddTravelGuides from './screens/AddTravelGuides';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import EditUser from './screens/EditUser';
 import Oindex from './screens/onBoarding/Oindex';
 import ip from './ip';
@@ -20,7 +19,7 @@ import {withNavigation} from '@react-navigation/compat';
 import Test from './screens/Test';
 import StreetViewScreen from './screens/StreetViewScreen';
 import Favorites from './screens/Favorites';
-
+//import './screens/DCSLocalize';
 navigator.geolocation = require('@react-native-community/geolocation');
 
 const Stack = createNativeStackNavigator();
