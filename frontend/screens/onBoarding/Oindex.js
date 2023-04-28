@@ -2,6 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Dimensions }
 import React, { useRef } from 'react';
 import {useNavigation} from '@react-navigation/native'
 const {width, height} = Dimensions.get('window');
+// import GoogleTranslate from 'react-native-google-translate';
+// const sourceLanguage = 'en';
+// const targetLanguage = 'es';
+// // AIzaSyB1t38ZZXBXyQJb7e5bZ9S46MW8lhp5eks
 
 const Oindex = props => {
     const navigation = useNavigation();
