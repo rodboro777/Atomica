@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Dimensions } from 'react-native'
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {useNavigation} from '@react-navigation/native'
 const {width, height} = Dimensions.get('window');
 import * as Localization from 'react-native-localization';
@@ -67,12 +67,15 @@ const Oindex = props => {
 
   const languageSelector = () => {
     //setButtonText('SPANISH');
+    //onCreateTriggerNotification();
     if (buttonText == 'SPANISH') {
         setLanguage('es');
     } else {
         setLanguage('en');
     }
   }
+
+
   return (
     <View style={styles.container}>
         <View style={styles.top}>
