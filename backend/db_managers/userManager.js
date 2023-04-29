@@ -16,6 +16,7 @@ class UserManager {
             firstName: doc.firstName,
             lastName: doc.lastName,
             country: doc.country,
+            phone: doc.phone,
             imageUrl: doc.imageUrl ? doc.imageUrl : "https://khoinguonsangtao.vn/wp-content/uploads/2022/07/avatar-gau-cute.jpg"
         }
     }

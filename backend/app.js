@@ -16,7 +16,7 @@ const itineraryRoutes = require('./routes/itinerary');
 const travelGuideRoutes = require('./routes/travelGuide');
 const userRoutes = require('./routes/user');
 const followRoutes = require('./routes/follow');
-
+const otp = require('./routes/otp');
 const app = express();
 
 // parse data with Content-Type: application/json
@@ -53,6 +53,7 @@ app.use('/itinerary', itineraryRoutes);
 app.use('/travelGuide', travelGuideRoutes);
 app.use('/user', userRoutes);
 app.use('/follow', followRoutes);
+app.use('/otp', otp);
 
 app.listen(port, () => {
     console.log(`Server has started at ${port}`);

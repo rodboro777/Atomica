@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     description: String,
     country: String,
+    phone: String,
     imageUrl: String,
     numberOfTravelGuidesCreated: Number,
     numberOfItinerariesCreated: Number,

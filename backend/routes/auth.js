@@ -3,6 +3,8 @@ const router = require('express').Router();
 const User = require('../models/userModel');
 const google = require('googleapis').google;
 const passport = require('passport');
+const UserManager = require('../db_managers/userManager');
+
 
 router.post("/logout", (req, res) => {
     try {
@@ -76,11 +78,14 @@ router.post("/register", (req, res) => {
     let tmp = req.body.fullName.split(" ");
     let firstName = tmp[0];
     let lastName = tmp.slice(1, tmp.length).join(" ");
+
+    console.log('registering user' + req.body.phone)
     User.register({
         username: req.body.username,
         firstName: firstName,
         lastName: lastName,
-        country: req.body.country
+        country: req.body.country,
+        phone: req.body.phone,
     }, req.body.password, (err, user) => {
         if (err) {
             console.log(err);
@@ -92,6 +97,7 @@ router.post("/register", (req, res) => {
                 req.session.user = {
                     _id: req.session.passport.user,
                 }
+                User.userInfo
                 res.send({
                     statusCode: 200,
                 });
@@ -107,18 +113,24 @@ router.post("/login", (req, res) => {
         password: req.body.password,
     });
 
-    req.login(user, (err) => {
+    req.login(user, async (err) => {
         if (err) {
             console.log(err);
             res.send({
                 statusCode: 403,
             });
         } else {
-            passport.authenticate('local')(req, res, () => {
+            passport.authenticate('local')(req, res, async () => {
                 req.session.user = {
                     _id: req.session.passport.user,
                 }
+                let phone = '';
+                await UserManager.getInfoById(req.session.user._id).then((info) => {
+                    phone = info.phone
+                })
+                console.log("user phone" + phone)
                 res.send({
+                    phone: phone,
                     statusCode: 200,
                 });
             });

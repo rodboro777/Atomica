@@ -12,6 +12,7 @@ df = import_data("data.txt")
 model = TGFilterModel("bert-base-uncased")
 model.load_model("saved_models/version_1.model")
 
+
 @app.route("/", methods=["POST"])
 def classify():
     print("called!!!")
@@ -20,6 +21,7 @@ def classify():
     res = model.infer(text)
     print(res)
     return json.dumps(res)
+
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
