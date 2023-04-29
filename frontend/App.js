@@ -20,7 +20,7 @@ import OTP from './screens/OTP';
 import Test from './screens/Test';
 import StreetViewScreen from './screens/StreetViewScreen';
 import Favorites from './screens/Favorites';
-
+//import './screens/DCSLocalize';
 navigator.geolocation = require('@react-native-community/geolocation');
 
 const Stack = createNativeStackNavigator();

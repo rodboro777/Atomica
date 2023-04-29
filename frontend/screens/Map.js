@@ -30,6 +30,10 @@ import Arrow from '../assets/arrow.png';
 import axios from 'axios';
 import SoundPlayer from 'react-native-sound-player';
 import ip from '../ip';
+import RNFetchBlob from 'rn-fetch-blob';
+
+
+
 const Map = () => {
   Geolocation.requestAuthorization();
   const modalAni = useRef(

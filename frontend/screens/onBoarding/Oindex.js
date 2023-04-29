@@ -1,14 +1,24 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Dimensions } from 'react-native'
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {useNavigation} from '@react-navigation/native'
 const {width, height} = Dimensions.get('window');
+import * as Localization from 'react-native-localization';
+import translations from '../../components/translations';
+
 
 const Oindex = props => {
     const navigation = useNavigation();
     const ref = React.useRef();
+    const [language, setLanguage] = React.useState('es');
+    const [buttonText, setButtonText] = React.useState('ENGLISH')
 
+    function translate(key) {
+        if (translations.hasOwnProperty(key) && translations[key].hasOwnProperty(language)) {
+          return translations[key][language];
+        }
+        return key;
+      }
 
-    const [screens, setScreens] = React.useState(0);
 
     const onViewableItemsChaged = ({
         viewableItems,
@@ -24,23 +34,24 @@ const Oindex = props => {
     const slides = [
         {
             id: 1,
-            title: 'Get Off Track',
-            subtitle: 'NEVER WONDER AGAIN',
-            description: `Experience world's best adventure with us`,
+            title: language === 'es' ? translate('t1'): 'Get Off Track',
+            subtitle: language === 'es' ? translate('NWA'): 'NEVER WONDER AGAIN',
+            //subtitle: t('common:hey'),
+            description: language === 'es' ? translate('d1'): `Experience world's best adventure with us`,
             imagePath: require('../../assets/1.png'),
         },
         {
             id: 2,
-            title: 'Rare Destinations',
-            subtitle: `SEE WORLD'S BEST`,
-            description: `Challenge yourself amongst world's breathtaking views`,
+            title: language === 'es' ? translate('t2'): 'Rare Destinations',
+            subtitle: language === 'es' ? translate('s2'): `SEE WORLD'S BEST`,
+            description: language === 'es' ? translate('d2'): `Challenge yourself amongst world's breathtaking views`,
             imagePath: require('../../assets/2.png'),
         },
         {
             id: 3,
-            title: 'Pocket Itinerary',
-            subtitle: 'STEP BY STEP',
-            description: `So you can focus what's most important`,
+            title: language === 'es' ? translate('t3'): 'Pocket Itinerary',
+            subtitle:  language === 'es' ? translate('s3'):'STEP BY STEP',
+            description: language === 'es' ? translate('d3'): `So you can focus what's most important`,
             imagePath: require('../../assets/3.png'),
         },
     ]
@@ -53,6 +64,18 @@ const Oindex = props => {
       setCurrentIndex(currentIndex + 1);
     }
   };
+
+  const languageSelector = () => {
+    //setButtonText('SPANISH');
+    //onCreateTriggerNotification();
+    if (buttonText == 'SPANISH') {
+        setLanguage('es');
+    } else {
+        setLanguage('en');
+    }
+  }
+
+
   return (
     <View style={styles.container}>
         <View style={styles.top}>
@@ -89,6 +112,9 @@ const Oindex = props => {
         <View style={styles.bottom}>
         <TouchableOpacity style={styles.buttonFloating} onPress={() => props.navigation.navigate('Home')}>
             <Text style={styles.buttonFloatingText}>SKIP</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.LbuttonFloating} onPress={() => languageSelector()}>
+            <Text style={[styles.buttonFloatingText, {color: 'orange'}]}>{buttonText}</Text>
         </TouchableOpacity>
         </View>
 
@@ -193,11 +219,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
       },
+      LbuttonFloating: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        width: 130,
+        height: 60,
+        borderRadius: 10,
+        backgroundColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
       buttonFloatingText: {
         color: '#000',
         fontSize: 20,
         fontWeight: 'bold',
       },
+      
 });
 
 export default Oindex;

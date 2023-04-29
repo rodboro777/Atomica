@@ -13,6 +13,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@react-native-material/core';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon1 from 'react-native-vector-icons/Ionicons';
+import notifee from '@notifee/react-native';
 import ip from '../ip.json';
 import TravelGuide from '../components/TravelGuide';
 import Itinerary from '../components/Itinerary';
@@ -29,7 +31,60 @@ export default function User({ ownerId, navigation, origin, route }) {
   const isFocused = useIsFocused();
   bs = React.createRef();
   fall = new Animated.Value(1);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]); 
+
+  //display notifications
+  const displayNotifications = async () => {
+    // Request permission to display notifications
+    await notifee.requestPermission();
+
+    // Calculate the time when the notification should trigger
+    const timeElapsed = 24 * 60 * 1000; // 20 minutes in milliseconds
+    const now = Date.now();
+    const triggerTime = now + timeElapsed;
+
+    // Create a channel (required for Android)
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+    });
+
+    // Display a notification
+    await notifee.displayNotification({
+      title: 'You have turned on notifications',
+      body: 'Get realtime updates about travel guides near you.',
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher', // optional, defaults to 'ic_launcher'.
+        // pressAction is needed if you want the notification to open the app when pressed
+        pressAction: {
+          id: 'default',
+        },
+      },
+    });
+
+    // Schedule the notification
+    await notifee.scheduleNotification({
+      title: 'Reminder',
+      body: 'You have not logged into the app for a while.',
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher', // optional, defaults to 'ic_launcher'.
+        pressAction: {
+          id: 'default',
+        },
+      },
+      ios: {
+        sound: 'default',
+      },
+      schedule: {
+        timestamp: triggerTime,
+      },
+    });
+  }
+
+
+
   renderInner = () => (
     <View style={styles.panel}>
       <View style={{ alignItems: 'center' }}>
@@ -450,6 +505,16 @@ export default function User({ ownerId, navigation, origin, route }) {
                 />
               </TouchableOpacity>
             ): null}
+            <Icon1 
+              name='notifications-circle'
+              color="black"
+              size={30}
+              style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+              }}
+              onPress={() => displayNotifications()}
+            />
             <Icon 
               name='logout-variant'
               color="red"
