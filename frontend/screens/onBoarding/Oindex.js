@@ -66,7 +66,7 @@ const Oindex = props => {
   };
 
   const languageSelector = () => {
-    setButtonText('SPANISH');
+    //setButtonText('SPANISH');
     if (buttonText == 'SPANISH') {
         setLanguage('es');
     } else {
