@@ -95,8 +95,7 @@ const Map = () => {
   const [photo, setPhoto] = useState(
     'ARywPAI4CheuR7nthP4lUNuQw09LqBIfNHSNdfgmBuUA7SdwUjkkiWwEJGcbueamM-zxmpJ7HC8yvx-w3GUczlThnPkC6-llma_MPNGPQbGo1R0SGGaUIUUiruARLrwesAJYrbxiADZib5tT1o-k_JvNdQyx91hxav_VDmaaNfshPjvQygi7',
   );
-  const key = 'AIzaSyBdUF2aSzhP3mzuRhFXZwl5lxBTavQnH7M';
-  //const key = 'AIzaSyBCRkWTNumRm0kjDmC8V25s0oiPpmxZoY0';
+  const key = 'AIzaSyBCRkWTNumRm0kjDmC8V25s0oiPpmxZoY0';
   const url =
     'https://maps.googleapis.com/maps/api/place/photo?photoreference=' +
     photo +
@@ -266,6 +265,8 @@ const Map = () => {
       setLoadingAudio(true);
       await SoundPlayer.stop();
       setCurrentlyPlaying([tg._id, true]);
+
+      console.log('audio url: ' + tg.audioUrl);
       await SoundPlayer.loadUrl(tg.audioUrl);
       await SoundPlayer.play();
     } else if (currentlyPlaying[1]) {
@@ -315,12 +316,15 @@ const Map = () => {
             public: result.public,
           };
         });
+
+
         let it = [];
         for (let i = 0; i < results.length; i++) {
           for (let j = 0; j < results[i].itineraries.length; j++) {
             it.push(results[i].itineraries[j]);
           }
         }
+
         const tgUsername = await getUsernames(tg);
         const itUsername = await getUsernames(it);
         let modifiedTg = [];

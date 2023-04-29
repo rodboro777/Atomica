@@ -1,44 +1,44 @@
-import React, {Component} from "react";
-import {View, StyleSheet, Text, Image, ScrollView} from 'react-native';
+import React, { Component } from "react";
+import { View, StyleSheet, Text, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Input} from 'react-native-elements';
+import { Input } from 'react-native-elements';
 import { exp } from "react-native-reanimated";
 
 class Inputs extends Component {
-    state = {isFocused: false};
+    state = { isFocused: false };
 
     onFocusChange = (v) => {
-        this.setState({isFocused: v})
+        this.setState({ isFocused: v })
     }
 
     render() {
-       return (
-        <View
-        style={[styles.container, {
-            borderColor: this.state.isFocused ? 'black' : 'grey',
-            backgroundColor: this.state.isFocused ? '#cfe5ff' : '#cfe5ff'
-        }]}>
-        <Input 
-            onBlur={() => this.onFocusChange(false)}
-            placeholder={this.props.name}
-            onFocus={() => this.onFocusChange(true)}
-            inputContainerStyle={styles.inputContainer}
-            inputStyle={styles.inputText}
-            secureTextEntry={this.props.pass}
-            onChangeText={this.props.onChangeText}
-            
-            leftIcon= {
-                <Icon
-                    name={this.props.icon}
-                    size={22}
-                    color={'black'}
+        return (
+            <View
+                style={[styles.container, {
+                    borderColor: this.state.isFocused ? 'black' : 'grey',
+                    backgroundColor: this.state.isFocused ? '#cfe5ff' : '#cfe5ff'
+                }]}>
+                <Input
+                    onBlur={() => this.onFocusChange(false)}
+                    placeholder={this.props.name}
+                    onFocus={() => this.onFocusChange(true)}
+                    inputContainerStyle={styles.inputContainer}
+                    inputStyle={styles.inputText}
+                    secureTextEntry={this.props.pass}
+                    onChangeText={this.props.onChangeText}
+
+                    leftIcon={
+                        <Icon
+                            name={this.props.icon}
+                            size={22}
+                            color={'black'}
+                        />
+                    }
                 />
-            }
-        />
-        </View>
-    ); 
+            </View>
+        );
     };
-    
+
 };
 
 const styles = StyleSheet.create({
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     },
     inputText: {
         color: 'black',
-        fontFamily: 'Lexend-Regular',
+        fontFamily: 'Cereal_Medium',
         marginLeft: 5
     }
 

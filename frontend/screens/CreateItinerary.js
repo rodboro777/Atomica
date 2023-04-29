@@ -31,6 +31,9 @@ export default function CreateItinerary({ navigation, route }) {
     })
 
   }, [route.params.selectedItems]);
+
+
+
   function addTravelGuide(item) {
     isEmpty.current = true;
     setSearch('');
@@ -43,6 +46,8 @@ export default function CreateItinerary({ navigation, route }) {
       ],
     });
   }
+
+
   async function handleSearch(name) {
     if (name.trim().length == 0) {
       setAvailableTravelGuides([]);

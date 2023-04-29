@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -93,7 +92,6 @@ export default function CreateTravelGuide({ navigation, route }) {
   return (
 
     <View style={styles.container}>
-      <ScrollView>
       <View style={styles.pageNameHolder}>
         <TouchableOpacity
           style={styles.backButton}
@@ -330,7 +328,6 @@ export default function CreateTravelGuide({ navigation, route }) {
           </Text>
         </TouchableOpacity>
       </View>
-      </ScrollView>
     </View >
   );
 }

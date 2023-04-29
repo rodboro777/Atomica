@@ -12,11 +12,11 @@ import AddTravelGuides from './screens/AddTravelGuides';
 import CreateTravelGuide from './screens/CreateTravelGuide';
 import User from './screens/User';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import EditUser from './screens/EditUser';
 import Oindex from './screens/onBoarding/Oindex';
 import ip from './ip';
-import {withNavigation} from '@react-navigation/compat';
+import { withNavigation } from '@react-navigation/compat';
+import OTP from './screens/OTP';
 import Test from './screens/Test';
 import StreetViewScreen from './screens/StreetViewScreen';
 import Favorites from './screens/Favorites';
@@ -204,10 +204,10 @@ const App = props => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Onboarding">
-      <Stack.Screen
+        <Stack.Screen
           name="Onboarding"
           component={Oindex}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Home"
@@ -232,6 +232,11 @@ const App = props => {
         <Stack.Screen
           name="StreetViewScreen"
           component={StreetViewScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OTPScreen"
+          component={OTP}
           options={{ headerShown: false }}
         />
         <Stack.Screen

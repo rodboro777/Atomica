@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, SafeAreaView, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, Image, SafeAreaView, Alert, Dimensions, TouchableOpacity, } from 'react-native';
 import {
   GoogleSignin,
   statusCodes,
@@ -10,6 +10,8 @@ import ip from '../ip';
 import Inputs from '../components/Inputs';
 import Submit from '../components/Submit';
 import Account from '../components/Account';
+import LinearGradient from 'react-native-linear-gradient';
+
 const { width } = Dimensions.get('window');
 const imageWidth = width * 0.8;
 
@@ -34,6 +36,8 @@ const Login = props => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState("");
   const [passwd, setPasswd] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
 
   const localSignIn = () => {
     console.log(ip.ip)
@@ -52,9 +56,28 @@ const Login = props => {
       .then(resBody => {
         console.log(resBody.statusCode);
         if (resBody.statusCode == 200) {
-          console.log("uhh tabs")
-          props.navigation.navigate('MyTabs');
-        } else if (resBody.statusCode == 403) {
+
+          fetch(`http://${ip.ip}:8000/otp/authenticate`, {
+            credentials: 'include',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              phoneNumber: resBody.phone,
+
+            }),
+          })
+            .then(res => res.json())
+            .then(resBody => {
+              if (resBody.statusCode == 200) {
+
+                props.navigation.navigate('OTPScreen', { phoneNumber: resBody.phoneNumber });
+              }
+            })
+            .catch(err => console.log(err));
+        }
+        else if (resBody.statusCode == 403) {
           console.log("wrong something")
           // TODO user entered the wrong credentials. add a UI for this.
         }
@@ -97,67 +120,81 @@ const Login = props => {
 
   return (
     <SafeAreaView>
-    <View style={{
-        paddingTop: 50 
-    }}>
-        <View style={{alignItems: 'center'}}>
-            <Text style={{ fontSize: 35, color: 'blue', fontFamily: 'Lexend-Bold', marginVertical: 3}}>
-                Login here
-            </Text>
-            <Text style={{fontFamily: 'Lexend-Bold', fontSize: 20, maxWidth: '60%', textAlign: 'center', color: '#000', marginTop: 15}}>
-                Welcome back you've been missed!
-            </Text>
+      <View style={{
+        paddingTop: 50
+      }}>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 35, color: 'blue', fontFamily: 'Cereal_bold', marginVertical: 3 }}>
+            Login here
+          </Text>
+          <Text style={{ fontFamily: 'Cereal_Medium', fontSize: 20, maxWidth: '60%', textAlign: 'center', color: '#000', marginTop: 15 }}>
+            Welcome back you've been missed!
+          </Text>
         </View>
 
-        <View style={{marginVertical: 30, justifyContent: 'center', alignItems: 'center'}}>
-            <Inputs
-                name="Username"
-                icon="user"
-                style={{
-                    fontFamily: 'Lexend-Regular',
-                    color: 'lightblue',
-                }}
-                onChangeText={username => setUsername(username)}
-            />
-            <Inputs
-                name="Password"
-                icon="lock"
-                pass={true}
-                onChangeText={passwd => setPasswd(passwd)}
-            />
-        <View style={{ width: '90%', marginTop: 10, marginBottom: 20 }}>
-            <Text style={[styles.textBody, { alignSelf: 'flex-end', color: 'blue' }]}>
-                Forgot Password?
-            </Text>
-        </View>
-            <Submit title="Login" color="black" handleSubmit={localSignIn} />  
-            <Text style={{ ...styles.textBody, marginTop: 30, }}>Or login using</Text>
-        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-          <Account
-            color="#a3ffa3"
-            icon="google"
-            title="Google"
-            signInWithGoogle={signInWithGoogle}
-          />
-           <Account
-            color="#f5a998"
+        <View style={{ marginVertical: 30, justifyContent: 'center', alignItems: 'center' }}>
+          <Inputs
+            name="Username"
             icon="user"
-            title="Guest Login"
-            signInWithGoogle={() => props.navigation.navigate('MyTabs')}
+            style={{
+              fontFamily: 'Cereal_Medium',
+              color: 'black',
+            }}
+            onChangeText={username => setUsername(username)}
           />
-        </View>
-        <View style={{ flexDirection: 'row', marginVertical: 15 }}>
-          <Text style={[styles.textBody, {}]}>Don't have an account?</Text>
-          <Text
-            style={[styles.textBody, { color: 'black' }]}
-            onPress={() => props.navigation.navigate('SignUp')}>
-            {' '}
-            Sign Up
-          </Text>
-        </View>  
+          <Inputs
+            name="Password"
+            icon="lock"
+            pass={true}
+            onChangeText={passwd => setPasswd(passwd)}
+          />
+          <View style={{ width: '90%', marginTop: 10, marginBottom: 20 }}>
+            <Text style={[styles.textBody, { alignSelf: 'flex-end', color: 'blue' }]}>
+              Forgot Password?
+            </Text>
+          </View>
+          <LinearGradient
+            colors={['orange', 'red']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ width: '40%', borderRadius: 20, overflow: 'hidden' }}
+          >
+            <TouchableOpacity onPress={localSignIn}>
+              <View style={{ paddingHorizontal: 15, paddingVertical: 10 }}>
+                <Text style={{ fontFamily: 'Cereal_bold', fontSize: 18, color: '#fff', textAlign: 'center' }}>
+                  Login
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </LinearGradient>
+          <Text style={{ ...styles.textBody, marginTop: 30, }}>Or login using</Text>
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
+            <Account
+
+              icon="google"
+              title="Google"
+              signInWithGoogle={signInWithGoogle}
+              google={true}
+            />
+            <Account
+              icon="user"
+              title="Guest Login"
+              signInWithGoogle={() => props.navigation.navigate('MyTabs')}
+              google={false}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', marginVertical: 15 }}>
+            <Text style={[styles.textBody, {}]}>Don't have an account?</Text>
+            <Text
+              style={[styles.textBody, { color: 'black' }]}
+              onPress={() => props.navigation.navigate('SignUp')}>
+              {' '}
+              Sign Up
+            </Text>
+          </View>
         </View>
       </View>
-      </SafeAreaView>
+    </SafeAreaView>
   );
 };
 
@@ -173,16 +210,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textTitle: {
-    fontFamily: 'Lexend-ExtraLight',
+    fontFamily: 'Cereal_Bold',
     fontSize: 40,
     marginVertical: 10,
     color: 'black',
     fontWeight: 'bold',
   },
   textBody: {
-    fontFamily: 'Lexend-SemiBold',
-    fontSize: 16,
-  },
+    fontFamily: 'Cereal_Medium',
+    fontSize: 17
+  }
 });
 
 export default Login;

@@ -15,10 +15,9 @@ export default function TravelGuide({
   closeCurrentModal,
   activateTravelGuideNav,
   enableTravelGuideNav = true,
-  currentTime,
+
   addTravelGuide,
   itineraryMode,
-  coordinates
 }) {
 
   let secs = Math.floor(travelGuide.audioLength % 60);
@@ -33,6 +32,8 @@ export default function TravelGuide({
       setPaused(false);
       setCurrentPlayingTG(travelGuide._id);
       SoundPlayer.stop();
+
+      console.log('handleAudioButtonPress: playing audio' + travelGuide.audioUrl);
       SoundPlayer.playUrl(travelGuide.audioUrl);
     } else if (isPaused) {
       SoundPlayer.resume();
