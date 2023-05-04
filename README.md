@@ -1,6 +1,6 @@
 # Release1
 
-This is The repository for Release 1 for the application Guidify being developed for the module *Collaborative Project* by The Locals
+This is The repository for Release 4 for the application Atomica being developed for the module *Collaborative Project* by The Pioneers
 
 ###### Prototype Design: https://www.figma.com/file/JcJeYDHMMXVelcdbKIeU9w/Guidify-Prototype?node-id=0%3A1&t=UqWPkVShNYlVzUr2-0
 
